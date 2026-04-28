@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+.next
+out
+npm-debug.log*
+.env*
+.vscode
+.idea
+*.md
+LICENSE
+Dockerfile
+.dockerignore
+scripts

@@ -20,6 +20,19 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Local preview from CI
+
+Each push to `main` and each pull request builds a Docker image and pushes it to GHCR. To run a build locally:
+
+```bash
+./scripts/preview.sh           # latest from main
+./scripts/preview.sh pr-12     # build from PR #12
+```
+
+The container listens on http://localhost:3000.
+
+The image is published at `ghcr.io/<owner>/<repo>/preview`. After the first CI run, flip the package's visibility to **Public** in GitHub → repo → Packages → preview → Package settings, otherwise pulling requires `docker login ghcr.io` with a PAT that has `read:packages`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
