@@ -1,0 +1,153 @@
+.header {
+  position: relative;
+  padding: 50px;
+
+  /* 最初の背景 */
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(173, 185, 252, 0) 0%,
+      rgba(173, 185, 252, 0.8) 40%,
+      rgba(0, 34, 224, 0.95) 100%
+    ),
+    url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
+
+  background-size: cover;
+  background-position: center;
+  animation: bgChange 12s infinite ease-in-out;
+}
+
+/* 背景を切り替えるアニメーション */
+@keyframes bgChange {
+  0% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
+  }
+  20% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/%E5%9B%A3%E9%95%B7%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9CR2%20(1).JPG.jpg");
+  }
+  40% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0009.JPG.jpg");
+  }
+  60% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0130.JPG.jpg");
+  }
+  80% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
+  }
+  100% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
+  }
+}
+
+
+
+
+
+.top{
+    font-size: 2.5rem;
+    font-family:Yu Mincho;
+    color:rgb(255, 255, 255);
+    text-align: right;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s ease-out forwards;
+    animation-delay: 0s;
+}
+.theme{
+    font-size: 6rem;
+    font-family:Yu Mincho;
+    color:rgb(255, 255, 255);
+    text-align: right;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 1.5s ease-out forwards;
+    animation-delay: 0.5s;
+    
+}
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.curveLine {
+  position: absolute;
+  top: -50px;      /* 位置調整 */
+  right: 500px;     /* 横位置（調整可） */
+  height: 120%;    /* 長さ */
+  width: 80px;     /* カーブの幅 */
+  opacity: 0.9;
+}
+.flowLine {
+  stroke-dasharray: 1000;      /* 線の長さ（大きめでOK） */
+  stroke-dashoffset: 1000;     /* 最初は全部隠す */
+  animation: flowUp 3s ease-out forwards;
+}
+
+@keyframes flowUp {
+  to {
+    stroke-dashoffset: 0;      /* 0になると線が全部描かれる */
+  }
+}
+.scroll{
+  font-family: Yu Mincho;
+  position: absolute;
+  bottom: 20px;    /* 位置調整 */
+  left: 70%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: rgb(255, 255, 255);
+  opacity: 0;
+  animation: fadeInOut 3s ease-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
