@@ -41,14 +41,14 @@ export default function Home() {
           2026行事週間
         </h1>
       </div>
-      <body className={styles.main}>
+      <main className={styles.main}>
         <h1 className={`${styles.theme} ${zenKurenaido.variable}`}>
           青、薫る
         </h1>
         <div className={styles.events}>
           {events.map((event, idx) => (
             <div key={idx}>
-              <div className="flex items-baseline gap-3 mb-2">
+              <div className={styles.eventHeader}>
                 <h2 className={styles.eventTitle}>{event.title}</h2>
                 <span className={`${styles.eventTheme} ${zenKurenaido.variable}`}>
                   ～{event.theme}～
@@ -59,11 +59,11 @@ export default function Home() {
                 {event.links.map((link, lIdx) => (
                   <div key={lIdx} className={styles.link}>
                     {link.url ? (
-                      <a href={link.url} className="text-blue-600 hover:underline">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={styles.linkTitle}>
                         {link.name} ↗
                       </a>
                     ) : (
-                      <span className="text-gray-400 cursor-not-allowed">
+                      <span className={styles.linkTitlePreparing}>
                         {link.name} (準備中)
                       </span>
                     )}
@@ -76,7 +76,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </body>
+      </main>
     </div>
   );
 }

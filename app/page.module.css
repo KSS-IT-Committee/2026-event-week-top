@@ -31,7 +31,7 @@
 
 .main {
   background-color: #1f79ff;
-  display: block;
+  display: flex;
   flex-direction: column;
   padding-top: 60px;
 }
@@ -51,6 +51,13 @@
   margin: 20px 0;
   padding: 40px 80px;
   border-radius: 25px;
+}
+
+.eventHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .eventTitle {
@@ -101,6 +108,12 @@
   text-decoration: underline;
   outline: 2px solid #0070f3;
   outline-offset: 2px;
+}
+
+.linkTitlePreparing {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #999999;
 }
 
 .linkDescription {
