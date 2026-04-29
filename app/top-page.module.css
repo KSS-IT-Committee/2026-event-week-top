@@ -11,9 +11,9 @@
     url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
   background-size: cover;
   background-position: center;
-  animation: bgChange 12s infinite ease-in-out;
+  animation: bg-change 12s infinite ease-in-out;
 }
-@keyframes bgChange {
+@keyframes bg-change {
   0% {
     background-image:
       linear-gradient(
@@ -83,7 +83,7 @@
     text-align: right;
     opacity: 0;
     transform: translateY(20px);
-    animation: fadeUp 0.8s ease-out forwards;
+    animation: fade-up 0.8s ease-out forwards;
     animation-delay: 0s;
 }
 .theme{
@@ -93,11 +93,11 @@
     text-align: right;
     opacity: 0;
     transform: translateY(20px);
-    animation: fadeUp 1.5s ease-out forwards;
+    animation: fade-up 1.5s ease-out forwards;
     animation-delay: 0.5s;
     
 }
-@keyframes fadeUp {
+@keyframes fade-up {
   to {
     opacity: 1;
     transform: translateY(0);
@@ -114,10 +114,10 @@
 .flowLine {
   stroke-dasharray: 1000;          
   stroke-dashoffset: 1000;     
-  animation: flowUp 3s ease-out forwards;
+  animation: flow-up 3s ease-out forwards;
 }
 
-@keyframes flowUp {
+@keyframes flow-up {
   to {
     stroke-dashoffset: 0;      
   }
@@ -131,10 +131,10 @@
   font-size: 1.5rem;
   color: rgb(255, 255, 255);
   opacity: 0;
-  animation: fadeInOut 3s ease-out infinite;
+  animation: fade-in-out 3s ease-out infinite;
 }
 
-@keyframes fadeInOut {
+@keyframes fade-in-out {
   0%, 100% {
     opacity: 0;
   }
