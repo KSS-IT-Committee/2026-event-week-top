@@ -78,7 +78,7 @@
 
 .top{
     font-size: 2.5rem;
-    font-family:Yu Mincho;
+    font-family:"Yu Mincho";
     color:rgb(255, 255, 255);
     text-align: right;
     opacity: 0;
@@ -88,7 +88,7 @@
 }
 .theme{
     font-size: 6rem;
-    font-family:Yu Mincho;
+    font-family:"Yu Mincho";
     color:rgb(255, 255, 255);
     text-align: right;
     opacity: 0;
@@ -123,7 +123,7 @@
   }
 }
 .scroll{
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   position: absolute;
   bottom: 20px;    /* 位置調整 */
   left: 75%;
@@ -154,7 +154,7 @@
 }
 .news {
   font-size: 2rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   grid-column: 2 / 3;
   height:100px;
@@ -162,13 +162,13 @@
 }
 .newsTitle {
   font-size: 2rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   color: rgb(255, 255, 255);
   margin-left: 5%;
 }
 .event {
   font-size: 1.5rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   grid-column: 4/ 6;
   border-bottom: 1px solid rgba(0, 0, 0, 0.15); 
@@ -176,7 +176,7 @@
 }
 .introductionTitle {
   font-size: 2.5rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   text-align: left;
   text-decoration: underline;  
@@ -184,7 +184,7 @@
 }
 .eventTop {
   margin-top: 10px;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   padding:10px;
   border-radius: 5px;
   gap:2px;
@@ -192,7 +192,7 @@
 }
 .performanceTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: ""Yu Mincho"", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
@@ -205,7 +205,7 @@
 }
 .performanceTheme {
   font-size: 1.5rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -218,7 +218,7 @@
 }
 .sportsTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: ""Yu Mincho"", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
@@ -231,7 +231,7 @@
 }
 .sportsTheme {
   font-size: 1.5rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -244,7 +244,7 @@
 } 
 .createTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: ""Yu Mincho"", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
@@ -257,7 +257,7 @@
 }
 .createTheme {
   font-size: 1.5rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -270,7 +270,7 @@
 }
 .lead {
   font-size: 1.3rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   padding-left:10px;
 }
 .linkContainer {
@@ -287,7 +287,7 @@
   color: #ffffff;
   border-radius: 8px;       
   font-size: 1.3rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   font-weight: bold;
   transition: 0.25s ease;    
   cursor: pointer;
@@ -295,7 +295,7 @@
 }
 .ceremonyTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: ""Yu Mincho"", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
@@ -308,7 +308,7 @@
 }
 .ceremonyTheme {
   font-size: 1.5rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -321,14 +321,14 @@
 }
 .content {
   font-size: 1.3rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   text-align: left;
   padding: 15px;
 }
 .text {
   font-size: 1.3rem;
-  font-family: Yu Mincho;
+  font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   text-align: left;
   margin-top: 0px;
@@ -345,7 +345,7 @@
 }
 .footerTheme {
   font-size: 2.5rem;
-  font-family: "Yu Mincho", serif;
+  font-family: ""Yu Mincho"", serif;
   color: white;
 }
 
