@@ -1,19 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
+import styles from "./page.module.css";
+import { zenKurenaido } from "./fonts";
 
-const events: { title: string; date: string; links: { name: string; description: string; url: string }[] }[] = [
+const events: { title: string; theme: string; date: string; links: { name: string; description: string; url: string }[] }[] = [
   {
     title: "芸能祭",
+    theme: "まぶしすぎて滅！",
     date: "2026/9/7(月)",
     links: []
   },
   {
     title: "体育祭",
+    theme: "今日、勝ちにきました",
     date: "2026/9/9(水)",
     links: []
   },
   {
     title: "創作展",
+    theme: "正解なんて創ればいい",
     date: "2026/9/12(土) ~ 2026/9/13(日)",
     links: [
       {
@@ -32,30 +37,37 @@ const events: { title: string; date: string; links: { name: string; description:
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            2026行事週間
-          </h1>
-        </div>
-        <div>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>
+          2026行事週間
+        </h1>
+      </div>
+      <body className={styles.body}>
+        <h1 className={`${styles.theme} ${zenKurenaido.variable}`}>
+          青、薫る
+        </h1>
+        <div className={styles.events}>
           {events.map((event, idx) => (
             <div key={idx}>
-              <h2>{event.title}</h2>
-              <p>開催日: {event.date}</p>
-
-              <div>
+              <div className="flex items-baseline gap-3 mb-2">
+                <h2 className={styles.eventTitle}>{event.title}</h2>
+                <span className={`${styles.eventTheme} ${zenKurenaido.variable}`}>
+                  ～{event.theme}～
+                </span>
+              </div>
+              <p className={styles.date}>開催日: {event.date}</p>
+              <div className={styles.links}>
                 {event.links.map((link, lIdx) => (
-                  <div key={lIdx}>
-                    <a
+                  <div key={lIdx} className={styles.link}>
+                    <a className={styles.linkTitle}
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       {link.name} ↗
                     </a>
-                    <p>
+                    <p className={styles.linkDescription}>
                       {link.description}
                     </p>
                   </div>
@@ -64,7 +76,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </main>
+      </body>
     </div>
   );
 }
