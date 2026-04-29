@@ -168,15 +168,15 @@
 .event {
   font-size: 1.5rem;
   font-family: Yu Mincho;
-  color: rgb(0, 0, 0);
+  color: inherit;
   grid-column: 4/ 6;
   border-bottom: 1px solid rgba(0, 0, 0, 0.15); /* 薄い線 */
   padding-bottom: 60px; /* 下の余白 */
-  margin-bottom: 60px;  
+  margin-bottom: 60px;
 }
 .introduction {
   font-family: Yu Mincho;
-  color: rgb(0, 0, 0);
+  color: inherit;
   margin:10px;
   margin-bottom: 40px;
   grid-column: 4/6;
@@ -184,9 +184,9 @@
 .introductionTitle {
   font-size: 2.5rem;
   font-family: Yu Mincho;
-  color: rgb(0, 0, 0);
+  color: inherit;
   text-align: left;
-  text-decoration: underline;      
+  text-decoration: underline;
 }
 .eventTop {
   margin-top: 20px;
@@ -341,18 +341,10 @@
 }
 .footer {
   margin-top: 60px;
-  background:linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
-.footer {
-  margin-top: 60px;
-  background:linear-gradient(150deg, `#0b69eb` 70%, `#ffffff` 100%);
+  background: linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
   text-align: center;
   color: rgb(255, 255, 255);
-  padding:50px;
-  font-size: 1.2rem;
-}
-  text-align: center;
-  color: rgb(255, 255, 255);
-  padding:50px;
+  padding: 50px;
   font-size: 1.2rem;
 }
 .footerTheme {
