@@ -112,14 +112,14 @@
   opacity: 0.9;
 }
 .flowLine {
-  stroke-dasharray: 1000;      /* 線の長さ（大きめでOK） */
-  stroke-dashoffset: 1000;     /* 最初は全部隠す */
+  stroke-dasharray: 1000;          
+  stroke-dashoffset: 1000;     
   animation: flowUp 3s ease-out forwards;
 }
 
 @keyframes flowUp {
   to {
-    stroke-dashoffset: 0;      /* 0になると線が全部描かれる */
+    stroke-dashoffset: 0;      
   }
 }
 .scroll{
@@ -142,6 +142,7 @@
     opacity: 1;
   }
 }
+
 .container {
   display: grid;
   grid-template-columns: 0px 0.8fr 3px 1fr 1fr 5px;
@@ -168,28 +169,21 @@
 .event {
   font-size: 1.5rem;
   font-family: Yu Mincho;
-  color: inherit;
+  color: rgb(0, 0, 0);
   grid-column: 4/ 6;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15); /* 薄い線 */
-  padding-bottom: 60px; /* 下の余白 */
-  margin-bottom: 60px;
-}
-.introduction {
-  font-family: Yu Mincho;
-  color: inherit;
-  margin:10px;
-  margin-bottom: 40px;
-  grid-column: 4/6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15); 
+  padding:15px
 }
 .introductionTitle {
   font-size: 2.5rem;
   font-family: Yu Mincho;
-  color: inherit;
+  color: rgb(0, 0, 0);
   text-align: left;
-  text-decoration: underline;
+  text-decoration: underline;  
+  padding-left: 20px;  
 }
 .eventTop {
-  margin-top: 20px;
+  margin-top: 10px;
   font-family: Yu Mincho;
   padding:10px;
   border-radius: 5px;
@@ -286,16 +280,16 @@
 }
 .rentalSite,
 .informationSite {
-  width: 250px;              /* ★同じ幅にする */
-  padding: 18px 0;           /* 高さを揃える */
-  text-align: center;        /* 文字を中央揃え */
-  background-color: #1f71e4; /* 青 */
+  width: 250px;              
+  padding: 18px 0;           
+  text-align: center;        
+  background-color: #1f71e4; 
   color: #ffffff;
-  border-radius: 8px;        /* 少し丸く */
+  border-radius: 8px;       
   font-size: 1.3rem;
   font-family: Yu Mincho;
   font-weight: bold;
-  transition: 0.25s ease;    /* ホバーアニメーション */
+  transition: 0.25s ease;    
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
@@ -338,17 +332,34 @@
   color: rgb(0, 0, 0);
   text-align: left;
   margin-top: 0px;
+  padding-left: 20px;
 }
 .footer {
   margin-top: 60px;
-  background: linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
+  background:linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
+  padding: 20px;
   text-align: center;
   color: rgb(255, 255, 255);
-  padding: 50px;
+  padding:50px;
   font-size: 1.2rem;
 }
 .footerTheme {
   font-size: 2.5rem;
   font-family: "Yu Mincho", serif;
   color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tect, .newsTitle, .introductionTitle, .lead, .content, .text {
+    color: rgb(255, 255, 255);
+  }
+  .event {
+    border-bottom: 1px solid rgb(255, 255, 255);
+  }
+  .main {
+    background-color: #0f1a2b; 
+  }
+  .news {
+    background-color: rgb(42, 108, 202);
+  }
 }

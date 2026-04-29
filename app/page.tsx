@@ -33,7 +33,7 @@ export default function Toppage() {
         <br /><br />
       </header>
 
-      <main>
+      <main className={styles.main}>
         <div className={styles.container}>
 
           {/* News */}
@@ -42,7 +42,7 @@ export default function Toppage() {
           </div>
 
           {/* Introduction */}
-          <div className={styles.introduction}>
+          <div className={styles.event}>
             <h1 className={styles.introductionTitle}>Introduction</h1>
             <p className={styles.text}>
               こちらは行事週間の総合サイトです！様々な情報を発信していくのでお見逃しなく！
