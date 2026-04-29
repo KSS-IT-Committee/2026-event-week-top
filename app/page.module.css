@@ -108,8 +108,6 @@
 .linkTitle:hover,
 .linkTitle:focus {
   text-decoration: underline;
-  outline: 2px solid #0070f3;
-  outline-offset: 2px;
 }
 
 .linkTitlePreparing {

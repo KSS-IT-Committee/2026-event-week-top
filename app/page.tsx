@@ -59,7 +59,7 @@ export default function Home() {
                 {event.links.map((link, lIdx) => (
                   <div key={lIdx} className={styles.link}>
                     {link.url ? (
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className={styles.linkTitle}>
                         {link.name} ↗
                       </a>) : (
                       <span className={styles.linkTitlePreparing}>
