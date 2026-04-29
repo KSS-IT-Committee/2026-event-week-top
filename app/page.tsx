@@ -41,7 +41,7 @@ export default function Home() {
           2026行事週間
         </h1>
       </div>
-      <div className={styles.main}>
+      <main className={styles.main}>
         <h1 className={`${styles.theme} ${zenKurenaido.variable}`}>
           青、薫る
         </h1>
@@ -75,7 +75,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
