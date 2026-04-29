@@ -60,13 +60,15 @@ export default function Home() {
               <div className={styles.links}>
                 {event.links.map((link, lIdx) => (
                   <div key={lIdx} className={styles.link}>
-                    <a className={styles.linkTitle}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {link.name} ↗
-                    </a>
+                    {link.url ? (
+                      <a href={link.url} className="text-blue-600 hover:underline">
+                        {link.name} ↗
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 cursor-not-allowed">
+                        {link.name} (準備中)
+                      </span>
+                    )}
                     <p className={styles.linkDescription}>
                       {link.description}
                     </p>
