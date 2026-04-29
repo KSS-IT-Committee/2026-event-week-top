@@ -4,7 +4,8 @@
   align-items: center;
   justify-content: center;
   background-color: #1f79ff;
-  font-family: Arial, sans-serif;
+  font-family: "Yu Mincho", serif;
+  font-weight: bold;
   min-height: 100vh;
 }
 
@@ -25,7 +26,6 @@
 
 .title {
   font-size: 2.5rem;
-  font-weight: bold;
   color: #001731;
 }
 
@@ -39,8 +39,8 @@
 }
 
 .theme {
-  font-family: var(--font-zen);
   font-size: 8rem;
+  font-weight: 400;
   color: #ffffff;
 }
 
@@ -73,7 +73,6 @@
 
 .eventTheme {
   font-size: 1.5rem;
-  font-family: var(--font-zen);
   color: #001731;
 }
 
@@ -88,7 +87,6 @@
   display: flex;
   gap: 16px;
 }
-
 
 .link {
   flex: 1;
