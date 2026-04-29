@@ -1,5 +1,3 @@
-import Image from "next/image";
-import Link from "next/link";
 import styles from "./page.module.css";
 import { zenKurenaido } from "./fonts";
 
@@ -43,7 +41,7 @@ export default function Home() {
           2026行事週間
         </h1>
       </div>
-      <body className={styles.body}>
+      <body className={styles.main}>
         <h1 className={`${styles.theme} ${zenKurenaido.variable}`}>
           青、薫る
         </h1>

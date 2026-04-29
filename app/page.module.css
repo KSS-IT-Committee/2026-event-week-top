@@ -29,9 +29,9 @@
   color: #001731;
 }
 
-.body {
+.main {
   background-color: #1f79ff;
-  display: flex;
+  display: block;
   flex-direction: column;
   padding-top: 60px;
 }
@@ -96,8 +96,11 @@
   text-decoration: none;
 }
 
-.linkTitle:hover {
+.linkTitle:hover,
+.linkTitle:focus {
   text-decoration: underline;
+  outline: 2px solid #0070f3;
+  outline-offset: 2px;
 }
 
 .linkDescription {
