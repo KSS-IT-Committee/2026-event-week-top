@@ -192,7 +192,7 @@
 }
 .performanceTitle {
   font-size: 4rem;
-  font-family: ""Yu Mincho"", serif;
+  font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
@@ -218,7 +218,7 @@
 }
 .sportsTitle {
   font-size: 4rem;
-  font-family: ""Yu Mincho"", serif;
+  font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
@@ -244,7 +244,7 @@
 } 
 .createTitle {
   font-size: 4rem;
-  font-family: ""Yu Mincho"", serif;
+  font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
@@ -295,7 +295,7 @@
 }
 .ceremonyTitle {
   font-size: 4rem;
-  font-family: ""Yu Mincho"", serif;
+  font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
@@ -345,7 +345,7 @@
 }
 .footerTheme {
   font-size: 2.5rem;
-  font-family: ""Yu Mincho"", serif;
+  font-family: "Yu Mincho", serif;
   color: white;
 }
 
