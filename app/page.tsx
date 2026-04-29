@@ -13,7 +13,7 @@ export default function Toppage() {
         <h1 className={styles.theme}>青、薫る</h1>
         <p className={styles.scroll}>Scroll</p>
 
-        <svg className={styles.curveLine} viewBox="0 0 100 500">
+        <svg className={styles.curveLine} viewBox="0 0 100 500" aria-hidden="true" focusable={false}>
           <defs>
             <linearGradient id="thickGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="white" stopOpacity="0.2" />
