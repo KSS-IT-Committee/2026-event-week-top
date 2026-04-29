@@ -342,7 +342,14 @@
 .footer {
   margin-top: 60px;
   background:linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
-  padding: 20px;
+.footer {
+  margin-top: 60px;
+  background:linear-gradient(150deg, `#0b69eb` 70%, `#ffffff` 100%);
+  text-align: center;
+  color: rgb(255, 255, 255);
+  padding:50px;
+  font-size: 1.2rem;
+}
   text-align: center;
   color: rgb(255, 255, 255);
   padding:50px;
