@@ -74,28 +74,27 @@
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
   }
-}  
-
-.top{
-    font-size: 2.5rem;
-    font-family:"Yu Mincho";
-    color:rgb(255, 255, 255);
-    text-align: right;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fade-up 0.8s ease-out forwards;
-    animation-delay: 0s;
 }
-.theme{
-    font-size: 6rem;
-    font-family:"Yu Mincho";
-    color:rgb(255, 255, 255);
-    text-align: right;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fade-up 1.5s ease-out forwards;
-    animation-delay: 0.5s;
-    
+
+.top {
+  font-size: 2.5rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up 0.8s ease-out forwards;
+  animation-delay: 0s;
+}
+.theme {
+  font-size: 6rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up 1.5s ease-out forwards;
+  animation-delay: 0.5s;
 }
 @keyframes fade-up {
   to {
@@ -105,27 +104,27 @@
 }
 .curveLine {
   position: absolute;
-  top: -50px;      /* 位置調整 */
-  right: 500px;     /* 横位置（調整可） */
-  height: 120%;    /* 長さ */
-  width: 80px;     /* カーブの幅 */
+  top: -50px; /* 位置調整 */
+  right: 500px; /* 横位置（調整可） */
+  height: 120%; /* 長さ */
+  width: 80px; /* カーブの幅 */
   opacity: 0.9;
 }
 .flowLine {
-  stroke-dasharray: 1000;          
-  stroke-dashoffset: 1000;     
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
   animation: flow-up 3s ease-out forwards;
 }
 
 @keyframes flow-up {
   to {
-    stroke-dashoffset: 0;      
+    stroke-dashoffset: 0;
   }
 }
-.scroll{
+.scroll {
   font-family: "Yu Mincho";
   position: absolute;
-  bottom: 20px;    /* 位置調整 */
+  bottom: 20px; /* 位置調整 */
   left: 75%;
   transform: translateX(-50%);
   font-size: 1.5rem;
@@ -135,7 +134,8 @@
 }
 
 @keyframes fade-in-out {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
   }
   50% {
@@ -150,14 +150,14 @@
   padding-top: 10px;
   width: 100%;
   margin: 0 auto;
-  gap:10px;
+  gap: 10px;
 }
 .news {
   font-size: 2rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   grid-column: 2 / 3;
-  height:100px;
+  height: 100px;
   background-color: rgb(76, 150, 252);
 }
 .newsTitle {
@@ -171,24 +171,24 @@
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   grid-column: 4/ 6;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15); 
-  padding:15px
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 15px;
 }
 .introductionTitle {
   font-size: 2.5rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   text-align: left;
-  text-decoration: underline;  
-  padding-left: 20px;  
+  text-decoration: underline;
+  padding-left: 20px;
 }
 .eventTop {
   margin-top: 10px;
   font-family: "Yu Mincho";
-  padding:10px;
+  padding: 10px;
   border-radius: 5px;
-  gap:2px;
-  background:linear-gradient(45deg, #000000 60%, #3477ff 100%);
+  gap: 2px;
+  background: linear-gradient(45deg, #000000 60%, #3477ff 100%);
 }
 .performanceTitle {
   font-size: 4rem;
@@ -214,7 +214,7 @@
   -webkit-text-fill-color: transparent;
   text-align: left;
   margin-top: -10px;
-  margin-left:25px ;
+  margin-left: 25px;
 }
 .sportsTitle {
   font-size: 4rem;
@@ -240,8 +240,8 @@
   -webkit-text-fill-color: transparent;
   text-align: left;
   margin-top: -10px;
-  margin-left:25px ;
-} 
+  margin-left: 25px;
+}
 .createTitle {
   font-size: 4rem;
   font-family: "Yu Mincho", serif;
@@ -266,12 +266,12 @@
   -webkit-text-fill-color: transparent;
   text-align: left;
   margin-top: -10px;
-  margin-left:25px ;
+  margin-left: 25px;
 }
 .lead {
   font-size: 1.3rem;
   font-family: "Yu Mincho";
-  padding-left:10px;
+  padding-left: 10px;
 }
 .linkContainer {
   display: flex;
@@ -280,18 +280,18 @@
 }
 .rentalSite,
 .informationSite {
-  width: 250px;              
-  padding: 18px 0;           
-  text-align: center;        
-  background-color: #1f71e4; 
+  width: 250px;
+  padding: 18px 0;
+  text-align: center;
+  background-color: #1f71e4;
   color: #ffffff;
-  border-radius: 8px;       
+  border-radius: 8px;
   font-size: 1.3rem;
   font-family: "Yu Mincho";
   font-weight: bold;
-  transition: 0.25s ease;    
+  transition: 0.25s ease;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .ceremonyTitle {
   font-size: 4rem;
@@ -317,7 +317,7 @@
   -webkit-text-fill-color: transparent;
   text-align: left;
   margin-top: -10px;
-  margin-left:25px ;
+  margin-left: 25px;
 }
 .content {
   font-size: 1.3rem;
@@ -336,11 +336,11 @@
 }
 .footer {
   margin-top: 60px;
-  background:linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
+  background: linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
   padding: 20px;
   text-align: center;
   color: rgb(255, 255, 255);
-  padding:50px;
+  padding: 50px;
   font-size: 1.2rem;
 }
 .footerTheme {
@@ -350,14 +350,19 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .tect, .newsTitle, .introductionTitle, .lead, .content, .text {
+  .tect,
+  .newsTitle,
+  .introductionTitle,
+  .lead,
+  .content,
+  .text {
     color: rgb(255, 255, 255);
   }
   .event {
     border-bottom: 1px solid rgb(255, 255, 255);
   }
   .main {
-    background-color: #0f1a2b; 
+    background-color: #0f1a2b;
   }
   .news {
     background-color: rgb(42, 108, 202);
