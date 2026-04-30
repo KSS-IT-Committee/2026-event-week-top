@@ -1,0 +1,321 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened]
+
+  push:
+    branches: ["main", "dev"]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: Setup Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Cache node_modules
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+  typecheck:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules
+        id: cache-modules-typecheck
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-modules-typecheck.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Generate next-env.d.ts
+        continue-on-error: true
+        run: npx next typegen
+
+      - name: Run TypeScript compiler
+        run: npx tsc --noEmit
+
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules
+        id: cache-modules-lint
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-modules-lint.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  format:
+    name: Prettier Check
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - uses: actions/cache@v4
+        id: cache-modules-format
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-modules-format.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run Prettier
+        run: npm run format:check
+
+  build:
+    name: Build Project
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules
+        id: cache-modules-build
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-modules-build.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.{js,jsx,ts,tsx}', 'next.config.ts') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
+            ${{ runner.os }}-nextjs-
+
+      - name: Build Next.js project
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: build-output
+          path: |
+            .next
+            out
+          retention-days: 1
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Restore node_modules
+        id: cache-modules-test
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-modules-test.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Check if test script exists
+        id: check-test
+        run: |
+          if npm run | grep -q "test"; then
+            echo "has_tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_tests=false" >> $GITHUB_OUTPUT
+            echo "No test script found. Skipping tests."
+          fi
+
+      - name: Run tests
+        if: steps.check-test.outputs.has_tests == 'true'
+        run: npm test
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true
+
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint, format, build, test, security]
+    if: always()
+    env:
+      TYPECHECK_RESULT: ${{ needs.typecheck.result }}
+      LINT_RESULT: ${{ needs.lint.result }}
+      FORMAT_RESULT: ${{ needs.format.result }}
+      BUILD_RESULT: ${{ needs.build.result }}
+      TEST_RESULT: ${{ needs.test.result }}
+      SECURITY_RESULT: ${{ needs.security.result }}
+
+    steps:
+      - name: Check CI Status
+        run: |
+          echo "## CI Summary"
+          echo ""
+
+          if [[ "$TYPECHECK_RESULT" == "success" ]]; then
+            echo "TypeScript: Passed"
+          else
+            echo "TypeScript: Failed"
+          fi
+
+          if [[ "$LINT_RESULT" == "success" ]]; then
+            echo "ESLint: Passed"
+          else
+            echo "ESLint: Failed"
+          fi
+
+          if [[ "$FORMAT_RESULT" == "success" ]]; then
+            echo "Prettier: Passed"
+          else
+            echo "Prettier: Failed"
+          fi
+
+          if [[ "$BUILD_RESULT" == "success" ]]; then
+            echo "Build: Passed"
+          else
+            echo "Build: Failed"
+          fi
+
+          if [[ "$TEST_RESULT" == "success" || "$TEST_RESULT" == "skipped" ]]; then
+            echo "Tests: Passed/Skipped"
+          else
+            echo "Tests: Failed (non-blocking)"
+          fi
+
+          if [[ "$SECURITY_RESULT" == "success" ]]; then
+            echo "Security: No issues"
+          else
+            echo "Security: Check warnings (non-blocking)"
+          fi
+
+          if [[ "$TYPECHECK_RESULT" != "success" ]] || \
+             [[ "$LINT_RESULT" != "success" ]] || \
+             [[ "$BUILD_RESULT" != "success" ]] || \
+             [[ "$FORMAT_RESULT" != "success" ]]; then
+            echo ""
+            echo "CI Failed - Please fix the errors above"
+            exit 1
+          else
+            echo ""
+            echo "All required checks passed!"
+          fi

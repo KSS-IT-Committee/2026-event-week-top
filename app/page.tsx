@@ -1,11 +1,15 @@
-import Image from "next/image";
 import styles from "./top-page.module.css";
 
 export default function Toppage() {
   return (
     <>
       <header className={styles.header}>
-        <br /><br /><br /><br /><br /><br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
         <h1 className={styles.theme}>青、薫る</h1>
         <h2 className={styles.top}>
           2026行事週間 <br />
@@ -13,7 +17,12 @@ export default function Toppage() {
         </h2>
         <p className={styles.scroll}>Scroll</p>
 
-        <svg className={styles.curveLine} viewBox="0 0 100 500" aria-hidden="true" focusable={false}>
+        <svg
+          className={styles.curveLine}
+          viewBox="0 0 100 500"
+          aria-hidden="true"
+          focusable={false}
+        >
           <defs>
             <linearGradient id="thickGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="white" stopOpacity="0.2" />
@@ -30,12 +39,12 @@ export default function Toppage() {
             fill="none"
           />
         </svg>
-        <br /><br />
+        <br />
+        <br />
       </header>
 
       <main className={styles.main}>
         <div className={styles.container}>
-
           {/* News */}
           <div className={styles.news}>
             <h1 className={styles.newsTitle}>News</h1>
@@ -88,26 +97,26 @@ export default function Toppage() {
             <div className={styles.lead}>
               <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
             </div>
-           <div className={styles.linkContainer}>
-            <div className={styles.rentalSite}>
-              <a
-                href="https://github.com/KSS-IT-Committee/2026-sousakuten-equipment-management/app"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                工具貸出サイト
-              </a>
-            </div>
+            <div className={styles.linkContainer}>
+              <div className={styles.rentalSite}>
+                <a
+                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-equipment-management/app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  工具貸出サイト
+                </a>
+              </div>
 
-            <div className={styles.informationSite}>
-              <a
-                href="https://github.com/KSS-IT-Committee/2026-sousakuten-info/app"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                情報発信サイト
-              </a>
-            </div>
+              <div className={styles.informationSite}>
+                <a
+                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-info/app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  情報発信サイト
+                </a>
+              </div>
             </div>
           </div>
 
@@ -122,7 +131,6 @@ export default function Toppage() {
               <p>お知らせはまだありません。</p>
             </div>
           </div>
-
         </div>
       </main>
 
