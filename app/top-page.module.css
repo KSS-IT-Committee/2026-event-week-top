@@ -1,0 +1,370 @@
+.header {
+  position: relative;
+  padding: 50px;
+  background-image:
+    linear-gradient(
+      to bottom right,
+      rgba(173, 185, 252, 0) 0%,
+      rgba(173, 185, 252, 0.8) 40%,
+      rgba(0, 34, 224, 0.95) 100%
+    ),
+    url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
+  background-size: cover;
+  background-position: center;
+  animation: bg-change 12s infinite ease-in-out;
+}
+@keyframes bg-change {
+  0% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
+  }
+  30% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/%E5%9B%A3%E9%95%B7%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9CR2%20(1).JPG.jpg");
+  }
+  40% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0009.JPG.jpg");
+  }
+  60% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0130.JPG.jpg");
+  }
+  80% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
+  }
+  100% {
+    background-image:
+      linear-gradient(
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(173, 185, 252, 0.8) 40%,
+        rgba(0, 34, 224, 0.95) 100%
+      ),
+      url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
+  }
+}
+
+.top {
+  font-size: 2.5rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up 0.8s ease-out forwards;
+  animation-delay: 0s;
+}
+.theme {
+  font-size: 6rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up 1.5s ease-out forwards;
+  animation-delay: 0.5s;
+}
+@keyframes fade-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.curveLine {
+  position: absolute;
+  top: -50px; /* 位置調整 */
+  right: 500px; /* 横位置（調整可） */
+  height: 120%; /* 長さ */
+  width: 80px; /* カーブの幅 */
+  opacity: 0.9;
+}
+.flowLine {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: flow-up 3s ease-out forwards;
+}
+
+@keyframes flow-up {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.scroll {
+  font-family: "Yu Mincho";
+  position: absolute;
+  bottom: 20px; /* 位置調整 */
+  left: 75%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: rgb(255, 255, 255);
+  opacity: 0;
+  animation: fade-in-out 3s ease-out infinite;
+}
+
+@keyframes fade-in-out {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 0px 0.8fr 3px 1fr 1fr 5px;
+  padding: 5px;
+  padding-top: 10px;
+  width: 100%;
+  margin: 0 auto;
+  gap: 10px;
+}
+.news {
+  font-size: 2rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  grid-column: 2 / 3;
+  height: 100px;
+  background-color: rgb(76, 150, 252);
+}
+.newsTitle {
+  font-size: 2rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  margin-left: 5%;
+}
+.event {
+  font-size: 1.5rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  grid-column: 4/ 6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 15px;
+}
+.introductionTitle {
+  font-size: 2.5rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  text-align: left;
+  text-decoration: underline;
+  padding-left: 20px;
+}
+.eventTop {
+  margin-top: 10px;
+  font-family: "Yu Mincho";
+  padding: 10px;
+  border-radius: 5px;
+  gap: 2px;
+  background: linear-gradient(45deg, #000000 60%, #3477ff 100%);
+}
+.performanceTitle {
+  font-size: 4rem;
+  font-family: "Yu Mincho", serif;
+  text-align: left;
+  display: inline-block;
+  background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  margin-left: 20px;
+}
+.performanceTheme {
+  font-size: 1.5rem;
+  font-family: "Yu Mincho";
+  background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-align: left;
+  margin-top: -10px;
+  margin-left: 25px;
+}
+.sportsTitle {
+  font-size: 4rem;
+  font-family: "Yu Mincho", serif;
+  text-align: left;
+  display: inline-block;
+  background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  margin-left: 20px;
+}
+.sportsTheme {
+  font-size: 1.5rem;
+  font-family: "Yu Mincho";
+  background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-align: left;
+  margin-top: -10px;
+  margin-left: 25px;
+}
+.createTitle {
+  font-size: 4rem;
+  font-family: "Yu Mincho", serif;
+  text-align: left;
+  display: inline-block;
+  background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  margin-left: 20px;
+}
+.createTheme {
+  font-size: 1.5rem;
+  font-family: "Yu Mincho";
+  background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-align: left;
+  margin-top: -10px;
+  margin-left: 25px;
+}
+.lead {
+  font-size: 1.3rem;
+  font-family: "Yu Mincho";
+  padding-left: 10px;
+}
+.linkContainer {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+.rentalSite,
+.informationSite {
+  width: 250px;
+  padding: 18px 0;
+  text-align: center;
+  background-color: #1f71e4;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 1.3rem;
+  font-family: "Yu Mincho";
+  font-weight: bold;
+  transition: 0.25s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.ceremonyTitle {
+  font-size: 4rem;
+  font-family: "Yu Mincho", serif;
+  text-align: left;
+  display: inline-block;
+  background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  margin-left: 20px;
+}
+.ceremonyTheme {
+  font-size: 1.5rem;
+  font-family: "Yu Mincho";
+  background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-align: left;
+  margin-top: -10px;
+  margin-left: 25px;
+}
+.content {
+  font-size: 1.3rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  text-align: left;
+  padding: 15px;
+}
+.text {
+  font-size: 1.3rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  text-align: left;
+  margin-top: 0px;
+  padding-left: 20px;
+}
+.footer {
+  margin-top: 60px;
+  background: linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
+  padding: 20px;
+  text-align: center;
+  color: rgb(255, 255, 255);
+  padding: 50px;
+  font-size: 1.2rem;
+}
+.footerTheme {
+  font-size: 2.5rem;
+  font-family: "Yu Mincho", serif;
+  color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tect,
+  .newsTitle,
+  .introductionTitle,
+  .lead,
+  .content,
+  .text {
+    color: rgb(255, 255, 255);
+  }
+  .event {
+    border-bottom: 1px solid rgb(255, 255, 255);
+  }
+  .main {
+    background-color: #0f1a2b;
+  }
+  .news {
+    background-color: rgb(42, 108, 202);
+  }
+}

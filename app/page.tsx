@@ -1,65 +1,144 @@
-import Image from "next/image";
+import styles from "./top-page.module.css";
 
-export default function Home() {
+export default function Toppage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <>
+      <header className={styles.header}>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <h1 className={styles.theme}>青、薫る</h1>
+        <h2 className={styles.top}>
+          2026行事週間 <br />
+          9/7~9/14
+        </h2>
+        <p className={styles.scroll}>Scroll</p>
+
+        <svg
+          className={styles.curveLine}
+          viewBox="0 0 100 500"
+          aria-hidden="true"
+          focusable={false}
+        >
+          <defs>
+            <linearGradient id="thickGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="white" stopOpacity="0.2" />
+              <stop offset="50%" stopColor="white" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="white" stopOpacity="1" />
+            </linearGradient>
+          </defs>
+          <path
+            className={styles.flowLine}
+            d="M 50 0 Q -40 250 50 550"
+            stroke="url(#thickGrad)"
+            strokeWidth="6"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
+        <br />
+        <br />
+      </header>
+
+      <main className={styles.main}>
+        <div className={styles.container}>
+          {/* News */}
+          <div className={styles.news}>
+            <h1 className={styles.newsTitle}>News</h1>
+          </div>
+
+          {/* Introduction */}
+          <div className={styles.event}>
+            <h1 className={styles.introductionTitle}>Introduction</h1>
+            <p className={styles.text}>
+              こちらは行事週間の総合サイトです！様々な情報を発信していくのでお見逃しなく！
+            </p>
+          </div>
+
+          {/* 芸能祭 */}
+          <div className={styles.event}>
+            <div className={styles.eventTop}>
+              <h1 className={styles.performanceTitle}>芸能祭</h1>
+              <p className={styles.performanceTheme}>~まぶしすぎて、滅！~</p>
+            </div>
+            <div className={styles.content}>
+              <p>《お知らせ》</p>
+              <p>お知らせはまだありません。</p>
+            </div>
+          </div>
+
+          {/* 体育祭 */}
+          <div className={styles.event}>
+            <div className={styles.eventTop}>
+              <h1 className={styles.sportsTitle}>体育祭</h1>
+              <p className={styles.sportsTheme}>~今日、勝ちに来ました~</p>
+            </div>
+            <div className={styles.content}>
+              <p>《お知らせ》</p>
+              <p>お知らせはまだありません。</p>
+            </div>
+          </div>
+
+          {/* 創作展 */}
+          <div className={styles.event}>
+            <div className={styles.eventTop}>
+              <h1 className={styles.createTitle}>創作展</h1>
+              <p className={styles.createTheme}>~正解なんて創ればいい~</p>
+            </div>
+            <div className={styles.content}>
+              <p>《お知らせ》</p>
+              <p>お知らせはまだありません。</p>
+              <br />
+            </div>
+
+            <div className={styles.lead}>
+              <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
+              <div className={styles.rentalSite}>
+                <a
+                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-equipment-management/app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  工具貸出サイト
+                </a>
+              </div>
+
+              <div className={styles.informationSite}>
+                <a
+                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-info/app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  情報発信サイト
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 後夜祭 */}
+          <div className={styles.event}>
+            <div className={styles.eventTop}>
+              <h1 className={styles.ceremonyTitle}>後夜祭</h1>
+              <p className={styles.ceremonyTheme}>~最後まで、ハイライト~</p>
+            </div>
+            <div className={styles.content}>
+              <p>《お知らせ》</p>
+              <p>お知らせはまだありません。</p>
+            </div>
+          </div>
         </div>
       </main>
-    </div>
+
+      <footer className={styles.footer}>
+        <h1 className={styles.footerTheme}>行事週間2026 青、薫る</h1>
+        <p>© 2026 小石川中等教育学校</p>
+        <p>行事運営委員会・IT委員会</p>
+      </footer>
+    </>
   );
 }
