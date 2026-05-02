@@ -368,3 +368,52 @@
     background-color: rgb(42, 108, 202);
   }
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: 20px;
+  }
+  .theme {
+    text-align: right;
+    font-size: clamp(3rem, 16vw, 5rem);
+    line-height: 1.1;
+    margin-bottom: 0.25em;
+  }
+  .top {
+    text-align: right;
+    font-size: clamp(1.1rem, 6vw, 1.8rem);
+    margin-bottom: 8px;
+  }
+  .container {
+    display: block;
+  }
+  .news {
+    width: 100%;
+    height: auto;
+  }
+  .event {
+    padding: 10px;
+  }
+  .performanceTitle,
+  .sportsTitle,
+  .createTitle,
+  .ceremonyTitle {
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+  .container {
+    display: block;
+  }
+  .performanceTheme,
+  .sportsTheme,
+  .createTheme,
+  .ceremonyTheme {
+    font-size: 1.4rem;
+    margin-top: -5px;
+    line-height: 1.5;
+  }
+  .scroll {
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+  }
+}
