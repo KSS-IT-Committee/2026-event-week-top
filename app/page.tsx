@@ -1,4 +1,5 @@
 import { defaultFooter } from "@/app/components/footer";
+
 import styles from "./top-page.module.css";
 
 export default function Toppage() {
