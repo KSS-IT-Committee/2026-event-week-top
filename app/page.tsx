@@ -76,7 +76,7 @@ export default function Toppage() {
           <div className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.sportsTitle}>体育祭</h1>
-              <p className={styles.sportsTheme}>~今日、勝ちに来ました~</p>
+              <p className={styles.sportsTheme}>~今日、勝ちにきました~</p>
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
