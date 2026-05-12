@@ -1,0 +1,146 @@
+.wrapper {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  background: #ffffff;
+  text-align: center;
+  color: #0a0a0a;
+}
+
+.code {
+  font-family: "Yu Mincho", serif;
+  font-size: clamp(6rem, 20vw, 12rem);
+  line-height: 1;
+  margin: 0;
+  color: #0a0a0a;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up 1.2s ease-out forwards;
+}
+
+.title {
+  font-family: "Yu Mincho", serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  margin: 12px 0 8px;
+  color: #0a0a0a;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-up 1.2s ease-out 0.3s forwards;
+}
+
+.subtitle {
+  font-family: "Yu Mincho", serif;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  color: rgba(10, 10, 10, 0.75);
+  line-height: 1.8;
+  max-width: 640px;
+  margin: 0 auto 20px;
+  opacity: 0;
+  animation: fade-up 1.2s ease-out 0.6s forwards;
+}
+
+.subtitle:last-of-type {
+  margin-bottom: 36px;
+}
+
+.contactList {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  text-align: left;
+}
+
+.contactList li {
+  position: relative;
+  padding-left: 22px;
+  margin-top: 6px;
+  font-size: 0.95em;
+  line-height: 1.7;
+}
+
+.contactList li::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0.7em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.contactList a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #0a0a0a, transparent);
+  margin: 0 0 36px;
+  opacity: 0.4;
+}
+
+.homeLink {
+  display: inline-block;
+  padding: 14px 40px;
+  font-family: "Yu Mincho", serif;
+  font-size: 1.1rem;
+  color: #0a0a0a;
+  text-decoration: none;
+  border: 1px solid rgba(10, 10, 10, 0.4);
+  border-radius: 999px;
+  background: transparent;
+  transition: 0.25s ease;
+}
+
+.homeLink:hover {
+  background: #0a0a0a;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .wrapper {
+    background: #0f1a2b;
+    color: #ffffff;
+  }
+  .code,
+  .title {
+    color: #ffffff;
+  }
+  .subtitle {
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .divider {
+    background: linear-gradient(90deg, transparent, #ffffff, transparent);
+  }
+  .homeLink {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .homeLink:hover {
+    background: #ffffff;
+    color: #0a0a0a;
+  }
+}
+
+@keyframes fade-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 60px 16px;
+  }
+}
