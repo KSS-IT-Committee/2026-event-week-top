@@ -1,8 +1,5 @@
 name: Build Check
 
-permissions:
-  contents: read
-
 on:
   # Trigger on pull requests to main branch
   pull_request:
@@ -17,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   build:
