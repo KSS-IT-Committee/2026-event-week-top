@@ -12,3 +12,14 @@
   font-family: "Yu Mincho", serif;
   color: white;
 }
+.mobileBreak {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobileBreak {
+    display: block;
+  }
+  .footerTheme {
+    line-height: 1.3;
+  }
+}
