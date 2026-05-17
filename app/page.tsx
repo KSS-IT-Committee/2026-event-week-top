@@ -7,12 +7,12 @@ export default function Toppage() {
   return (
     <>
       <header className={styles.header}>
-        <Image className={styles.theme} src="/theme.png" alt="青、薫る" width={700} height={300} />
+        <Image className={styles.theme} src="/theme.png" alt="青、薫る" width={700} height={300} priority />
         <p className={styles.scroll}>Scroll</p>
 
         <svg
           className={styles.curveLine}
-          viewBox="0 0 80 300"
+          viewBox="0 0 100 550"
           aria-hidden="true"
           focusable={false}
         >
