@@ -93,7 +93,7 @@
 }
 .curveLine {
   position: absolute;
-  top: -130px; /* 位置調整 */
+  top: -50px; /* 位置調整 */
   right: 800px; /* 横位置（調整可） */
   height: 120%; /* 長さ */
   width: 80px; /* カーブの幅 */
@@ -390,5 +390,11 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .curveLine {
+  display: none;
   }
 }

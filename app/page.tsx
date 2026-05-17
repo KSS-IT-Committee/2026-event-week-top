@@ -39,7 +39,7 @@ export default function Toppage() {
               <stop
                 offset="100%"
                 stopColor="rgb(49, 108, 184)"
-                stopOpacity="1"
+                stopOpacity="0.95"
               />
             </linearGradient>
           </defs>
