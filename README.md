@@ -1,6 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 2026-event-week-top
 
-## Getting Started
+This is the source code of the official website for the 2026 Event Week of Koishikawa Secondary Education School.
+
+これは小石川中等教育学校の行事週間2026の公式サイトのソースコードです。
 
 First, run the development server:
 
