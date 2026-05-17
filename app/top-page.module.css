@@ -1,12 +1,15 @@
 .header {
   position: relative;
-  padding: 50px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 100px;
   background-image:
     linear-gradient(
-      to bottom right,
-      rgba(173, 185, 252, 0) 0%,
-      rgba(173, 185, 252, 0.8) 40%,
-      rgba(0, 34, 224, 0.95) 100%
+        to bottom right,
+        rgba(173, 185, 252, 0) 0%,
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
     ),
     url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
   background-size: cover;
@@ -19,8 +22,8 @@
       linear-gradient(
         to bottom right,
         rgba(173, 185, 252, 0) 0%,
-        rgba(173, 185, 252, 0.8) 40%,
-        rgba(0, 34, 224, 0.95) 100%
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
   }
@@ -29,8 +32,8 @@
       linear-gradient(
         to bottom right,
         rgba(173, 185, 252, 0) 0%,
-        rgba(173, 185, 252, 0.8) 40%,
-        rgba(0, 34, 224, 0.95) 100%
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/%E5%9B%A3%E9%95%B7%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9CR2%20(1).JPG.jpg");
   }
@@ -39,8 +42,8 @@
       linear-gradient(
         to bottom right,
         rgba(173, 185, 252, 0) 0%,
-        rgba(173, 185, 252, 0.8) 40%,
-        rgba(0, 34, 224, 0.95) 100%
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0009.JPG.jpg");
   }
@@ -49,8 +52,8 @@
       linear-gradient(
         to bottom right,
         rgba(173, 185, 252, 0) 0%,
-        rgba(173, 185, 252, 0.8) 40%,
-        rgba(0, 34, 224, 0.95) 100%
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0130.JPG.jpg");
   }
@@ -59,8 +62,8 @@
       linear-gradient(
         to bottom right,
         rgba(173, 185, 252, 0) 0%,
-        rgba(173, 185, 252, 0.8) 40%,
-        rgba(0, 34, 224, 0.95) 100%
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
   }
@@ -69,28 +72,14 @@
       linear-gradient(
         to bottom right,
         rgba(173, 185, 252, 0) 0%,
-        rgba(173, 185, 252, 0.8) 40%,
-        rgba(0, 34, 224, 0.95) 100%
+        rgba(227, 231, 255, 0.8) 40%,
+        rgb(255, 255, 255) 100%
       ),
       url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
   }
 }
 
-.top {
-  font-size: 2.5rem;
-  font-family: "Yu Mincho";
-  color: rgb(255, 255, 255);
-  text-align: right;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fade-up 0.8s ease-out forwards;
-  animation-delay: 0s;
-}
 .theme {
-  font-size: 6rem;
-  font-family: "Yu Mincho";
-  color: rgb(255, 255, 255);
-  text-align: right;
   opacity: 0;
   transform: translateY(20px);
   animation: fade-up 1.5s ease-out forwards;
@@ -104,8 +93,8 @@
 }
 .curveLine {
   position: absolute;
-  top: -50px; /* 位置調整 */
-  right: 500px; /* 横位置（調整可） */
+  top: -130px; /* 位置調整 */
+  right: 800px; /* 横位置（調整可） */
   height: 120%; /* 長さ */
   width: 80px; /* カーブの幅 */
   opacity: 0.9;
@@ -125,10 +114,10 @@
   font-family: "Yu Mincho";
   position: absolute;
   bottom: 20px; /* 位置調整 */
-  left: 75%;
+  left: 55%;
   transform: translateX(-50%);
   font-size: 1.5rem;
-  color: rgb(255, 255, 255);
+  color: rgb(49, 108, 184);
   opacity: 0;
   animation: fade-in-out 3s ease-out infinite;
 }
