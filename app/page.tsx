@@ -7,12 +7,6 @@ export default function Toppage() {
   return (
     <>
       <header className={styles.header}>
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
         <Image className={styles.theme} src="/theme.png" alt="青、薫る" width={700} height={300} />
         <p className={styles.scroll}>Scroll</p>
 
