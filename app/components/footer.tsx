@@ -4,8 +4,7 @@ export function defaultFooter() {
   return (
     <footer className={styles.footer}>
       <h1 className={styles.footerTheme}>
-        行事週間2026{" "}
-        <br className={styles.mobileBreak} />
+        行事週間2026 <br className={styles.mobileBreak} />
         青、薫る
       </h1>
       <p>© 2026 小石川中等教育学校</p>
