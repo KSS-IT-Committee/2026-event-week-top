@@ -8,14 +8,17 @@ export default function Toppage() {
   return (
     <>
       <header className={styles.header}>
-        <Image
-          className={styles.theme}
-          src="/theme.png"
-          alt="青、薫る"
-          width={700}
-          height={300}
-          priority
-        />
+        <div className={styles.themeContainer}>
+          <Image
+            className={styles.theme}
+            src="/theme.png"
+            alt="青、薫る"
+            width={700}
+            height={300}
+            priority
+          />
+          <p className={styles.title}>2026年度行事週間</p>
+        </div>
         <p className={styles.scroll}>Scroll</p>
 
         <svg

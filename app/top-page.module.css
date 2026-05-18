@@ -78,7 +78,10 @@
       url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
   }
 }
-
+.themeContainer {
+  position: relative;
+  display: inline-block;
+}
 .theme {
   opacity: 0;
   transform: translateY(20px);
@@ -90,6 +93,17 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+.title{
+  font-size: 1.4rem;
+  font-family: "Yu Mincho";
+  position:absolute;
+  bottom: 25%;
+  right: 40%;
+  transform: translate(-50%, 50%);
+  letter-spacing: 0.3em;
+  display: inline-block;
+  color: rgb(47, 99, 172);
 }
 .curveLine {
   position: absolute;
@@ -348,12 +362,6 @@
   .header {
     padding: 20px;
   }
-  .theme {
-    text-align: right;
-    font-size: clamp(3rem, 16vw, 5rem);
-    line-height: 1.1;
-    margin-bottom: 0.25em;
-  }
   .top {
     text-align: right;
     font-size: clamp(1.1rem, 6vw, 1.8rem);
@@ -390,6 +398,9 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 1rem;
+  }
+  .title {
+    font-size: 3vw;
   }
 }
 
