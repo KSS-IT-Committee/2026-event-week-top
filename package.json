@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --no-turbopack",
+    "build": "next build",
     "start": "drizzle-kit migrate --config=drizzle.config.ts && next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
