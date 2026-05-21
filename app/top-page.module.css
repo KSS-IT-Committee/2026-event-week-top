@@ -111,8 +111,6 @@
 @keyframes fade-up-title {
   to {
     opacity: 1;
-    bottom: 18%;
-    right: 40%;
     transform: translate(-50%, -50%);
   }
 }
