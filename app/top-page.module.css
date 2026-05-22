@@ -195,12 +195,13 @@
   padding-left: 20px;
 }
 .eventTop {
+  display: flex;
   margin-top: 10px;
   font-family: "Yu Mincho";
   padding: 10px;
   border-radius: 5px;
   gap: 2px;
-  background: linear-gradient(45deg, #000000 60%, #3477ff 100%);
+  background: white;
 }
 .performanceTitle {
   font-size: 4rem;
@@ -215,19 +216,6 @@
   -webkit-text-fill-color: transparent;
   margin-left: 20px;
 }
-.performanceTheme {
-  font-size: 1.5rem;
-  font-family: "Yu Mincho";
-  background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  text-align: left;
-  margin-top: -10px;
-  margin-left: 25px;
-}
 .sportsTitle {
   font-size: 4rem;
   font-family: "Yu Mincho", serif;
@@ -240,19 +228,6 @@
   color: transparent;
   -webkit-text-fill-color: transparent;
   margin-left: 20px;
-}
-.sportsTheme {
-  font-size: 1.5rem;
-  font-family: "Yu Mincho";
-  background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  text-align: left;
-  margin-top: -10px;
-  margin-left: 25px;
 }
 .createTitle {
   font-size: 4rem;
@@ -267,18 +242,9 @@
   -webkit-text-fill-color: transparent;
   margin-left: 20px;
 }
-.createTheme {
-  font-size: 1.5rem;
-  font-family: "Yu Mincho";
-  background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  text-align: left;
-  margin-top: -10px;
-  margin-left: 25px;
+.themeImage {
+  height: 100px;
+  width: auto;
 }
 .lead {
   font-size: 1.3rem;
@@ -317,19 +283,6 @@
   color: transparent;
   -webkit-text-fill-color: transparent;
   margin-left: 20px;
-}
-.ceremonyTheme {
-  font-size: 1.5rem;
-  font-family: "Yu Mincho";
-  background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  text-align: left;
-  margin-top: -10px;
-  margin-left: 25px;
 }
 .content {
   font-size: 1.3rem;
@@ -392,16 +345,12 @@
   .ceremonyTitle {
     font-size: clamp(2rem, 12vw, 3rem);
   }
+  .themeImage {
+    width: 300px;
+    height: auto;
+  }
   .container {
     display: block;
-  }
-  .performanceTheme,
-  .sportsTheme,
-  .createTheme,
-  .ceremonyTheme {
-    font-size: 1.4rem;
-    margin-top: -5px;
-    line-height: 1.5;
   }
   .scroll {
     left: 50%;

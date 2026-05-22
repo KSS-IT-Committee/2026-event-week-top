@@ -78,7 +78,13 @@ export default function Toppage() {
           <div className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.performanceTitle}>芸能祭</h1>
-              <p className={styles.performanceTheme}>~まぶしすぎて、滅！~</p>
+              <Image
+                className={styles.themeImage}
+                src="/performance-theme.svg"
+                alt="まぶしすぎて滅！"
+                width={400}
+                height={200}
+              />
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
@@ -90,7 +96,13 @@ export default function Toppage() {
           <div className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.sportsTitle}>体育祭</h1>
-              <p className={styles.sportsTheme}>~今日、勝ちにきました~</p>
+              <Image
+                className={styles.themeImage}
+                src="/sports-theme.svg"
+                alt="今日、勝ちにきました"
+                width={400}
+                height={200}
+              />
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
@@ -102,7 +114,13 @@ export default function Toppage() {
           <div className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.createTitle}>創作展</h1>
-              <p className={styles.createTheme}>~正解なんて創ればいい~</p>
+              <Image
+                className={styles.themeImage}
+                src="/create-theme.svg"
+                alt="正解なんて創ればいい"
+                width={400}
+                height={200}
+              />
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
@@ -140,7 +158,13 @@ export default function Toppage() {
           <div className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.ceremonyTitle}>後夜祭</h1>
-              <p className={styles.ceremonyTheme}>~最後まで、ハイライト~</p>
+              <Image
+                className={styles.themeImage}
+                src="/ceremony-theme.svg"
+                alt="最後まで、ハイライト"
+                width={400}
+                height={200}
+              />
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
