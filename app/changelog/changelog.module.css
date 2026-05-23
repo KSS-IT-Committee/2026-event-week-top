@@ -36,6 +36,18 @@
   margin-bottom: 6px;
 }
 
+.commit {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.commit:hover {
+  color: color-mix(in oklch, var(--foreground) 90%, transparent);
+}
+
 .entryTitle {
   font-size: 1.15rem;
   font-weight: 600;
