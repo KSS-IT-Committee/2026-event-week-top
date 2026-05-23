@@ -60,6 +60,12 @@ jobs:
       - name: Generate next-env.d.ts
         run: npx next typegen || true
 
+      - name: Generate changelog artifact
+        # Materialise lib/changelog.generated.json so tsc can resolve the
+        # static import in app/changelog/page.tsx. The prebuild hook re-runs
+        # this during `npm run build` below; that's fine and idempotent.
+        run: npm run changelog
+
       - name: Run TypeScript compiler check
         run: npx tsc --noEmit
 

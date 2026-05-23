@@ -82,6 +82,12 @@ jobs:
         continue-on-error: true
         run: npx next typegen
 
+      - name: Generate changelog artifact
+        # tsc resolves `import ... from "@/lib/changelog.generated.json"` —
+        # the file must exist before this step. Dates may be mtime-fallback
+        # under shallow clone, but that's fine; we only need the file present.
+        run: npm run changelog
+
       - name: Run TypeScript compiler
         run: npx tsc --noEmit
 
