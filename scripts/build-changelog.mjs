@@ -87,7 +87,10 @@ const entries = files.map((file) => {
   };
 });
 
-entries.sort((a, b) => (a.addedAt < b.addedAt ? 1 : -1));
+entries.sort((a, b) => {
+  if (a.addedAt === b.addedAt) return a.slug.localeCompare(b.slug);
+  return a.addedAt < b.addedAt ? 1 : -1;
+});
 writeArtifact(entries);
 log(
   `wrote ${entries.length} entr${entries.length === 1 ? "y" : "ies"} to ${OUT_FILE}`,
