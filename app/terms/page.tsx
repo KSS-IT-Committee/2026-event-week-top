@@ -7,8 +7,7 @@ import styles from "./terms.module.css";
 
 export const metadata: Metadata = {
   title: "ご利用にあたって | 2026行事週間",
-  description:
-    "「2026行事週間」ウェブサイトのご利用にあたってのお願いです。",
+  description: "「2026行事週間」ウェブサイトのご利用にあたってのお願いです。",
 };
 
 export default function TermsPage() {
@@ -25,7 +24,8 @@ export default function TermsPage() {
 
         <p>
           サイトの一部の機能では、Clerk（米国の認証サービス）を使ってログインします。
-          ログインの仕組み上、メールアドレスなどの情報が Clerk のサーバー（米国）に保存される
+          ログインの仕組み上、メールアドレスなどの情報が Clerk
+          のサーバー（米国）に保存される
           ことがあります。あらかじめご了承ください。
           ログイン情報は人に教えたり貸したりしないでください。
         </p>
@@ -43,7 +43,9 @@ export default function TermsPage() {
         </p>
 
         <p>
-          ご不明な点があれば、<a href="mailto:koishikawa.itcommittee@gmail.com">IT委員会</a>までお問い合わせください。
+          ご不明な点があれば、
+          <a href="mailto:koishikawa.itcommittee@gmail.com">IT委員会</a>
+          までお問い合わせください。
         </p>
 
         <p className={styles.back}>
