@@ -299,9 +299,34 @@
   margin-top: 0px;
   padding-left: 20px;
 }
-
+@media (prefers-color-scheme: light) {
+  .event {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  }
+  .performanceTitle,
+  .sportsTitle,
+  .createTitle,
+  .ceremonyTitle {
+    margin-right: 0;
+    padding-left: 20px;
+    position: relative;
+  }
+  .performanceTitle::before,
+  .sportsTitle::before,
+  .createTitle::before,
+  .ceremonyTitle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  height: 80%;
+  width: 6px;
+  background: inherit;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+}
 @media (prefers-color-scheme: dark) {
-  .tect,
   .newsTitle,
   .introductionTitle,
   .lead,
@@ -343,7 +368,7 @@
   .sportsTitle,
   .createTitle,
   .ceremonyTitle {
-    font-size: clamp(2rem, 12vw, 3rem);
+    font-size: clamp(2rem, 11vw, 3rem);
   }
   .themeImage {
     width: 300px;
@@ -365,5 +390,20 @@
 @media (max-width: 960px) {
   .curveLine {
     display: none;
+  }
+}
+
+@media (max-width: 912px) {
+  .title {
+    right: 32%;
+    bottom: 15%;
+    font-size: clamp(0.875rem, 3vw, 1.4rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .themeImage {
+    width: 45%;
+    height: auto;
   }
 }
