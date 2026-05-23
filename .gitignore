@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# changelog generated artifact (built by scripts/build-changelog.mjs)
+/lib/changelog.generated.json

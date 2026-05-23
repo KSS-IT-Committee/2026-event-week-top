@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "changelog": "node scripts/build-changelog.mjs",
+    "predev": "npm run changelog",
     "dev": "next dev",
+    "prebuild": "npm run changelog",
     "build": "next build",
     "start": "drizzle-kit migrate --config=drizzle.config.ts && next start",
     "lint": "eslint .",
