@@ -154,6 +154,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # scripts/build-changelog.mjs (run via prebuild) resolves per-file
+          # add-dates via `git log --follow`; needs full history.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

@@ -24,6 +24,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # scripts/build-changelog.mjs (run via prebuild) resolves add-dates
+          # from `git log --follow`; shallow clones would miss older entries.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

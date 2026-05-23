@@ -28,6 +28,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history so scripts/build-changelog.mjs can resolve per-file
+          # add-dates via `git log --diff-filter=A --follow`.
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate changelog artifact
+        # Must run on the runner — .git is excluded from the Docker build
+        # context by .dockerignore, so the script can't resolve dates inside
+        # the image. The resulting lib/changelog.generated.json is picked up
+        # by `COPY . .` in the builder stage.
+        run: npm run changelog
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
