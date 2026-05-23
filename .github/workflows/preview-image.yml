@@ -32,6 +32,9 @@ jobs:
           # Full history so scripts/build-changelog.mjs can resolve per-file
           # add-dates via `git log --diff-filter=A --follow`.
           fetch-depth: 0
+          # GHCR auth uses an explicit ${{ secrets.GITHUB_TOKEN }} in the
+          # docker/login step; no need to leave it in .git/config too.
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
