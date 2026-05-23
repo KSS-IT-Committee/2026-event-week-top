@@ -11,7 +11,11 @@ type Entry = {
   description: string;
   credits: string[];
   addedAt: string;
+  commit: string | null;
 };
+
+const COMMIT_URL_BASE =
+  "https://github.com/KSS-IT-Committee/2026-event-week-top/commit/";
 
 export const metadata: Metadata = {
   title: "Changelog | 行事週間2026",
@@ -44,6 +48,19 @@ export default function ChangelogPage() {
                   <time dateTime={entry.addedAt}>
                     {dateFmt.format(new Date(entry.addedAt))}
                   </time>
+                  {entry.commit && (
+                    <>
+                      {" · "}
+                      <a
+                        className={styles.commit}
+                        href={`${COMMIT_URL_BASE}${entry.commit}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {entry.commit.slice(0, 7)}
+                      </a>
+                    </>
+                  )}
                 </div>
                 <h2 className={styles.entryTitle}>{entry.title}</h2>
                 <p className={styles.description}>{entry.description}</p>
