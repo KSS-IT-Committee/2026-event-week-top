@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { defaultFooter } from "@/app/components/footer";
+import { Footer } from "@/components/Footer";
 import changelog from "@/lib/changelog.generated.json";
 
 import styles from "./changelog.module.css";
@@ -57,7 +57,7 @@ export default function ChangelogPage() {
           </ol>
         )}
       </main>
-      {defaultFooter()}
+      <Footer />
     </>
   );
 }
