@@ -315,16 +315,16 @@
   .sportsTitle::before,
   .createTitle::before,
   .ceremonyTitle::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 10%;
-  height: 80%;
-  width: 6px;
-  background: inherit;
-  -webkit-background-clip: border-box;
-  background-clip: border-box;
-}
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10%;
+    height: 80%;
+    width: 6px;
+    background: inherit;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+  }
 }
 @media (prefers-color-scheme: dark) {
   .newsTitle,
