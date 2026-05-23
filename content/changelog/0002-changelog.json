@@ -1,0 +1,5 @@
+{
+  "title": "Changelogページのコミットハッシュを追加",
+  "description": "マージされたコミットハッシュがChangelogに表示されるようになりました。また、一部Changelogの表示上の日付を変更しました。",
+  "credits": ["@rotarymars"]
+}
