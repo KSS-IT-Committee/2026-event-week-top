@@ -1,0 +1,81 @@
+.page {
+  background: #f7f8fb;
+  min-height: 100vh;
+}
+
+.article {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+  color: #1f2330;
+  line-height: 1.9;
+  font-family: "Yu Gothic", "Hiragino Sans", sans-serif;
+}
+
+.title {
+  font-family: "Yu Mincho", serif;
+  font-size: 2.4rem;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #0b69eb;
+  padding-bottom: 12px;
+  color: #0b2a6b;
+}
+
+.lead {
+  font-size: 1rem;
+  margin-bottom: 40px;
+  color: #2b3144;
+}
+
+.article section {
+  margin-bottom: 32px;
+}
+
+.article h2 {
+  font-family: "Yu Mincho", serif;
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  color: #0b2a6b;
+  border-left: 4px solid #0b69eb;
+  padding-left: 12px;
+}
+
+.article p {
+  margin: 8px 0;
+}
+
+.article ol {
+  padding-left: 1.5em;
+  margin: 8px 0;
+}
+
+.article ol ol {
+  list-style: lower-roman;
+  margin-top: 6px;
+}
+
+.article li {
+  margin-bottom: 6px;
+}
+
+.meta {
+  margin-top: 48px;
+  font-size: 0.9rem;
+  color: #5a6072;
+  text-align: right;
+}
+
+.back {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.back a {
+  color: #0b69eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.back a:hover {
+  text-decoration: underline;
+}
