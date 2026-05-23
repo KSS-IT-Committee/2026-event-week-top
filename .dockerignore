@@ -13,3 +13,4 @@ Dockerfile
 .dockerignore
 docker-compose*.yml
 scripts
+!scripts/build-changelog.mjs
