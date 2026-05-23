@@ -54,7 +54,11 @@ export function FloatingMenu({
         onMouseEnter={cancelCollapse}
         onMouseLeave={scheduleCollapse}
         onFocus={cancelCollapse}
-        onBlur={scheduleCollapse}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            scheduleCollapse();
+          }
+        }}
       >
         {items.map((item) => (
           <Link
