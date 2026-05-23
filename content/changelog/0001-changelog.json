@@ -1,0 +1,5 @@
+{
+  "title": "Changelogページを追加",
+  "description": "サイトへの追加機能や変更を、日付・タイトル・説明・担当者付きで /changelog に表示するようになりました。",
+  "credits": ["@rotarymars"]
+}
