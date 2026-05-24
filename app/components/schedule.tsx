@@ -32,7 +32,9 @@ function formatYmd(p: ParsedDate) {
 }
 
 function nextDayYmd(p: ParsedDate) {
-  const next = new Date(Date.UTC(Number(p.y), Number(p.m) - 1, Number(p.d) + 1));
+  const next = new Date(
+    Date.UTC(Number(p.y), Number(p.m) - 1, Number(p.d) + 1),
+  );
   const y = next.getUTCFullYear();
   const m = String(next.getUTCMonth() + 1).padStart(2, "0");
   const d = String(next.getUTCDate()).padStart(2, "0");
