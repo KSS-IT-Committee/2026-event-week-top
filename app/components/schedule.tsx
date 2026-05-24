@@ -50,6 +50,14 @@ function googleCalendarUrl(title: string, p: ParsedDate) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
+function hashString(s: string) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  }
+  return (h >>> 0).toString(36);
+}
+
 function buildIcs(title: string, p: ParsedDate) {
   const start = formatYmd(p);
   const end = nextDayYmd(p);
@@ -57,7 +65,7 @@ function buildIcs(title: string, p: ParsedDate) {
     .toISOString()
     .replace(/[-:]/g, "")
     .replace(/\.\d+/, "");
-  const uid = `${start}-${Math.random().toString(36).slice(2, 10)}@event-week-2026`;
+  const uid = `${start}-${hashString(title)}@event-week-2026`;
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
