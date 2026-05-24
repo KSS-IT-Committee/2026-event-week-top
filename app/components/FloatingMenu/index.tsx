@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import styles from "./floating.module.css";
 
@@ -24,22 +24,22 @@ export function FloatingMenu({
   const [isOpen, setIsOpen] = useState(true);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const scheduleCollapse = () => {
+  const scheduleCollapse = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => setIsOpen(false), collapseDelayMs);
-  };
+  }, [collapseDelayMs]);
 
-  const cancelCollapse = () => {
+  const cancelCollapse = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-  };
+  }, []);
 
   useEffect(() => {
     scheduleCollapse();
     return () => cancelCollapse();
-  }, []);
+  }, [scheduleCollapse, cancelCollapse]);
 
   const handleOpen = () => {
     setIsOpen(true);
