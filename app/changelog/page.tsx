@@ -75,11 +75,7 @@ export default function ChangelogPage() {
           </ol>
         )}
       </main>
-      <FloatingMenu
-        items={[
-          { label: "Top", href: "/" },
-        ]}
-      />
+      <FloatingMenu items={[{ label: "Top", href: "/" }]} />
       {defaultFooter()}
     </>
   );

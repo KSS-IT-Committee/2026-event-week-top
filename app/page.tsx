@@ -1,6 +1,6 @@
 import { defaultFooter } from "@/app/components/footer";
-import { FloatingMenu } from "./components/FloatingMenu";
 
+import { FloatingMenu } from "./components/FloatingMenu";
 import styles from "./top-page.module.css";
 
 export default function Toppage() {
