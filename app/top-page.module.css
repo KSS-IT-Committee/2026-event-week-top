@@ -138,7 +138,7 @@
 .container {
   display: grid;
   grid-template-columns: 0px 0.8fr 3px 1fr 1fr 5px;
-  padding: 5px;
+  padding: 5px 5px 30px;
   padding-top: 10px;
   width: 100%;
   margin: 0 auto;

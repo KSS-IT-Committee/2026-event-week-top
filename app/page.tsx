@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { defaultFooter } from "@/app/components/footer";
+import { Footer } from "@/components/Footer";
 
 import styles from "./top-page.module.css";
 
@@ -173,7 +173,7 @@ export default function Toppage() {
         </div>
       </main>
 
-      {defaultFooter()}
+      <Footer />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { defaultFooter } from "@/app/components/footer";
+import { Footer } from "@/components/Footer";
 
 import styles from "./not-found.module.css";
 
@@ -33,7 +33,7 @@ export default function NotFound() {
           トップへ戻る
         </Link>
       </main>
-      {defaultFooter()}
+      <Footer />
     </>
   );
 }
