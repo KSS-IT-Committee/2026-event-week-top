@@ -1,10 +1,9 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 
 import { defaultFooter } from "@/app/components/footer";
 
 import styles from "./top-page.module.css";
-
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
