@@ -63,6 +63,14 @@ export default function Toppage() {
           {/* News */}
           <div className={styles.news}>
             <h1 className={styles.newsTitle}>News</h1>
+            <ul className={styles.newsList}>
+              <li className={styles.newsItem}>
+                <time className={styles.newsDate} dateTime="2026-05-24">
+                  2026/05/24
+                </time>
+                <span className={styles.newsText}>ここに本文</span>
+              </li>
+            </ul>
           </div>
 
           {/* Introduction */}
