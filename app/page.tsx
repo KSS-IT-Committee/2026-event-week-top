@@ -1,6 +1,6 @@
-import { Footer } from "@/components/Footer";
-
 import Image from "next/image";
+
+import { Footer } from "@/components/Footer";
 
 import styles from "./top-page.module.css";
 
