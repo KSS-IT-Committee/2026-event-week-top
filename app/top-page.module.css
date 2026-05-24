@@ -355,6 +355,7 @@
   .themeImage {
     width: 300px;
     height: auto;
+    aspect-ratio: 4 / 1;
   }
   .container {
     display: block;
