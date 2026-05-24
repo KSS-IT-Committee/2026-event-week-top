@@ -17,7 +17,6 @@ export default function Toppage() {
             height={300}
             priority
           />
-          <p className={styles.title}>2026年度行事週間</p>
         </div>
         <p className={styles.scroll}>Scroll</p>
 

@@ -88,30 +88,10 @@
   animation: fade-up-theme 1.5s ease-out forwards;
   animation-delay: 0.5s;
 }
-.title {
-  font-size: 1.4rem;
-  font-family: "Yu Mincho";
-  position: absolute;
-  bottom: 18%;
-  right: 40%;
-  transform: translate(-50%, calc(-50% + 20px));
-  letter-spacing: 0.3em;
-  display: inline-block;
-  color: rgb(47, 99, 172);
-  opacity: 0;
-  animation: fade-up-title 1.5s ease-out forwards;
-  animation-delay: 0.5s;
-}
 @keyframes fade-up-theme {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-@keyframes fade-up-title {
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
   }
 }
 .curveLine {
@@ -387,14 +367,6 @@
 @media (max-width: 960px) {
   .curveLine {
     display: none;
-  }
-}
-
-@media (max-width: 912px) {
-  .title {
-    right: 32%;
-    bottom: 15%;
-    font-size: clamp(0.875rem, 3vw, 1.4rem);
   }
 }
 
