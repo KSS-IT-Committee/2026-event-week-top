@@ -136,11 +136,7 @@ export function Schedule({ items, subject }: ScheduleProps) {
                 <button
                   type="button"
                   className={styles.dateButton}
-                <button
-                  type="button"
-                  className={styles.dateButton}
                   aria-expanded={isOpen}
-                  aria-haspopup="true"
                   onClick={() => setOpenKey(isOpen ? null : key)}
                 >
                   {date}
@@ -162,34 +158,6 @@ export function Schedule({ items, subject }: ScheduleProps) {
                   <button
                     type="button"
                     className={styles.popoverItem}
-                    onClick={() => {
-                      downloadIcs(title, parsed);
-                      setOpenKey(null);
-                    }}
-                  >
-                  onClick={() => setOpenKey(isOpen ? null : key)}
-                >
-                  {date}
-                </button>
-              ) : (
-                date
-              )}
-              {isOpen && parsed && (
-                <div className={styles.popover} role="menu">
-                  <a
-                    className={styles.popoverItem}
-                    href={googleCalendarUrl(title, parsed)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    role="menuitem"
-                    onClick={() => setOpenKey(null)}
-                  >
-                    Google カレンダーに追加
-                  </a>
-                  <button
-                    type="button"
-                    className={styles.popoverItem}
-                    role="menuitem"
                     onClick={() => {
                       downloadIcs(title, parsed);
                       setOpenKey(null);
