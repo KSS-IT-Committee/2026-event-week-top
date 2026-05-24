@@ -100,7 +100,7 @@ export default function Toppage() {
                 src="/sports-theme.svg"
                 alt="今日、勝ちにきました"
                 width={400}
-                height={200}
+                height={100}
               />
             </div>
             <div className={styles.content}>
@@ -118,7 +118,7 @@ export default function Toppage() {
                 src="/create-theme.svg"
                 alt="正解なんて創ればいい"
                 width={400}
-                height={200}
+                height={100}
               />
             </div>
             <div className={styles.content}>
@@ -162,7 +162,7 @@ export default function Toppage() {
                 src="/ceremony-theme.svg"
                 alt="最後まで、ハイライト"
                 width={400}
-                height={200}
+                height={100}
               />
             </div>
             <div className={styles.content}>
