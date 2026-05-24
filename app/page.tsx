@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 
-import { defaultFooter } from "@/app/components/footer";
 import { Schedule } from "@/app/components/schedule";
+import { Footer } from "@/components/Footer";
 
 import styles from "./top-page.module.css";
+
+export const metadata: Metadata = {
+  title: "2026年度行事週間",
+  description: "2026年度行事週間 トップページ",
+};
 
 export default function Toppage() {
   return (
@@ -209,7 +215,7 @@ export default function Toppage() {
         </div>
       </main>
 
-      {defaultFooter()}
+      <Footer />
     </>
   );
 }
