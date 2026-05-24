@@ -82,7 +82,7 @@ export default function Toppage() {
                 src="/performance-theme.svg"
                 alt="まぶしすぎて滅！"
                 width={400}
-                height={200}
+                height={100}
               />
             </div>
             <div className={styles.content}>

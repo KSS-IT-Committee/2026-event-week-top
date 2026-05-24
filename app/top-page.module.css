@@ -177,6 +177,7 @@
 .eventTop {
   display: flex;
   margin-top: 10px;
+  position: relative;
   font-family: "Yu Mincho";
   padding: 10px;
   border-radius: 5px;
@@ -225,6 +226,7 @@
 .themeImage {
   height: 100px;
   width: auto;
+  aspect-ratio: 4 / 1;
 }
 .lead {
   font-size: 1.3rem;
@@ -372,7 +374,8 @@
 
 @media (max-width: 560px) {
   .themeImage {
-    width: 45%;
+    width: 50%;
     height: auto;
+    aspect-ratio: 4 / 1;
   }
 }
