@@ -119,7 +119,7 @@ export default function Toppage() {
                 alt="正解なんて創ればいい"
                 width={400}
                 height={100}
-                sizes="(max-width: 768px) 40vw, 400px"
+                sizes="(max-width: 560px) 50vw, (max-width: 768px) 300px, 400px"
               />
             </div>
             <div className={styles.content}>
