@@ -227,6 +227,7 @@
   height: 100px;
   width: auto;
   aspect-ratio: 4 / 1;
+  object-fit: contain;
 }
 .lead {
   font-size: 1.3rem;
@@ -352,12 +353,6 @@
   .ceremonyTitle {
     font-size: clamp(2rem, 11vw, 3rem);
   }
-  .themeImage {
-    width: 300px;
-    height: auto;
-    aspect-ratio: 4 / 1;
-    object-fit: contain;
-  }
   .container {
     display: block;
   }
@@ -374,7 +369,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 1060px) {
   .themeImage {
     width: 50%;
     height: auto;

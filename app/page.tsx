@@ -15,6 +15,7 @@ export default function Toppage() {
             alt="青、薫る"
             width={700}
             height={300}
+            sizes="(max-width: 768px) 80vw, 800px"
             priority
           />
         </div>
@@ -119,7 +120,7 @@ export default function Toppage() {
                 alt="正解なんて創ればいい"
                 width={400}
                 height={100}
-                sizes="(max-width: 560px) 50vw, (max-width: 768px) 300px, 400px"
+                sizes="(max-width: 1060px) 50vw, 400px"
               />
             </div>
             <div className={styles.content}>
@@ -164,7 +165,7 @@ export default function Toppage() {
                 alt="最後まで、ハイライト"
                 width={400}
                 height={100}
-                sizes="(max-width: 560px) 50vw, (max-width: 768px) 300px, 400px"
+                sizes="(max-width: 1060px) 50vw, 400px"
               />
             </div>
             <div className={styles.content}>
