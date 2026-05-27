@@ -293,6 +293,10 @@
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
+.rentalSite p,
+.informationSite p {
+  color: #ffffff;
+}
 .ceremonyTitle {
   font-size: 4rem;
   font-family: "Yu Mincho", serif;
