@@ -154,8 +154,8 @@ export default function Toppage() {
                   subject="バレーボール"
                   items={[
                     { label: "予選", date: "2026/06/16" },
-                    { label: "決勝", date: "2026/06/17" }
-                  ]}      
+                    { label: "決勝", date: "2026/06/17" },
+                  ]}
                 />
               </section>
             </div>
