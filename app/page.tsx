@@ -148,6 +148,16 @@ export default function Toppage() {
                   ]}
                 />
               </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>バレーボール</h2>
+                <Schedule
+                  subject="バレーボール"
+                  items={[
+                    { label: "予選", date: "2026/06/16" },
+                    { label: "決勝", date: "2026/06/17" }
+                  ]}      
+                />
+              </section>
             </div>
           </div>
 
