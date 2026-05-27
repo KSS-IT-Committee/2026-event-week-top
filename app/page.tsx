@@ -106,7 +106,8 @@ export default function Toppage() {
                     opacity: 1,
                   }}
                 >
-                  工具貸出サイト（Coming Soon）
+                  工具貸出サイト<br/>
+                  （Coming Soon）
                 </p>
               </div>
 
@@ -118,7 +119,8 @@ export default function Toppage() {
                     opacity: 1,
                   }}
                 >
-                  情報発信サイト（Coming Soon）
+                  情報発信サイト<br/>
+                  （Coming Soon）
                 </p>
               </div>
             </div>
