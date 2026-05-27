@@ -99,13 +99,25 @@ export default function Toppage() {
             </div>
             <div className={styles.linkContainer}>
               <div className={styles.rentalSite}>
-                <p style={{ color: "#fff", WebkitTextFillColor: "#fff", opacity: 1 }}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
                   工具貸出サイト（Coming Soon）
                 </p>
               </div>
 
               <div className={styles.informationSite}>
-                <p style={{ color: "#fff", WebkitTextFillColor: "#fff", opacity: 1 }}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
                   情報発信サイト（Coming Soon）
                 </p>
               </div>
