@@ -21,6 +21,7 @@ export default function Toppage() {
             alt="青、薫る"
             width={700}
             height={300}
+            sizes="(max-width: 768px) 80vw, 800px"
             priority
           />
         </div>
@@ -121,10 +122,11 @@ export default function Toppage() {
               <h1 className={styles.createTitle}>創作展</h1>
               <Image
                 className={styles.themeImage}
-                src="/create-theme.svg"
+                src="/create-theme.png"
                 alt="正解なんて創ればいい"
                 width={400}
                 height={100}
+                sizes="(max-width: 1060px) 50vw, 400px"
               />
             </div>
             <div className={styles.content}>
@@ -165,10 +167,11 @@ export default function Toppage() {
               <h1 className={styles.ceremonyTitle}>後夜祭</h1>
               <Image
                 className={styles.themeImage}
-                src="/ceremony-theme.svg"
+                src="/ceremony-theme.png"
                 alt="最後まで、ハイライト"
                 width={400}
                 height={100}
+                sizes="(max-width: 1060px) 50vw, 400px"
               />
             </div>
             <div className={styles.content}>

@@ -202,7 +202,7 @@
   font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
-  background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
+  background: linear-gradient(90deg, #79e400 0%, #0083ee 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -215,7 +215,7 @@
   font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
-  background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
+  background: linear-gradient(90deg, #469ce2 0%, #b700ff 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -227,6 +227,7 @@
   height: 100px;
   width: auto;
   aspect-ratio: 4 / 1;
+  object-fit: contain;
 }
 .lead {
   font-size: 1.3rem;
@@ -352,11 +353,6 @@
   .ceremonyTitle {
     font-size: clamp(2rem, 11vw, 3rem);
   }
-  .themeImage {
-    width: 300px;
-    height: auto;
-    aspect-ratio: 4 / 1;
-  }
   .container {
     display: block;
   }
@@ -373,7 +369,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 1060px) {
   .themeImage {
     width: 50%;
     height: auto;
