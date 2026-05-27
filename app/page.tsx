@@ -99,16 +99,12 @@ export default function Toppage() {
             </div>
             <div className={styles.linkContainer}>
               <div className={styles.rentalSite}>
- 　　　　　　　　 <p style={{ color: "gray" }}>
-   　　　　　　　 　工具貸出サイト（Coming Soon）
- 　　　　　　　　 </p>
-　　　　　　　　</div>
+                <p>工具貸出サイト（Coming Soon）</p>
+              </div>
 
               <div className={styles.informationSite}>
-  　　　　　　　　<p style={{ color: "gray" }}>
-  　　　　　　　　  情報発信サイト（Coming Soon）
- 　　　　　　　　 </p>
-　　　　　　　　</div>
+                <p>情報発信サイト（Coming Soon）</p>
+              </div>
             </div>
           </div>
 
