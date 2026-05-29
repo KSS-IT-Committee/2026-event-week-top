@@ -36,7 +36,7 @@ The `pre*` hooks mean you almost never invoke `npm run changelog` manually — `
 The `/changelog` page is **statically generated from content + git history**, not from a database:
 
 1. Each entry is a JSON file in `content/changelog/` (e.g. `0003-changelog.json` with `title` / `description` / `credits`).
-2. `scripts/build-changelog.mjs` (run via `predev` / `prebuild`) walks each file with `git log --diff-filter=A --follow --first-parent` against `origin/main` → `main` → `HEAD`, picks the oldest commit that added the file, and emits `lib/changelog.generated.json` with `{slug, title, description, credits, addedAt, commit}`.
+2. `scripts/build-changelog.mjs` (run via `predev` / `prebuild`) walks each file with `git log --diff-filter=A --first-parent` against `origin/main` → `main` → `HEAD`, picks the oldest commit that added the file, and emits `lib/changelog.generated.json` with `{slug, title, description, credits, addedAt, commit}`.
 3. `app/changelog/page.tsx` statically imports that JSON. The `commit` field links to `github.com/KSS-IT-Committee/2026-event-week-top/commit/<sha>`.
 
 Consequences:
