@@ -1,0 +1,15 @@
+:global(.newsItem) {
+  display: flex;
+  gap: 8px;
+  margin: 12px;
+  font-size: 1.3rem;
+}
+
+:global(.newsDate) {
+  color: #000;
+}
+
+:global(.newsText) {
+  color: #000;
+  text-decoration: none;
+}
