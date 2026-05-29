@@ -1,0 +1,37 @@
+.footer {
+  display: block;
+  padding: 30px;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  color: white;
+  background: linear-gradient(150deg, #0b69eb 70%, #ffffff 100%);
+}
+
+.footerTheme {
+  font-size: 32px;
+  font-family: "Yu Mincho", serif;
+}
+
+.footer span {
+  display: inline-block;
+  padding: 0px 5px;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 959px) {
+  .footer {
+    font-size: 13px;
+  }
+
+  .footerTheme {
+    font-size: 24px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .footerTheme {
+    font-size: 20px;
+    line-height: 35px;
+  }
+}
