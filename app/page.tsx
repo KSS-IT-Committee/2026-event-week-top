@@ -76,7 +76,9 @@ export default function Toppage() {
                 <time className={styles.newsDate} dateTime="2026-05-24">
                   2026/05/24
                 </time>
-                <span className={styles.newsText}>現在特に連絡はありません</span>
+                <span className={styles.newsText}>
+                  現在特に連絡はありません
+                </span>
               </li>
             </ul>
           </div>
