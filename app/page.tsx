@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { Footer } from "@/components/Footer";
 
+import { FloatingMenu } from "./components/FloatingMenu";
 import styles from "./top-page.module.css";
 
 export const metadata: Metadata = {
@@ -68,7 +69,7 @@ export default function Toppage() {
       <main className={styles.main}>
         <div className={styles.container}>
           {/* News */}
-          <div className={styles.news}>
+          <div id="news" className={styles.news}>
             <h1 className={styles.newsTitle}>News</h1>
             <ul className={styles.newsList}>
               <li className={styles.newsItem}>
@@ -89,7 +90,7 @@ export default function Toppage() {
           </div>
 
           {/* 芸能祭 */}
-          <div className={styles.event}>
+          <div id="performance" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.performanceTitle}>芸能祭</h1>
               <Image
@@ -107,7 +108,7 @@ export default function Toppage() {
           </div>
 
           {/* 体育祭 */}
-          <div className={styles.event}>
+          <div id="sports" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.sportsTitle}>体育祭</h1>
               <Image
@@ -125,7 +126,7 @@ export default function Toppage() {
           </div>
 
           {/* 創作展 */}
-          <div className={styles.event}>
+          <div id="create" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.createTitle}>創作展</h1>
               <Image
@@ -170,7 +171,7 @@ export default function Toppage() {
           </div>
 
           {/* 後夜祭 */}
-          <div className={styles.event}>
+          <div id="ceremony" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.ceremonyTitle}>後夜祭</h1>
               <Image
@@ -188,6 +189,16 @@ export default function Toppage() {
             </div>
           </div>
         </div>
+        <FloatingMenu
+          items={[
+            { label: "News", href: "#news" },
+            { label: "芸能祭", href: "#performance" },
+            { label: "体育祭", href: "#sports" },
+            { label: "創作展", href: "#create" },
+            { label: "後夜祭", href: "#ceremony" },
+            { label: "Changelog", href: "/changelog" },
+          ]}
+        />
       </main>
 
       <Footer />
