@@ -149,14 +149,42 @@
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   grid-column: 2 / 3;
-  height: 100px;
+  min-height: 100px;
   background-color: rgb(76, 150, 252);
+  padding-bottom: 15px;
 }
 .newsTitle {
   font-size: 2rem;
   font-family: "Yu Mincho";
   color: rgb(255, 255, 255);
   margin-left: 5%;
+}
+.newsList {
+  list-style: none;
+  padding: 0 5%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.newsItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  color: rgb(255, 255, 255);
+}
+.newsDate {
+  font-size: 0.95rem;
+  font-family: "Yu Mincho";
+  color: rgba(255, 255, 255, 0.85);
+}
+.newsText {
+  font-size: 1.1rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  line-height: 1.5;
 }
 .event {
   font-size: 1.5rem;
@@ -202,7 +230,7 @@
   font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
-  background: linear-gradient(90deg, #d0ff5a 0%, #00a6ff 100%);
+  background: linear-gradient(90deg, #79e400 0%, #0083ee 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -215,7 +243,7 @@
   font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
-  background: linear-gradient(90deg, #5abdff 0%, #b700ff 100%);
+  background: linear-gradient(90deg, #469ce2 0%, #b700ff 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -227,6 +255,7 @@
   height: 100px;
   width: auto;
   aspect-ratio: 4 / 1;
+  object-fit: contain;
 }
 .lead {
   font-size: 1.3rem;
@@ -352,11 +381,6 @@
   .ceremonyTitle {
     font-size: clamp(2rem, 11vw, 3rem);
   }
-  .themeImage {
-    width: 300px;
-    height: auto;
-    aspect-ratio: 4 / 1;
-  }
   .container {
     display: block;
   }
@@ -373,7 +397,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 1060px) {
   .themeImage {
     width: 50%;
     height: auto;
