@@ -163,7 +163,8 @@
 .newsList {
   list-style: disc;
   padding:15px;
-  margin-left:20px
+  margin-left:20px;
+  color:rgb(255, 255, 255);
 }
 .news :global(.newsItem),
 .news :global(.newsDate),
@@ -194,6 +195,12 @@
   grid-column: 4/ 6;
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   padding: 15px;
+}
+.eventNewsList {
+  list-style: disc;
+  padding:15px;
+  margin-left:20px;
+  color:rgb(0, 0, 0);
 }
 .introductionTitle {
   font-size: 2.5rem;
