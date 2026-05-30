@@ -1,9 +1,10 @@
 export const dynamic = "force-static";
 
-import styles from "@/app/news//list/news-page.module.css";
+import Link from "next/link";
+
+import styles from "@/app/news/list/news-page.module.css";
 import { news } from "@/app/news/newsData";
 import { NewsItem } from "@/app/news/newsItem";
-import Link from "next/link";
 
 
 export default function NewsListPage() {
