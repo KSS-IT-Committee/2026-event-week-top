@@ -7,7 +7,7 @@ export const news = [
   },
   {
     id: "news2",
-    title: "予備大ドッジボールの結果",
+    title: "予備大ドッヂボールの結果",
     date: "2026-05-29",
     tag: "sport"
   }
