@@ -202,6 +202,9 @@
   margin-left:20px;
   color:rgb(0, 0, 0);
 }
+.eventNewsList a:hover {
+  text-decoration: underline;
+}
 .introductionTitle {
   font-size: 2.5rem;
   font-family: "Yu Mincho";
