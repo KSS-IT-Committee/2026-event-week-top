@@ -1,22 +1,22 @@
-:global(.newsItem) {
+.newsItem {
   display: flex;
   gap: 8px;
   margin: 12px;
   font-size: 1.3rem;
 }
 
-:global(.newsDate) {
+.newsDate {
   color: #000;
 }
 
-:global(.newsText) {
+.newsText {
   color: #000;
   text-decoration: none;
   display: inline-block; 
   padding: 2px 0;      
 }
 
-:global(.newsText:hover) {
+.newsText:hover {
   opacity: 0.7;
 }
 
