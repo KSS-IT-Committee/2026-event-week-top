@@ -10,7 +10,6 @@ import { NewsItem } from "@/app/news/newsItem";
 export default function NewsListPage() {
   const sorted = [...news].sort((a, b) => (a.date < b.date ? 1 : -1));
 
-  console.log("SORTED:", sorted);
 
   return (
     <div className={styles.newsContainer}>
