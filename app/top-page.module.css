@@ -161,8 +161,9 @@
   margin-top:10px
 }
 .newsList {
-  list-style: none;
+  list-style: disc;
   padding:15px;
+  margin-left:20px
 }
 .news :global(.newsItem),
 .news :global(.newsDate),
