@@ -26,7 +26,7 @@ export default function NewsListPage() {
           ))}
         </ul>
       </div>
-       <Link href="/" className="backButton">
+       <Link href="/" className={styles.backButton}>
         トップに戻る
        </Link>
     </div>
