@@ -13,6 +13,19 @@ const latestNews = [...news]
   .sort((a, b) => (a.date < b.date ? 1 : -1))
   .slice(0, 4);
 
+const geinousaiNews = news
+  .filter((item) => item.tag === "perform")
+  .slice(0, 3);
+const taiikusaiNews = news
+  .filter((item) => item.tag === "sport")
+  .slice(0, 3); 
+const sousakutenNews = news
+  .filter((item) => item.tag === "create")
+  .slice(0, 3);
+const koyasaiNews = news
+  .filter((item) => item.tag === "ceremony")
+  .slice(0, 3);
+
 export const metadata: Metadata = {
   title: "2026年度行事週間",
   description: "2026年度行事週間 トップページ",
@@ -112,7 +125,15 @@ export default function Toppage() {
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
-              <p>お知らせはまだありません。</p>
+              {geinousaiNews.length === 0 ? (
+               <p>お知らせはまだありません。</p>
+              ) : (
+             <ul className={styles.newsList}>
+              {geinousaiNews.map((item) => (
+               <NewsItem key={item.id} item={item} />
+              ))}
+              </ul>
+              )}
             </div>
           </div>
 
@@ -130,7 +151,15 @@ export default function Toppage() {
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
-              <p>お知らせはまだありません。</p>
+              {taiikusaiNews.length === 0 ? (
+               <p>お知らせはまだありません。</p>
+              ) : (
+             <ul className={styles.newsList}>
+              {taiikusaiNews.map((item) => (
+               <NewsItem key={item.id} item={item} />
+              ))}
+              </ul>
+              )}
             </div>
           </div>
 
@@ -149,7 +178,15 @@ export default function Toppage() {
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
-              <p>お知らせはまだありません。</p>
+              {sousakutenNews.length === 0 ? (
+               <p>お知らせはまだありません。</p>
+              ) : (
+             <ul className={styles.newsList}>
+              {sousakutenNews.map((item) => (
+               <NewsItem key={item.id} item={item} />
+              ))}
+              </ul>
+              )}
               <br />
             </div>
 
@@ -194,7 +231,15 @@ export default function Toppage() {
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
-              <p>お知らせはまだありません。</p>
+             {koyasaiNews.length === 0 ? (
+               <p>お知らせはまだありません。</p>
+              ) : (
+             <ul className={styles.newsList}>
+              {koyasaiNews.map((item) => (
+               <NewsItem key={item.id} item={item} />
+              ))}
+              </ul>
+              )}
             </div>
           </div>
         </div>
