@@ -25,21 +25,19 @@
     text-align: center;
 }
 .markdown h1 {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     color: rgb(0, 33, 91);
-    margin:10px;
+    margin-bottom:10px;
 }
 .markdown h2 {
     font-size: 1.5rem;
     font-family: "Yu Mincho";
     color: rgb(0, 33, 91);
-    margin-left:10px;
 }
 .markdown ul {
     font-size: 1.3rem;
     font-family: "Yu Mincho";
     color: rgb(0, 0, 0);
-    margin-left: 20px;
     margin-bottom:25px;
 }
 .backButton {

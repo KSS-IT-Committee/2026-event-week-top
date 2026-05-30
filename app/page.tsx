@@ -3,12 +3,22 @@ import Image from "next/image";
 
 import { Footer } from "@/components/Footer";
 
+import Link from "next/link";
+import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
+
+import { news } from "./news/newsData";
+
+const latestNews = [...news]
+  .sort((a, b) => (a.date < b.date ? 1 : -1))
+  .slice(0, 4);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
   description: "2026年度行事週間 トップページ",
 };
+
+console.log("NEWS DATA:", news);
 
 export default function Toppage() {
   return (
@@ -68,9 +78,17 @@ export default function Toppage() {
       <main className={styles.main}>
         <div className={styles.container}>
           {/* News */}
-          <div className={styles.news}>
-            <h1 className={styles.newsTitle}>News</h1>
-          </div>
+            <div className={styles.news}>
+             <h1 className={styles.newsTitle}>News</h1>
+             <ul className={styles.newsList}>
+             {latestNews.map((item) => (
+             <NewsItem key={item.id} item={item} />
+             ))}
+             </ul>
+             <Link href="/news/list" className={styles.newsDetail}>
+              もっと見る →
+             </Link>
+           </div>
 
           {/* Introduction */}
           <div className={styles.event}>

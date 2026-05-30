@@ -42,10 +42,18 @@
     padding:15px;
     font-size: 1.2rem;
 }
-.newsList:hover {
+.newsList a {
+    display: inline-block; /* ← これが重要 */
+    padding: 2px 0;
+}
+.newsList a:hover {
     color: rgb(15, 15, 136);
     text-decoration: underline;
 }
+.newsList li {
+    display: list-item; /* ← これで li が横に広がらなくなる */
+}
+
 .backButton {
   position: fixed;
   bottom: 20px;
