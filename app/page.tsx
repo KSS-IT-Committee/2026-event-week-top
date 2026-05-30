@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
+import { Schedule } from "@/app/components/schedule";
 import { Footer } from "@/components/Footer";
 
 import { FloatingMenu } from "./components/FloatingMenu";
@@ -121,7 +122,52 @@ export default function Toppage() {
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
-              <p>お知らせはまだありません。</p>
+              <p>2026/05/24 予備大の日程が公開されました。</p>
+            </div>
+            <div className={styles.sportsGrid}>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>サッカー</h2>
+                <Schedule
+                  subject="サッカー"
+                  items={[
+                    { label: "予選AB", date: "2026/05/28" },
+                    { label: "予選CD", date: "2026/06/01" },
+                    { label: "三位決定戦", date: "2026/06/04" },
+                    { label: "決勝", date: "2026/06/08" },
+                    { label: "予備", date: "2026/06/11", muted: true },
+                  ]}
+                />
+              </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>ドッヂボール</h2>
+                <Schedule
+                  subject="ドッヂボール"
+                  items={[
+                    { label: "試合", date: "2026/05/29" },
+                    { label: "予備", date: "2026/06/05", muted: true },
+                  ]}
+                />
+              </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>バスケットボール</h2>
+                <Schedule
+                  subject="バスケットボール"
+                  items={[
+                    { label: "予選AB", date: "2026/06/02" },
+                    { label: "予選CD", date: "2026/06/15" },
+                  ]}
+                />
+              </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>バレーボール</h2>
+                <Schedule
+                  subject="バレーボール"
+                  items={[
+                    { label: "予選", date: "2026/06/16" },
+                    { label: "決勝", date: "2026/06/17" },
+                  ]}
+                />
+              </section>
             </div>
           </div>
 
