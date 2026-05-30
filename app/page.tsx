@@ -197,23 +197,31 @@ export default function Toppage() {
             </div>
             <div className={styles.linkContainer}>
               <div className={styles.rentalSite}>
-                <a
-                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-equipment-management/app"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
                 >
                   工具貸出サイト
-                </a>
+                  <br />
+                  （Coming Soon）
+                </p>
               </div>
 
               <div className={styles.informationSite}>
-                <a
-                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-info/app"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
                 >
                   情報発信サイト
-                </a>
+                  <br />
+                  （Coming Soon）
+                </p>
               </div>
             </div>
           </div>
