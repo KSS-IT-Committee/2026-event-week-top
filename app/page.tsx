@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Footer } from "@/components/Footer";
-
-import Link from "next/link";
+import { news } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
 
-import { news } from "./news/newsData";
 
 const latestNews = [...news]
   .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -128,7 +127,7 @@ export default function Toppage() {
               {geinousaiNews.length === 0 ? (
                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.newsList}>
+             <ul className={styles.eventNewsList}>
               {geinousaiNews.map((item) => (
                <NewsItem key={item.id} item={item} />
               ))}
@@ -154,7 +153,7 @@ export default function Toppage() {
               {taiikusaiNews.length === 0 ? (
                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.newsList}>
+             <ul className={styles.eventNewsList}>
               {taiikusaiNews.map((item) => (
                <NewsItem key={item.id} item={item} />
               ))}
@@ -181,7 +180,7 @@ export default function Toppage() {
               {sousakutenNews.length === 0 ? (
                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.newsList}>
+             <ul className={styles.eventNewsList}>
               {sousakutenNews.map((item) => (
                <NewsItem key={item.id} item={item} />
               ))}
@@ -234,7 +233,7 @@ export default function Toppage() {
              {koyasaiNews.length === 0 ? (
                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.newsList}>
+             <ul className={styles.eventNewsList}>
               {koyasaiNews.map((item) => (
                <NewsItem key={item.id} item={item} />
               ))}
