@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Schedule } from "@/app/components/schedule";
 import { Footer } from "@/components/Footer";
 import { news } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
+import { FloatingMenu } from "./components/FloatingMenu";
 import styles from "./top-page.module.css";
 
 
@@ -90,17 +92,17 @@ export default function Toppage() {
       <main className={styles.main}>
         <div className={styles.container}>
           {/* News */}
-            <div className={styles.news}>
-             <h1 className={styles.newsTitle}>News</h1>
-             <ul className={styles.newsList}>
+          <div id="news" className={styles.news}>
+           <h1 className={styles.newsTitle}>News</h1>
+           <ul className={styles.newsList}>
              {latestNews.map((item) => (
-             <NewsItem key={item.id} item={item} />
+               <NewsItem key={item.id} item={item} />
              ))}
-             </ul>
-             <Link href="/news/list" className={styles.newsDetail}>
-              もっと見る →
-             </Link>
-           </div>
+           </ul>
+           <Link href="/news/list" className={styles.newsDetail}>
+             もっと見る →
+           </Link>
+          </div>
 
           {/* Introduction */}
           <div className={styles.event}>
@@ -111,7 +113,7 @@ export default function Toppage() {
           </div>
 
           {/* 芸能祭 */}
-          <div className={styles.event}>
+          <div id="performance" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.performanceTitle}>芸能祭</h1>
               <Image
@@ -137,7 +139,7 @@ export default function Toppage() {
           </div>
 
           {/* 体育祭 */}
-          <div className={styles.event}>
+          <div id="sports" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.sportsTitle}>体育祭</h1>
               <Image
@@ -149,21 +151,66 @@ export default function Toppage() {
               />
             </div>
             <div className={styles.content}>
-              <p>《お知らせ》</p>
-              {taiikusaiNews.length === 0 ? (
+             <p>《お知らせ》</p>
+             {taiikusaiNews.length === 0 ? (
                <p>お知らせはまだありません。</p>
-              ) : (
-             <ul className={styles.eventNewsList}>
-              {taiikusaiNews.map((item) => (
-               <NewsItem key={item.id} item={item} />
-              ))}
-              </ul>
+             ) : (
+               <ul className={styles.eventNewsList}>
+                 {taiikusaiNews.map((item) => (
+                   <NewsItem key={item.id} item={item} />
+                 ))}
+               </ul>
               )}
+            </div>
+            <div className={styles.sportsGrid}>
+             <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>サッカー</h2>
+                <Schedule
+                  subject="サッカー"
+                  items={[
+                    { label: "予選AB", date: "2026/05/28" },
+                    { label: "予選CD", date: "2026/06/01" },
+                    { label: "三位決定戦", date: "2026/06/04" },
+                    { label: "決勝", date: "2026/06/08" },
+                    { label: "予備", date: "2026/06/11", muted: true },
+                  ]}
+                />
+              </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>ドッヂボール</h2>
+                <Schedule
+                  subject="ドッヂボール"
+                  items={[
+                    { label: "試合", date: "2026/05/29" },
+                    { label: "予備", date: "2026/06/05", muted: true },
+                  ]}
+                />
+              </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>バスケットボール</h2>
+                <Schedule
+                  subject="バスケットボール"
+                  items={[
+                    { label: "予選AB", date: "2026/06/02" },
+                    { label: "予選CD", date: "2026/06/15" },
+                  ]}
+                />
+              </section>
+              <section className={styles.sportItem}>
+                <h2 className={styles.sportName}>バレーボール</h2>
+                <Schedule
+                  subject="バレーボール"
+                  items={[
+                    { label: "予選", date: "2026/06/16" },
+                    { label: "決勝", date: "2026/06/17" },
+                  ]}
+                />
+              </section>
             </div>
           </div>
 
           {/* 創作展 */}
-          <div className={styles.event}>
+          <div id="create" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.createTitle}>創作展</h1>
               <Image
@@ -194,29 +241,37 @@ export default function Toppage() {
             </div>
             <div className={styles.linkContainer}>
               <div className={styles.rentalSite}>
-                <a
-                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-equipment-management/app"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
                 >
                   工具貸出サイト
-                </a>
+                  <br />
+                  （Coming Soon）
+                </p>
               </div>
 
               <div className={styles.informationSite}>
-                <a
-                  href="https://github.com/KSS-IT-Committee/2026-sousakuten-info/app"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
                 >
                   情報発信サイト
-                </a>
+                  <br />
+                  （Coming Soon）
+                </p>
               </div>
             </div>
           </div>
 
           {/* 後夜祭 */}
-          <div className={styles.event}>
+          <div id="ceremony" className={styles.event}>
             <div className={styles.eventTop}>
               <h1 className={styles.ceremonyTitle}>後夜祭</h1>
               <Image
@@ -242,6 +297,16 @@ export default function Toppage() {
             </div>
           </div>
         </div>
+        <FloatingMenu
+          items={[
+            { label: "News", href: "#news" },
+            { label: "芸能祭", href: "#performance" },
+            { label: "体育祭", href: "#sports" },
+            { label: "創作展", href: "#create" },
+            { label: "後夜祭", href: "#ceremony" },
+            { label: "Changelog", href: "/changelog" },
+          ]}
+        />
       </main>
 
       <Footer />

@@ -149,9 +149,10 @@
   font-size:1.3rem;
   color: rgb(255, 255, 255);
   grid-column: 2 / 3;
+  min-height: 100px;
   background-color: rgb(76, 150, 252);
-  padding-top:5px;
-  padding-bottom:15px;
+  padding-top: 5px;
+  padding-bottom: 15px;
 }
 .newsTitle {
   font-size: 2rem;
@@ -187,6 +188,33 @@
 .newsDetail:hover {
   color:rgb(15, 15, 136);
   text-decoration:underline;
+}
+.newsList {
+  list-style: none;
+  padding: 0 5%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.newsItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  color: rgb(255, 255, 255);
+}
+.newsDate {
+  font-size: 0.95rem;
+  font-family: "Yu Mincho";
+  color: rgba(255, 255, 255, 0.85);
+}
+.newsText {
+  font-size: 1.1rem;
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255);
+  line-height: 1.5;
 }
 .event {
   font-size: 1.5rem;
@@ -283,7 +311,7 @@
   width: 250px;
   padding: 18px 0;
   text-align: center;
-  background-color: #1f71e4;
+  background-color: #676767;
   color: #ffffff;
   border-radius: 8px;
   font-size: 1.3rem;
@@ -292,6 +320,10 @@
   transition: 0.25s ease;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.rentalSite p,
+.informationSite p {
+  color: #ffffff;
 }
 .ceremonyTitle {
   font-size: 4rem;
@@ -312,6 +344,27 @@
   color: rgb(0, 0, 0);
   text-align: left;
   padding: 15px;
+}
+.sportsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  padding: 0 15px 10px;
+  margin-top: 4px;
+}
+.sportItem {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sportName {
+  font-family: "Yu Mincho", serif;
+  font-size: 1.5rem;
+  margin: 0 0 6px;
+  color: rgb(49, 108, 184);
+  border-left: 4px solid currentColor;
+  padding-left: 10px;
+  line-height: 1.2;
 }
 .text {
   font-size: 1.3rem;
@@ -356,6 +409,9 @@
   .content,
   .text {
     color: rgb(255, 255, 255);
+  }
+  .sportName {
+    color: rgb(140, 184, 252);
   }
   .event {
     border-bottom: 1px solid rgb(255, 255, 255);
