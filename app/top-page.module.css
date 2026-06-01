@@ -146,7 +146,7 @@
 }
 .news {
   font-family: "Yu Mincho";
-  font-size:1.3rem;
+  font-size: 1.3rem;
   color: rgb(255, 255, 255);
   grid-column: 2 / 3;
   min-height: 100px;
@@ -159,19 +159,19 @@
   font-family: "Yu Mincho";
   color: rgb(255, 255, 255);
   margin-left: 5%;
-  margin-top:10px
+  margin-top: 10px;
 }
 .newsList {
   list-style: disc;
-  padding:15px;
-  margin-left:20px;
-  color:rgb(255, 255, 255);
+  padding: 15px;
+  margin-left: 20px;
+  color: rgb(255, 255, 255);
 }
 .news :global(.newsItem),
 .news :global(.newsDate),
 .news :global(.newsText) {
-  color: rgb(255, 255, 255)!important;
-  margin-left:25px;
+  color: rgb(255, 255, 255) !important;
+  margin-left: 25px;
 }
 .newsList a:hover {
   text-decoration: underline;
@@ -182,12 +182,11 @@
   color: rgb(255, 255, 255);
   text-align: left;
   padding: 15px;
-  padding-bottom:25px;
-
+  padding-bottom: 25px;
 }
 .newsDetail:hover {
-  color:rgb(15, 15, 136);
-  text-decoration:underline;
+  color: rgb(15, 15, 136);
+  text-decoration: underline;
 }
 .newsList {
   list-style: none;
@@ -226,9 +225,9 @@
 }
 .eventNewsList {
   list-style: disc;
-  padding:15px;
-  margin-left:20px;
-  color:rgb(0, 0, 0);
+  padding: 15px;
+  margin-left: 20px;
+  color: rgb(0, 0, 0);
 }
 .eventNewsList a:hover {
   text-decoration: underline;

@@ -11,7 +11,6 @@ type Post = {
   date: string;
 };
 
-
 const postsDirectory = path.join(process.cwd(), "posts");
 
 export function getAllPosts() {
@@ -50,4 +49,3 @@ export async function getPostById(id: string): Promise<Post> {
     date: data.date,
   };
 }
-

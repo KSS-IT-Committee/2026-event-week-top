@@ -4,28 +4,20 @@ import Link from "next/link";
 
 import { Schedule } from "@/app/components/schedule";
 import { Footer } from "@/components/Footer";
+
+import { FloatingMenu } from "./components/FloatingMenu";
 import { news } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
-import { FloatingMenu } from "./components/FloatingMenu";
 import styles from "./top-page.module.css";
-
 
 const latestNews = [...news]
   .sort((a, b) => (a.date < b.date ? 1 : -1))
   .slice(0, 4);
 
-const geinousaiNews = news
-  .filter((item) => item.tag === "perform")
-  .slice(0, 3);
-const taiikusaiNews = news
-  .filter((item) => item.tag === "sport")
-  .slice(0, 3); 
-const sousakutenNews = news
-  .filter((item) => item.tag === "create")
-  .slice(0, 3);
-const koyasaiNews = news
-  .filter((item) => item.tag === "ceremony")
-  .slice(0, 3);
+const geinousaiNews = news.filter((item) => item.tag === "perform").slice(0, 3);
+const taiikusaiNews = news.filter((item) => item.tag === "sport").slice(0, 3);
+const sousakutenNews = news.filter((item) => item.tag === "create").slice(0, 3);
+const koyasaiNews = news.filter((item) => item.tag === "ceremony").slice(0, 3);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
@@ -93,15 +85,15 @@ export default function Toppage() {
         <div className={styles.container}>
           {/* News */}
           <div id="news" className={styles.news}>
-           <h1 className={styles.newsTitle}>News</h1>
-           <ul className={styles.newsList}>
-             {latestNews.map((item) => (
-               <NewsItem key={item.id} item={item} />
-             ))}
-           </ul>
-           <Link href="/news/list" className={styles.newsDetail}>
-             もっと見る →
-           </Link>
+            <h1 className={styles.newsTitle}>News</h1>
+            <ul className={styles.newsList}>
+              {latestNews.map((item) => (
+                <NewsItem key={item.id} item={item} />
+              ))}
+            </ul>
+            <Link href="/news/list" className={styles.newsDetail}>
+              もっと見る →
+            </Link>
           </div>
 
           {/* Introduction */}
@@ -127,13 +119,13 @@ export default function Toppage() {
             <div className={styles.content}>
               <p>《お知らせ》</p>
               {geinousaiNews.length === 0 ? (
-               <p>お知らせはまだありません。</p>
+                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.eventNewsList}>
-              {geinousaiNews.map((item) => (
-               <NewsItem key={item.id} item={item} />
-              ))}
-              </ul>
+                <ul className={styles.eventNewsList}>
+                  {geinousaiNews.map((item) => (
+                    <NewsItem key={item.id} item={item} />
+                  ))}
+                </ul>
               )}
             </div>
           </div>
@@ -151,19 +143,19 @@ export default function Toppage() {
               />
             </div>
             <div className={styles.content}>
-             <p>《お知らせ》</p>
-             {taiikusaiNews.length === 0 ? (
-               <p>お知らせはまだありません。</p>
-             ) : (
-               <ul className={styles.eventNewsList}>
-                 {taiikusaiNews.map((item) => (
-                   <NewsItem key={item.id} item={item} />
-                 ))}
-               </ul>
+              <p>《お知らせ》</p>
+              {taiikusaiNews.length === 0 ? (
+                <p>お知らせはまだありません。</p>
+              ) : (
+                <ul className={styles.eventNewsList}>
+                  {taiikusaiNews.map((item) => (
+                    <NewsItem key={item.id} item={item} />
+                  ))}
+                </ul>
               )}
             </div>
             <div className={styles.sportsGrid}>
-             <section className={styles.sportItem}>
+              <section className={styles.sportItem}>
                 <h2 className={styles.sportName}>サッカー</h2>
                 <Schedule
                   subject="サッカー"
@@ -225,13 +217,13 @@ export default function Toppage() {
             <div className={styles.content}>
               <p>《お知らせ》</p>
               {sousakutenNews.length === 0 ? (
-               <p>お知らせはまだありません。</p>
+                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.eventNewsList}>
-              {sousakutenNews.map((item) => (
-               <NewsItem key={item.id} item={item} />
-              ))}
-              </ul>
+                <ul className={styles.eventNewsList}>
+                  {sousakutenNews.map((item) => (
+                    <NewsItem key={item.id} item={item} />
+                  ))}
+                </ul>
               )}
               <br />
             </div>
@@ -285,14 +277,14 @@ export default function Toppage() {
             </div>
             <div className={styles.content}>
               <p>《お知らせ》</p>
-             {koyasaiNews.length === 0 ? (
-               <p>お知らせはまだありません。</p>
+              {koyasaiNews.length === 0 ? (
+                <p>お知らせはまだありません。</p>
               ) : (
-             <ul className={styles.eventNewsList}>
-              {koyasaiNews.map((item) => (
-               <NewsItem key={item.id} item={item} />
-              ))}
-              </ul>
+                <ul className={styles.eventNewsList}>
+                  {koyasaiNews.map((item) => (
+                    <NewsItem key={item.id} item={item} />
+                  ))}
+                </ul>
               )}
             </div>
           </div>
