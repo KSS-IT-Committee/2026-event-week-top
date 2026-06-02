@@ -161,12 +161,6 @@
   margin-left: 5%;
   margin-top: 10px;
 }
-.newsList {
-  list-style: disc;
-  padding: 15px;
-  margin-left: 20px;
-  color: rgb(255, 255, 255);
-}
 .news :global(.newsItem),
 .news :global(.newsDate),
 .news :global(.newsText) {
