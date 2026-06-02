@@ -227,7 +227,6 @@
   list-style: disc;
   padding: 15px;
   margin-left: 20px;
-  color: rgb(0, 0, 0);
 }
 .eventNewsList a:hover {
   text-decoration: underline;
