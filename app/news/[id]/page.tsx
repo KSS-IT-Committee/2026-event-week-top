@@ -1,8 +1,8 @@
+import "../markdown.css";
+
 import Link from "next/link";
 
 import { getAllPosts, getPostById } from "@/lib/posts";
-
-import "../markdown.css";
 
 type Post = {
   id: string;
@@ -14,16 +14,16 @@ type Post = {
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((p) => ({ id: p.id }));
+  return getAllPosts().map((p) => ({ id: p.id }));
 }
 
-export default async function NewsArticle(props: {
-  params: { id: string };
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = props.params;
-
-  const post: Post = await getPostById(id);
+  const { id } = await params;
+  const post = await getPostById(id);
 
   return (
     <>
