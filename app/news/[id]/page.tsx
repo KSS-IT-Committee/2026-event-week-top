@@ -4,12 +4,6 @@ import Link from "next/link";
 
 import { getAllPosts, getPostById } from "@/lib/posts";
 
-type Post = {
-  id: string;
-  contentHtml: string;
-  title: string;
-  date: string;
-};
 
 export const dynamicParams = false;
 
