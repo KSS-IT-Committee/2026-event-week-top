@@ -18,7 +18,7 @@ export default function NewsListPage() {
       <div className={styles.newsContent}>
         <h1 className={styles.newsInfo}>《News》</h1>
         <p className={styles.information}>
-          お知らせをクイックすると詳細が表示されます。
+          お知らせをクリックすると詳細が表示されます。
         </p>
         <ul className={styles.newsList}>
           {sorted.map((item) => (
