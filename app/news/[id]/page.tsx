@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { getAllPosts, getPostById } from "@/lib/posts";
 
+
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
