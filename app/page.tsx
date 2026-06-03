@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Schedule } from "@/app/components/schedule";
-import { Footer } from "@/components/Footer";
 
 import { FloatingMenu } from "./components/FloatingMenu";
 import { news } from "./news/newsData";
@@ -301,7 +300,6 @@ export default function Toppage() {
         />
       </main>
 
-      <Footer />
     </>
   );
 }
