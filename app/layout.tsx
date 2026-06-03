@@ -1,3 +1,4 @@
+import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 import type { Metadata } from "next";
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
         {/* Google tag (gtag.js) */}
@@ -42,7 +43,11 @@ gtag('js', new Date());
 gtag('config', 'G-STVFHMQS05');`}
         </Script>
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-screen flex flex-col">
+       <main className="flex-1"> {children}</main>
+        <Footer />
+      </body>
+     
     </html>
   );
 }
