@@ -1,8 +1,8 @@
-import "../markdown.css";
-
 import Link from "next/link";
 
 import { getAllPosts, getPostById } from "@/lib/posts";
+
+import styles from "../markdown.module.css";
 
 export const dynamicParams = false;
 
@@ -21,18 +21,18 @@ export default async function Page({
   return (
     <>
       <article>
-        <div className="header">
-          <h1 className="title">{post.title}</h1>
-          <p className="date">
+        <div className={styles.header}>
+          <h1 className={styles.title}>{post.title}</h1>
+          <p className={styles.date}>
             {new Date(post.date).toLocaleDateString("ja-JP")}
           </p>
         </div>
         <div
-          className="markdown"
+          className={styles.markdown}
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
       </article>
-      <Link href="/" className="backButton">
+      <Link href="/" className={styles.backButton}>
         トップに戻る
       </Link>
     </>
