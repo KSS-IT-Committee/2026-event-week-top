@@ -44,10 +44,9 @@ gtag('config', 'G-STVFHMQS05');`}
         </Script>
       </head>
       <body className="min-h-screen flex flex-col">
-       <main className="flex-1"> {children}</main>
+        <main className="flex-1"> {children}</main>
         <Footer />
       </body>
-     
     </html>
   );
 }
