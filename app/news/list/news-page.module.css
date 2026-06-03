@@ -12,6 +12,7 @@
   margin-left: 10px;
   margin-top: 50px;
   font-family: "Yu Mincho";
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 .newsIntro {
   font-size: 1.2rem;
@@ -23,6 +24,8 @@
 .newsContent {
   background-color: #f2f2f2;
   margin: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 .newsInfo {
   font-size: 1.7rem;
@@ -45,6 +48,7 @@
 .newsList a {
   display: inline-block; /* ← これが重要 */
   padding: 2px 0;
+  transition: color 0.15s ease;
 }
 .newsList a:hover {
   color: rgb(15, 15, 136);
@@ -72,4 +76,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  box-shadow: 0 4px 12px rgba(0, 83, 200, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+.backButton:hover {
+  background-color: rgb(0, 70, 170);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 83, 200, 0.4);
 }
