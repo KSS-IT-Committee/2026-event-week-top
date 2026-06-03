@@ -11,7 +11,7 @@ type Post = {
   date: string;
 };
 
-const postsDirectory = path.join(process.cwd(), "posts");
+const postsDirectory = path.join(process.cwd(), "content/posts");
 
 export function getAllPosts() {
   const fileNames = fs.readdirSync(postsDirectory);
