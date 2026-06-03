@@ -23,6 +23,7 @@
   color: rgb(0, 0, 0);
   padding: 20px;
   text-align: center;
+  line-height: 1.8;
 }
 .markdown h1 {
   font-size: 1.7rem;
@@ -58,4 +59,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  box-shadow: 0 4px 12px rgba(0, 83, 200, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+.backButton:hover {
+  background-color: rgb(0, 70, 170);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 83, 200, 0.4);
 }

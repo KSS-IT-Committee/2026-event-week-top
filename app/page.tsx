@@ -295,6 +295,7 @@ export default function Toppage() {
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },
+            { label: "News", href: "/news/list" },
             { label: "Changelog", href: "/changelog" },
           ]}
         />
