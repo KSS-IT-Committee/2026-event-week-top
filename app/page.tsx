@@ -23,8 +23,6 @@ export const metadata: Metadata = {
   description: "2026年度行事週間 トップページ",
 };
 
-console.log("NEWS DATA:", news);
-
 export default function Toppage() {
   return (
     <>
