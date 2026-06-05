@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 type EasterState = {
   id: number;
@@ -11,8 +11,9 @@ type EasterState = {
 
 export function Easter() {
   const [isActive, setIsActive] = useState<EasterState[]>([]);
+  const splitIdRef = useRef(1_000_000);
   const [windowWidth, setWindowWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 0
+    typeof window !== "undefined" ? window.innerWidth : 0,
   );
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -46,14 +47,22 @@ export function Easter() {
       const newBottom = Math.floor(Math.random() * 250) + 50;
       const animDuration = Math.max(2, (windowWidth / 1000) * 4);
 
-      setIsActive((prev) => [...prev, { id: newId, bottom: newBottom, right: -150, moving: false } as EasterState]);
+      setIsActive((prev) => [
+        ...prev,
+        {
+          id: newId,
+          bottom: newBottom,
+          right: -150,
+          moving: false,
+        } as EasterState,
+      ]);
 
       // Start animation after a short delay
       setTimeout(() => {
         setIsActive((prev) =>
           prev.map((item) =>
-            item.id === newId ? { ...item, moving: true } : item
-          )
+            item.id === newId ? { ...item, moving: true } : item,
+          ),
         );
       }, 50);
 
@@ -62,13 +71,12 @@ export function Easter() {
       setTimeout(() => {
         setIsActive((prev) => prev.filter((item) => item.id !== newId));
       }, animDuration * 1000);
-
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
       input.push(e.key);
       if (input.length > Konami.length) input.shift();
-      if(input.join(",").toLowerCase() === Konami.join(",").toLowerCase()) {
+      if (input.join(",").toLowerCase() === Konami.join(",").toLowerCase()) {
         triggerEaster();
       }
     };
@@ -81,49 +89,54 @@ export function Easter() {
     const onTouchEnd = (e: TouchEvent) => {
       touchEndX = e.changedTouches[0].clientX;
       touchEndY = e.changedTouches[0].clientY;
-      
+
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
 
       const minSwipeDistance = 30;
 
-      if (Math.abs(deltaX) >= minSwipeDistance || Math.abs(deltaY) >= minSwipeDistance) {
+      if (
+        Math.abs(deltaX) >= minSwipeDistance ||
+        Math.abs(deltaY) >= minSwipeDistance
+      ) {
         e.preventDefault();
       }
 
-      if(Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+      if (
+        Math.abs(deltaX) < minSwipeDistance &&
+        Math.abs(deltaY) < minSwipeDistance
+      ) {
         ++tapCount;
 
-        if(tapCount === 1) {
+        if (tapCount === 1) {
           input.push("b");
           tapTimer = setTimeout(() => {
             tapCount = 0;
           }, 500);
-        }
-        else if (tapCount === 2) {
+        } else if (tapCount === 2) {
           clearTimeout(tapTimer!);
           input.push("a");
           tapCount = 0;
         }
-      }
-      else {
+      } else {
         tapCount = 0;
-        if(tapTimer) tapTimer = null;
+        if (tapTimer) tapTimer = null;
 
-        let direction:string="";
-        if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
-          direction = deltaX>0?"ArrowRight":"ArrowLeft";
-        }
-        else { // Vertical swipe
-          direction = deltaY>0?"ArrowDown":"ArrowUp";
+        let direction: string = "";
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Horizontal swipe
+          direction = deltaX > 0 ? "ArrowRight" : "ArrowLeft";
+        } else {
+          // Vertical swipe
+          direction = deltaY > 0 ? "ArrowDown" : "ArrowUp";
         }
         input.push(direction);
       }
-      if(input.length>Konami.length)input.shift(); // Basically should match the Konami.length
-      if(input.join(",").toLowerCase() === Konami.join(",").toLowerCase()) {
+      if (input.length > Konami.length) input.shift(); // Basically should match the Konami.length
+      if (input.join(",").toLowerCase() === Konami.join(",").toLowerCase()) {
         triggerEaster();
       }
-    }
+    };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: false });
@@ -132,31 +145,48 @@ export function Easter() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
-      if(tapTimer) clearTimeout(tapTimer);
-    }
+      if (tapTimer) clearTimeout(tapTimer);
+    };
   }, [windowWidth]);
 
   const animationDuration = Math.max(2, (windowWidth / 1000) * 4);
 
-  const handleSplit = (id:number,bottom:number,right:number)=>{
-    const newId1=Date.now()+Math.random();
-    const newId2=Date.now()+Math.random()+1;
-    
+  const handleSplit = (id: number, bottom: number, right: number) => {
+    const newId1 = ++splitIdRef.current;
+    const newId2 = ++splitIdRef.current;
+
     setIsActive((prev) => {
       const withoutClicked = prev.filter((item) => item.id !== id);
-      return [...withoutClicked, 
-        { id: newId1, bottom: bottom+30, right: right, moving: true } as EasterState,
-        { id: newId2, bottom: bottom-30, right: right, moving: true } as EasterState
+      return [
+        ...withoutClicked,
+        {
+          id: newId1,
+          bottom: bottom + 30,
+          right: right,
+          moving: true,
+        } as EasterState,
+        {
+          id: newId2,
+          bottom: bottom - 30,
+          right: right,
+          moving: true,
+        } as EasterState,
       ];
     });
 
-    setTimeout(()=>{
-      setIsActive((prev) => prev.map((item)=>item.id===newId1||item.id===newId2?{...item,moving:true}:item));
-    },50);
+    setTimeout(() => {
+      setIsActive((prev) =>
+        prev.map((item) =>
+          item.id === newId1 || item.id === newId2
+            ? { ...item, moving: true }
+            : item,
+        ),
+      );
+    }, 50);
 
     setTimeout(() => {
       setIsActive((prev) =>
-        prev.filter((item) => item.id !== newId1 && item.id !== newId2)
+        prev.filter((item) => item.id !== newId1 && item.id !== newId2),
       );
     }, animationDuration * 1000);
   };
