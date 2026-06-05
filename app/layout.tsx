@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
+import { Easter } from "@/app/components/Easter";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -42,6 +44,7 @@ gtag('js', new Date());
 gtag('config', 'G-STVFHMQS05');`}
         </Script>
       </head>
+      <Easter />
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
