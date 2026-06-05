@@ -44,8 +44,11 @@ gtag('js', new Date());
 gtag('config', 'G-STVFHMQS05');`}
         </Script>
       </head>
-      <Easter />
-      <body className="min-h-full flex flex-col">{children}</body>
+      
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Easter />
+      </body>
     </html>
   );
 }
