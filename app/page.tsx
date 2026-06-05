@@ -290,7 +290,6 @@ export default function Toppage() {
         </div>
         <FloatingMenu
           items={[
-            { label: "News", href: "#news" },
             { label: "芸能祭", href: "#performance" },
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
