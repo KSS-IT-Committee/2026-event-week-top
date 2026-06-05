@@ -78,7 +78,6 @@ export default function Toppage() {
         <br />
       </header>
 
-      <main className={styles.main}>
         <div className={styles.container}>
           {/* News */}
           <div id="news" className={styles.news}>
@@ -296,7 +295,6 @@ export default function Toppage() {
             { label: "Changelog", href: "/changelog" },
           ]}
         />
-      </main>
     </>
   );
 }
