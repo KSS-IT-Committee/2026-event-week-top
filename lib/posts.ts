@@ -14,7 +14,9 @@ type Post = {
 const postsDirectory = path.join(process.cwd(), "content/posts");
 
 export function getAllPosts() {
-  const fileNames = fs.readdirSync(postsDirectory);
+  const fileNames = fs
+    .readdirSync(postsDirectory)
+    .filter((file) => file.endsWith(".md")); 
 
   return fileNames.map((fileName) => {
     const id = fileName.replace(/\.md$/, "");
@@ -29,6 +31,7 @@ export function getAllPosts() {
     };
   });
 }
+
 export async function getPostById(id: string): Promise<Post> {
   const fullPath = path.join(postsDirectory, `${id}.md`);
   const fileContents = fs.readFileSync(fullPath, "utf8");
