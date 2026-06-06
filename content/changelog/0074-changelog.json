@@ -1,0 +1,7 @@
+{
+  "title": "プレビュー時のGtagの無効化",
+  "description": "ページのプレビューの時に、Google Analyticsのタグが無効化されました。これによるページの変更はありません。",
+  "credits": [
+    "@rotarymars"
+  ]
+}
