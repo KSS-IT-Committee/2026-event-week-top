@@ -34,7 +34,7 @@ export default function ChangelogPage() {
 
   return (
     <>
-      <main className={styles.main}>
+      <div className={styles.main}>
         <h1 className={styles.title}>Changelog</h1>
         <p className={styles.subtitle}>サイトの更新履歴</p>
 
@@ -73,7 +73,7 @@ export default function ChangelogPage() {
             ))}
           </ol>
         )}
-      </main>
+      </div>
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </>
   );
