@@ -16,7 +16,7 @@ const postsDirectory = path.join(process.cwd(), "content/posts");
 export function getAllPosts() {
   const fileNames = fs
     .readdirSync(postsDirectory)
-    .filter((file) => file.endsWith(".md")); 
+    .filter((file) => file.endsWith(".md"));
 
   return fileNames.map((fileName) => {
     const id = fileName.replace(/\.md$/, "");
