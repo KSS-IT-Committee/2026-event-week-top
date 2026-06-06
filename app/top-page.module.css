@@ -161,9 +161,9 @@
   margin-left: 5%;
   margin-top: 10px;
 }
-.news :global(.newsItem),
-.news :global(.newsDate),
-.news :global(.newsText) {
+.newsItem,
+.newsDate,
+.newsText {
   color: rgb(255, 255, 255) !important;
   margin-left: 25px;
 }
