@@ -6,12 +6,13 @@ type EasterState = {
   id: number;
   bottom: number;
   right: number;
-  moving: boolean;
+  isMoving: boolean;
 };
 
 export function Easter() {
-  const [isActive, setIsActive] = useState<EasterState[]>([]);
+  const [activeItems, setActiveItems] = useState<EasterState[]>([]);
   const splitIdRef = useRef(1_000_000);
+  const idCounterRef = useRef(0);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0,
   );
@@ -34,7 +35,6 @@ export function Easter() {
       "a",
     ];
     let input: string[] = [];
-    let idCounter: number = 0;
     let touchStartX: number = 0;
     let touchStartY: number = 0;
     let touchEndX: number = 0;
@@ -43,25 +43,25 @@ export function Easter() {
     let tapTimer: ReturnType<typeof setTimeout> | null = null;
 
     const triggerEaster = () => {
-      const newId = idCounter++;
+      const newId = idCounterRef.current++;
       const newBottom = Math.floor(Math.random() * 250) + 50;
-      const animDuration = Math.max(2, (windowWidth / 1000) * 4);
+      const animDuration = Math.max(2, (window.innerWidth / 1000) * 4);
 
-      setIsActive((prev) => [
+      setActiveItems((prev) => [
         ...prev,
         {
           id: newId,
           bottom: newBottom,
           right: -150,
-          moving: false,
+          isMoving: false,
         } as EasterState,
       ]);
 
       // Start animation after a short delay
       setTimeout(() => {
-        setIsActive((prev) =>
+        setActiveItems((prev) =>
           prev.map((item) =>
-            item.id === newId ? { ...item, moving: true } : item,
+            item.id === newId ? { ...item, isMoving: true } : item,
           ),
         );
       }, 50);
@@ -69,7 +69,7 @@ export function Easter() {
       input = [];
 
       setTimeout(() => {
-        setIsActive((prev) => prev.filter((item) => item.id !== newId));
+        setActiveItems((prev) => prev.filter((item) => item.id !== newId));
       }, animDuration * 1000);
     };
 
@@ -120,7 +120,10 @@ export function Easter() {
         }
       } else {
         tapCount = 0;
-        if (tapTimer) tapTimer = null;
+        if (tapTimer) {
+          clearTimeout(tapTimer);
+          tapTimer = null;
+        }
 
         let direction: string = "";
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -147,7 +150,7 @@ export function Easter() {
       window.removeEventListener("touchend", onTouchEnd);
       if (tapTimer) clearTimeout(tapTimer);
     };
-  }, [windowWidth]);
+  }, []);
 
   const animationDuration = Math.max(2, (windowWidth / 1000) * 4);
 
@@ -155,7 +158,7 @@ export function Easter() {
     const newId1 = ++splitIdRef.current;
     const newId2 = ++splitIdRef.current;
 
-    setIsActive((prev) => {
+    setActiveItems((prev) => {
       const withoutClicked = prev.filter((item) => item.id !== id);
       return [
         ...withoutClicked,
@@ -163,36 +166,36 @@ export function Easter() {
           id: newId1,
           bottom: bottom + 30,
           right: right,
-          moving: true,
+          isMoving: true,
         } as EasterState,
         {
           id: newId2,
           bottom: bottom - 30,
           right: right,
-          moving: true,
+          isMoving: true,
         } as EasterState,
       ];
     });
 
     setTimeout(() => {
-      setIsActive((prev) =>
+      setActiveItems((prev) =>
         prev.map((item) =>
           item.id === newId1 || item.id === newId2
-            ? { ...item, moving: true }
+            ? { ...item, isMoving: true }
             : item,
         ),
       );
     }, 50);
 
     setTimeout(() => {
-      setIsActive((prev) =>
+      setActiveItems((prev) =>
         prev.filter((item) => item.id !== newId1 && item.id !== newId2),
       );
     }, animationDuration * 1000);
   };
   return (
     <>
-      {isActive.map((item: EasterState) => (
+      {activeItems.map((item: EasterState) => (
         <img
           key={item.id}
           src="/koisshi.png"
@@ -200,12 +203,12 @@ export function Easter() {
           style={{
             position: "fixed",
             bottom: `${item.bottom}px`,
-            right: item.moving ? "100vw" : `${item.right}px`,
+            right: item.isMoving ? "100vw" : `${item.right}px`,
             width: "100px",
             height: "100px",
             zIndex: 9999,
             cursor: "pointer",
-            transform: item.moving ? "rotate(-1080deg)" : "rotate(0deg)",
+            transform: item.isMoving ? "rotate(-1080deg)" : "rotate(0deg)",
             transition: `right ${animationDuration}s linear, transform ${animationDuration}s linear`,
           }}
           onClick={(e) => {
