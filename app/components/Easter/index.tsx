@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type EasterState = {
@@ -196,10 +197,12 @@ export function Easter() {
   return (
     <>
       {activeItems.map((item: EasterState) => (
-        <img
+        <Image
           key={item.id}
           src="/koisshi.png"
           alt="koisshi"
+          width={100}
+          height={100}
           style={{
             position: "fixed",
             bottom: `${item.bottom}px`,
