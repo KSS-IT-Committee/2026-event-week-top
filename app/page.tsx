@@ -96,7 +96,12 @@ export default function Toppage() {
         <div className={styles.event}>
           <h1 className={styles.introductionTitle}>Introduction</h1>
           <p className={styles.text}>
-            こちらは行事週間の総合サイトです！様々な情報を発信していくのでお見逃しなく！
+            こちらは行事週間の総合サイトです！
+            <br />
+            各行事の最新情報やスケジュール、関連サイトへのリンクなどを掲載しています。
+            <br />
+            随時更新していきますので、ぜひチェックしてください！
+            <br />
           </p>
         </div>
 

@@ -96,10 +96,10 @@
 }
 .curveLine {
   position: absolute;
-  top: -50px; 
-  right: 800px; 
-  height: 120%; 
-  width: 80px; 
+  top: -50px;
+  right: 800px;
+  height: 120%;
+  width: 80px;
   opacity: 0.9;
 }
 .flowLine {
@@ -116,7 +116,7 @@
 .scroll {
   font-family: "Yu Mincho";
   position: absolute;
-  bottom: 20px; 
+  bottom: 20px;
   left: 60%;
   transform: translateX(-50%);
   font-size: 1.5rem;
@@ -145,17 +145,17 @@
   margin: 0 auto;
   gap: 10px;
 }
-.news{
+.news {
   grid-column: 2 / 3;
-  grid-row:1;
+  grid-row: 1;
   min-height: 100px;
   background-color: rgb(76, 150, 252);
   padding: 5px;
   padding-bottom: 8px;
 }
-.news *{
+.news * {
   font-family: "Yu Mincho";
-  color: rgb(255, 255, 255)!important;
+  color: rgb(255, 255, 255) !important;
 }
 .newsTitle {
   font-size: 2rem;
