@@ -96,10 +96,10 @@
 }
 .curveLine {
   position: absolute;
-  top: -50px; /* 位置調整 */
-  right: 800px; /* 横位置（調整可） */
-  height: 120%; /* 長さ */
-  width: 80px; /* カーブの幅 */
+  top: -50px; 
+  right: 800px; 
+  height: 120%; 
+  width: 80px; 
   opacity: 0.9;
 }
 .flowLine {
@@ -116,7 +116,7 @@
 .scroll {
   font-family: "Yu Mincho";
   position: absolute;
-  bottom: 20px; /* 位置調整 */
+  bottom: 20px; 
   left: 60%;
   transform: translateX(-50%);
   font-size: 1.5rem;
@@ -137,7 +137,8 @@
 
 .container {
   display: grid;
-  grid-template-columns: 0px 0.85fr 3px 1fr 1fr 5px;
+  grid-auto-rows: auto;
+  grid-template-columns: 0px 0.85fr 3px 2fr 5px;
   padding: 5px 5px 30px;
   padding-top: 10px;
   width: 100%;
@@ -146,6 +147,7 @@
 }
 .news{
   grid-column: 2 / 3;
+  grid-row:1;
   min-height: 100px;
   background-color: rgb(76, 150, 252);
   padding: 5px;
@@ -197,7 +199,7 @@
   font-size: 1.5rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
-  grid-column: 4/ 6;
+  grid-column: 4/ 5;
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   padding: 15px;
 }
@@ -212,9 +214,8 @@
 .introductionTitle {
   font-size: 2.5rem;
   font-family: "Yu Mincho";
-  color: rgb(0, 0, 0);
+  color: rgb(49, 108, 184);
   text-align: left;
-  text-decoration: underline;
   padding-left: 20px;
 }
 .eventTop {
@@ -229,7 +230,7 @@
 }
 .performanceTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: "Yu Mincho";
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
@@ -242,7 +243,7 @@
 }
 .sportsTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: "Yu Mincho";
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #79e400 0%, #0083ee 100%);
@@ -255,7 +256,7 @@
 }
 .createTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
+  font-family: "Yu Mincho";
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #469ce2 0%, #b700ff 100%);
