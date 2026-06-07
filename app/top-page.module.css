@@ -137,26 +137,26 @@
 
 .container {
   display: grid;
-  grid-template-columns: 0px 0.8fr 3px 1fr 1fr 5px;
+  grid-template-columns: 0px 0.85fr 3px 1fr 1fr 5px;
   padding: 5px 5px 30px;
   padding-top: 10px;
   width: 100%;
   margin: 0 auto;
   gap: 10px;
 }
-.news {
-  font-family: "Yu Mincho";
-  font-size: 1.3rem;
-  color: rgb(255, 255, 255);
+.news{
   grid-column: 2 / 3;
   min-height: 100px;
   background-color: rgb(76, 150, 252);
-  padding-top: 5px;
-  padding-bottom: 15px;
+  padding: 5px;
+  padding-bottom: 8px;
+}
+.news *{
+  font-family: "Yu Mincho";
+  color: rgb(255, 255, 255)!important;
 }
 .newsTitle {
   font-size: 2rem;
-  font-family: "Yu Mincho";
   color: rgb(255, 255, 255);
   margin-left: 5%;
   margin-top: 10px;
@@ -164,8 +164,10 @@
 .newsItem,
 .newsDate,
 .newsText {
+  font-size: 1.3rem;
   color: rgb(255, 255, 255) !important;
-  margin-left: 25px;
+  margin-left: 10px;
+  margin-bottom: 5px;
 }
 .newsList a:hover {
   text-decoration: underline;
@@ -190,25 +192,7 @@
   flex-direction: column;
   gap: 10px;
 }
-.newsItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
-  color: rgb(255, 255, 255);
-}
-.newsDate {
-  font-size: 0.95rem;
-  font-family: "Yu Mincho";
-  color: rgba(255, 255, 255, 0.85);
-}
-.newsText {
-  font-size: 1.1rem;
-  font-family: "Yu Mincho";
-  color: rgb(255, 255, 255);
-  line-height: 1.5;
-}
+
 .event {
   font-size: 1.5rem;
   font-family: "Yu Mincho";
