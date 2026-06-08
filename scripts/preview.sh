@@ -6,22 +6,7 @@ REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 COMPOSE_FILE="${REPO_DIR}/docker-compose.preview.yml"
 
 remote_url=$(git -C "$REPO_DIR" remote get-url origin)
-case "$remote_url" in
-  https://github.com/*)
-    slug=${remote_url#https://github.com/}
-    ;;
-  git@github.com:*)
-    slug=${remote_url#git@github.com:}
-    ;;
-  ssh://git@github.com/*)
-    slug=${remote_url#ssh://git@github.com/}
-    ;;
-  *)
-    echo "Error: origin remote is not a supported GitHub URL: $remote_url" >&2
-    echo "Expected formats: https://github.com/<owner>/<repo>[.git], git@github.com:<owner>/<repo>[.git], ssh://git@github.com/<owner>/<repo>[.git]" >&2
-    exit 1
-    ;;
-esac
+slug=${remote_url#*github.com[:/]}
 slug=${slug%.git}
 slug=$(printf '%s' "$slug" | tr '[:upper:]' '[:lower:]')
 
@@ -44,7 +29,7 @@ fi
 export TAG
 
 cleanup() {
-  docker compose -p "$PROJECT" -f "$COMPOSE_FILE" down --remove-orphans >/dev/null || true
+  docker compose -p "$PROJECT" -f "$COMPOSE_FILE" down --remove-orphans >/dev/null 2>&1 || true
 }
 trap cleanup EXIT INT TERM
 

@@ -44,4 +44,4 @@ RUN mkdir -p /app/files && chown nextjs:nodejs /app/files
 USER nextjs
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start", "--", "-p", "3000", "-H", "0.0.0.0"]
