@@ -71,3 +71,22 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 83, 200, 0.4);
 }
+
+@media (prefers-color-scheme: dark) {
+  .header {
+    background-color: rgb(42, 108, 202);
+  }
+  .main {
+    background-color: #0f1a2b;
+  } 
+  .title,
+  .date,
+  .markdown, 
+  .markdown ul {
+    color: rgb(255, 255, 255);
+  }
+  .markdown h1,
+  .markdown h2 {
+    color: rgb(140, 184, 252);
+  }
+}
