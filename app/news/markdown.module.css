@@ -78,10 +78,10 @@
   }
   .main {
     background-color: #0f1a2b;
-  } 
+  }
   .title,
   .date,
-  .markdown, 
+  .markdown,
   .markdown ul {
     color: rgb(255, 255, 255);
   }

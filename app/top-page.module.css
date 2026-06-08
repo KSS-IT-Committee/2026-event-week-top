@@ -316,27 +316,27 @@
   margin-left: 20px;
 }
 .performanceTitle,
-  .sportsTitle,
-  .createTitle,
-  .ceremonyTitle {
-    margin-right: 0;
-    padding-left: 20px;
-    position: relative;
-  }
-  .performanceTitle::before,
-  .sportsTitle::before,
-  .createTitle::before,
-  .ceremonyTitle::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 10%;
-    height: 80%;
-    width: 6px;
-    background: inherit;
-    -webkit-background-clip: border-box;
-    background-clip: border-box;
-  }
+.sportsTitle,
+.createTitle,
+.ceremonyTitle {
+  margin-right: 0;
+  padding-left: 20px;
+  position: relative;
+}
+.performanceTitle::before,
+.sportsTitle::before,
+.createTitle::before,
+.ceremonyTitle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  height: 80%;
+  width: 6px;
+  background: inherit;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
 .content {
   font-size: 1.3rem;
   font-family: "Yu Mincho";
@@ -405,9 +405,9 @@
   .newsTitle,
   .lead,
   .content,
-  .text, 
-  .eventNewsList{
-    color: rgb(255, 255, 255)!important;
+  .text,
+  .eventNewsList {
+    color: rgb(255, 255, 255) !important;
   }
   .introductionTitle,
   .sportName {
