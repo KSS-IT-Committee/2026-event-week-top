@@ -67,3 +67,9 @@
 .empty {
   color: color-mix(in oklch, var(--foreground) 60%, transparent);
 }
+
+@media (prefers-color-scheme: dark) {
+ body{
+    background-color: #0f1a2b;
+ }
+}
