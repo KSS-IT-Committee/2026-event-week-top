@@ -1,0 +1,73 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f2f2f2;
+  height: 180px;
+}
+.title {
+  margin-top: 55px;
+  font-size: 2rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  margin-bottom: 10px;
+}
+.date {
+  font-size: 1.2rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+}
+.markdown {
+  font-size: 1.2rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  padding: 20px;
+  text-align: center;
+  line-height: 1.8;
+}
+.markdown h1 {
+  font-size: 1.7rem;
+  color: rgb(0, 33, 91);
+  margin-bottom: 10px;
+}
+.markdown h2 {
+  font-size: 1.5rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 33, 91);
+}
+.markdown ul {
+  font-size: 1.3rem;
+  font-family: "Yu Mincho";
+  color: rgb(0, 0, 0);
+  margin-bottom: 25px;
+}
+.backButton {
+  position: fixed;
+  bottom: 20px;
+  right: 10%;
+
+  width: 120px;
+  height: 55px;
+  border-radius: 10%;
+
+  background-color: rgb(0, 83, 200);
+  color: white;
+  font-size: 1.2rem;
+  font-family: "Yu Mincho";
+  text-decoration: none;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  box-shadow: 0 4px 12px rgba(0, 83, 200, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+.backButton:hover {
+  background-color: rgb(0, 70, 170);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 83, 200, 0.4);
+}
