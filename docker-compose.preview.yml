@@ -11,11 +11,27 @@ services:
       timeout: 2s
       retries: 30
 
+  # Apply the app's bundled drizzle migrations to the fresh, empty preview DB
+  # before the app boots. The image ships drizzle-kit + drizzle/, but the app's
+  # `start` is `next start` only, so nothing else creates the schema and
+  # DB-backed pages would otherwise 500 with "relation ... does not exist".
+  migrate:
+    image: ghcr.io/${IMAGE_SLUG:?IMAGE_SLUG must be set}/preview:${TAG:-latest}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://top:top@db:5432/top
+    command: ["npx", "drizzle-kit", "migrate"]
+    restart: "no"
+
   app:
     image: ghcr.io/${IMAGE_SLUG:?IMAGE_SLUG must be set}/preview:${TAG:-latest}
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     environment:
       DATABASE_URL: postgres://top:top@db:5432/top
     ports:
