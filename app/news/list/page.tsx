@@ -3,11 +3,11 @@ export const dynamic = "force-static";
 import Link from "next/link";
 
 import styles from "@/app/news/list/news-page.module.css";
-import { news } from "@/app/news/newsData";
+import { getNews } from "@/app/news/newsData";
 import { NewsItem } from "@/app/news/newsItem";
 
 export default function NewsListPage() {
-  const sorted = [...news].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const sorted = [...getNews()].sort((a, b) => (a.date < b.date ? 1 : -1));
 
   return (
     <div className={styles.newsContainer}>
