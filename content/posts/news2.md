@@ -2,6 +2,7 @@
 id: "news2"
 date: 2026-05-29
 title: "予備大ドッヂボールの結果"
+tag: "sport"
 ---
 
 # 女子

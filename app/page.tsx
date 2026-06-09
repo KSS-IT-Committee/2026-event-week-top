@@ -13,10 +13,18 @@ const latestNews = getNews()
   .sort((a, b) => (a.date < b.date ? 1 : -1))
   .slice(0, 4);
 
-const geinousaiNews = getNews().filter((data) => data.tag === "perform").slice(0, 3);
-const taiikusaiNews = getNews().filter((data) => data.tag === "sport").slice(0, 3);
-const sousakutenNews = getNews().filter((data) => data.tag === "create").slice(0, 3);
-const koyasaiNews = getNews().filter((data) => data.tag === "ceremony").slice(0, 3);
+const geinousaiNews = getNews()
+  .filter((data) => data.tag === "perform")
+  .slice(0, 3);
+const taiikusaiNews = getNews()
+  .filter((data) => data.tag === "sport")
+  .slice(0, 3);
+const sousakutenNews = getNews()
+  .filter((data) => data.tag === "create")
+  .slice(0, 3);
+const koyasaiNews = getNews()
+  .filter((data) => data.tag === "ceremony")
+  .slice(0, 3);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
