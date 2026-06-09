@@ -1,14 +1,32 @@
-export const news = [
-  {
-    id: "news1",
-    title: "予備大の日程が公開されました",
-    date: "2026-05-24",
-    tag: "sport",
-  },
-  {
-    id: "news2",
-    title: "予備大ドッヂボールの結果",
-    date: "2026-05-29",
-    tag: "sport",
-  },
-];
+import fs from "fs";
+import matter from "gray-matter";
+import path from "path";
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  date: string;
+  tag: string;
+  content: string;
+}
+
+export function getNews(): NewsItem[] {
+  const newsDir = path.join(process.cwd(), "content/posts");
+  const files = fs.readdirSync(newsDir);
+
+  const news = files.map((file) => {
+    const filePath = path.join(newsDir, file);
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const { data, content } = matter(fileContent);
+
+    return {
+      id: data.id,
+      title: data.title,
+      date: new Date(data.date).toISOString().split("T")[0],
+      tag: data.tag,
+      content,
+    } satisfies NewsItem;
+  });
+
+  return news.sort((a, b) => (a.date < b.date ? 1 : -1));
+}
