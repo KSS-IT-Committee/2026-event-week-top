@@ -1,0 +1,5 @@
+{
+  "title": "Javascriptが無効化されていることのお知らせの追加",
+  "description": "Javascriptが無効化されている場合ページに表示されるようにしました。これによりJavascriptが無効化されている場合に起こる不具合に事前に気がつけるようになりました。",
+  "credits": ["@rotarymars"]
+}
