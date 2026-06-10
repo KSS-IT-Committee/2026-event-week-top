@@ -4,6 +4,13 @@ import { getAllPosts, getPostById } from "@/lib/posts";
 
 import styles from "../markdown.module.css";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "News",
+  description: "2026年度行事週間 ニュース詳細ページ",
+};
+
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
