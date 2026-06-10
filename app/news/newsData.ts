@@ -12,7 +12,7 @@ export interface NewsItem {
 
 export function getNews(): NewsItem[] {
   const newsDir = path.join(process.cwd(), "content/posts");
-  const files = fs.readdirSync(newsDir);
+  const files = fs.readdirSync(newsDir).filter((file) => file.endsWith(".md"));
 
   const news = files.map((file) => {
     const filePath = path.join(newsDir, file);
