@@ -1,10 +1,9 @@
+import { Metadata } from "next";
 import Link from "next/link";
 
 import { getAllPosts, getPostById } from "@/lib/posts";
 
 import styles from "../markdown.module.css";
-
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "News",
