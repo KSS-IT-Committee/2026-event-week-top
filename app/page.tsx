@@ -90,11 +90,15 @@ export default function Toppage() {
         {/* News */}
         <div id="news" className={styles.news}>
           <h1 className={styles.newsTitle}>News</h1>
-          <ul className={styles.newsList}>
-            {latestNews.map((item) => (
-              <NewsItem key={item.id} item={item} />
-            ))}
-          </ul>
+          {latestNews.length === 0 ? (
+            <p>お知らせはまだありません。</p>
+          ) : (
+            <ul className={styles.newsList}>
+              {latestNews.map((item) => (
+                <NewsItem key={item.id} item={item} />
+              ))}
+            </ul>
+          )}
           <Link href="/news/list" className={styles.newsDetail}>
             もっと見る →
           </Link>
