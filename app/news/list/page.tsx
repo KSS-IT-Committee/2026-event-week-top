@@ -5,6 +5,12 @@ import Link from "next/link";
 import styles from "@/app/news/list/news-page.module.css";
 import { getNews } from "@/app/news/newsData";
 import { NewsItem } from "@/app/news/newsItem";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "News List",
+  description: "2026年度行事週間 ニュース一覧ページ",
+};
 
 export default function NewsListPage() {
   const sorted = [...getNews()].sort((a, b) => (a.date < b.date ? 1 : -1));
