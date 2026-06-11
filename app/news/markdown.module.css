@@ -17,12 +17,19 @@
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
 }
+.wrapper {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  border-top: 4px solid rgb(0, 83, 200);
+  border-bottom: 4px solid rgb(0, 83, 200);
+}
 .markdown {
   font-size: 1.2rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   padding: 20px;
-  text-align: center;
+  text-align: justify;
   line-height: 1.8;
 }
 .markdown h1 {

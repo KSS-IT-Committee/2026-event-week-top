@@ -33,10 +33,12 @@ export default async function Page({
             {new Date(post.date).toLocaleDateString("ja-JP")}
           </p>
         </div>
-        <div
-          className={styles.markdown}
-          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-        />
+        <div className={styles.wrapper}>
+          <div
+            className={styles.markdown}
+            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+          />
+        </div>
       </article>
       <Link href="/" className={styles.backButton}>
         トップに戻る
