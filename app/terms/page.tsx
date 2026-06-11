@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { defaultFooter } from "@/app/components/footer";
+import { Footer } from "@/components/Footer";
 
 import styles from "./terms.module.css";
 
@@ -52,7 +52,7 @@ export default function TermsPage() {
           <Link href="/">← トップへ戻る</Link>
         </p>
       </article>
-      {defaultFooter()}
+      <Footer />
     </main>
   );
 }

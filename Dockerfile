@@ -36,6 +36,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/next.config* ./
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
+# Persistent files dir. At runtime the deploy scripts bind-mount a host dir here
+# (which overlays this), but create it owned by the app user so the image is
+# also usable — and writable — when run without the mount (e.g. scripts/preview.sh).
+RUN mkdir -p /app/files && chown nextjs:nodejs /app/files
+
 USER nextjs
 EXPOSE 3000
 

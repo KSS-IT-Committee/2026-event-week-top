@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import { defaultFooter } from "@/app/components/footer";
+import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { Footer } from "@/components/Footer";
 import changelog from "@/lib/changelog.generated.json";
 
 import styles from "./changelog.module.css";
@@ -74,7 +75,8 @@ export default function ChangelogPage() {
           </ol>
         )}
       </main>
-      {defaultFooter()}
+      <FloatingMenu items={[{ label: "Top", href: "/" }]} />
+      <Footer />
     </>
   );
 }

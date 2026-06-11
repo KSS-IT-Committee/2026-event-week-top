@@ -16,6 +16,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Runtime secrets (e.g. CLERK_SECRET_KEY); `environment:` below wins over
+    # the env file, so DATABASE_URL always points at the compose db.
+    env_file:
+      - path: .env.local
+        required: false
     environment:
       DATABASE_URL: postgres://top:top@db:5432/top
     ports:

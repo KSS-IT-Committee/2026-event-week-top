@@ -38,18 +38,25 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
         <head>
-        {/* Google tag (gtag.js) */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-STVFHMQS05"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
+          {/* Google tag (gtag.js) — skipped on PR preview deployments.
+              IS_PR_PREVIEW is injected at runtime by the deploy infra and read
+              here server-side, so it must NOT be NEXT_PUBLIC_ (those inline at
+              build time). */}
+          {process.env.IS_PR_PREVIEW !== "true" && (
+            <>
+              <Script
+                src="https://www.googletagmanager.com/gtag/js?id=G-STVFHMQS05"
+                strategy="afterInteractive"
+              />
+              <Script id="google-analytics" strategy="afterInteractive">
+                {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-STVFHMQS05');`}
-        </Script>
-      </head>
+              </Script>
+            </>
+          )}
+        </head>
         <body className="min-h-full flex flex-col">
           <header className="flex justify-end items-center p-4 gap-4 h-16">
             <Show when="signed-out">
