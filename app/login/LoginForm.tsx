@@ -33,7 +33,7 @@ export function LoginForm({ next }: LoginFormProps) {
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          maxLength={8}
+          maxLength={32}
           placeholder="例: 1A01"
           required
         />

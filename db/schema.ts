@@ -7,7 +7,7 @@ import { index, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 // Login credentials, loaded out-of-band from 2026-account-generator's
 // users.sql.
 export const users = pgTable("users", {
-  username: varchar("username", { length: 8 }).primaryKey(),
+  username: varchar("username", { length: 32 }).primaryKey(),
   passwordHash: varchar("password_hash", { length: 60 }).notNull(),
 });
 
@@ -19,7 +19,7 @@ export const sessions = pgTable(
   "sessions",
   {
     id: varchar("id", { length: 64 }).primaryKey(),
-    username: varchar("username", { length: 8 })
+    username: varchar("username", { length: 32 })
       .notNull()
       .references(() => users.username, { onDelete: "cascade" }),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),

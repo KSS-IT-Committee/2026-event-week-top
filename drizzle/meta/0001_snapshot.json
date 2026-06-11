@@ -1,5 +1,5 @@
 {
-  "id": "2a2c87f0-da6a-4163-98ac-bec8e5d2cc19",
+  "id": "eb0ca6a8-7f1c-434a-98f5-50daee612f63",
   "prevId": "9d727d9f-32af-4e91-9fb2-35d873dbabb9",
   "version": "7",
   "dialect": "postgresql",
@@ -16,7 +16,7 @@
         },
         "username": {
           "name": "username",
-          "type": "varchar(8)",
+          "type": "varchar(32)",
           "primaryKey": false,
           "notNull": true
         },
@@ -71,8 +71,12 @@
           "name": "sessions_username_users_username_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": ["username"],
-          "columnsTo": ["username"],
+          "columnsFrom": [
+            "username"
+          ],
+          "columnsTo": [
+            "username"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -89,7 +93,7 @@
       "columns": {
         "username": {
           "name": "username",
-          "type": "varchar(8)",
+          "type": "varchar(32)",
           "primaryKey": true,
           "notNull": true
         },
