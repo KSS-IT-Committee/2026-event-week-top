@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { getUserByUsername } from "@/db/getUserByUsername";
+import { setUserLoggedIn } from "@/db/setUserLoggedIn";
 import { createSession, invalidateSession } from "@/lib/session";
 import {
   SESSION_COOKIE_NAME,
@@ -65,7 +66,12 @@ export async function loginAction(
     return { error: "ユーザー名またはパスワードが正しくありません。" };
   }
 
-  const token = await createSession(user.username);
+  // Create the session and latch `has_logged_in` in parallel — different
+  // tables, and the flag is best-effort relative to the session.
+  const [token] = await Promise.all([
+    createSession(user.username),
+    setUserLoggedIn(user.username),
+  ]);
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, token, sessionCookieOptions());
 

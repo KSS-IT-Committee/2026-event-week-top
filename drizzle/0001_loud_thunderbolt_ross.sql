@@ -7,6 +7,7 @@ CREATE TABLE "sessions" (
 );
 --> statement-breakpoint
 ALTER TABLE "users" ALTER COLUMN "username" SET DATA TYPE varchar(32);--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN "has_logged_in" boolean DEFAULT false NOT NULL;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_username_users_username_fk" FOREIGN KEY ("username") REFERENCES "public"."users"("username") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "sessions_username_idx" ON "sessions" USING btree ("username");--> statement-breakpoint
 CREATE INDEX "sessions_expires_at_idx" ON "sessions" USING btree ("expires_at");

@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { check, index, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  check,
+  index,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 // Local copy of the tables this app queries. The canonical schema (and the
 // only thing that migrates the shared `appdata` database) is 2026-db —
@@ -10,6 +17,9 @@ import { check, index, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 export const users = pgTable("users", {
   username: varchar("username", { length: 32 }).primaryKey(),
   passwordHash: varchar("password_hash", { length: 60 }).notNull(),
+  // Latches true on the account's first successful login and never goes back
+  // to false. Lets us tell which accounts have ever been used.
+  hasLoggedIn: boolean("has_logged_in").notNull().default(false),
 });
 
 // Login sessions, shared by every *.2026 app. The browser cookie holds a
