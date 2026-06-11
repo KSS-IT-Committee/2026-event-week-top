@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MouseEvent } from "react";
 
 import styles from "./AccountNav.module.css";
 
@@ -13,20 +13,32 @@ export function AccountNavLink({
   username,
   loginBaseUrl,
 }: AccountNavLinkProps) {
-  // Point the login link back at the current page so a login started here
-  // returns here. Set after mount so it captures the real browser URL
-  // (correct even across subdomains); the /login page only honours `next`
-  // hosts in the 2026 namespace.
-  const [href, setHref] = useState(loginBaseUrl);
-  useEffect(() => {
-    setHref(`${loginBaseUrl}?next=${encodeURIComponent(window.location.href)}`);
-  }, [loginBaseUrl]);
+  // Append the current page as `next` on a plain left-click, so a login
+  // started here returns here (the /login page only honours `next` hosts in
+  // the 2026 namespace). Modifier / middle clicks fall through to the bare
+  // href so open-in-new-tab keeps working; with no JS the href is the login
+  // page (you just land there without a return trip).
+  function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    event.preventDefault();
+    const next = encodeURIComponent(window.location.href);
+    window.location.href = `${loginBaseUrl}?next=${next}`;
+  }
 
   const isLoggedIn = username !== null;
   return (
     <a
       className={styles.link}
-      href={href}
+      href={loginBaseUrl}
+      onClick={handleClick}
       aria-label={isLoggedIn ? `${username} としてログイン中` : "ログイン"}
     >
       <svg
