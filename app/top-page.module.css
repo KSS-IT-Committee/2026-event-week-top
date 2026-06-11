@@ -201,7 +201,7 @@
 .eventNewsList {
   list-style: disc;
   padding: 15px;
-  margin-left: 20px;
+  margin-left: 5px;
 }
 .eventNewsList a:hover {
   text-decoration: underline;
