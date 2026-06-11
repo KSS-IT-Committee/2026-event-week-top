@@ -1,9 +1,8 @@
 import { eq } from "drizzle-orm";
 import { connection } from "next/server";
 
+import { users } from "@/db/schema";
 import { db } from "@/lib/db";
-
-import { users } from "./schema";
 
 export async function getUserByUsername(username: string) {
   await connection();
