@@ -252,6 +252,7 @@ export default function Toppage() {
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },
+            { label: "ログイン", href: "/login" },
             { label: "Changelog", href: "/changelog" },
           ]}
         />
