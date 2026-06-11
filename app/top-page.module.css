@@ -432,11 +432,6 @@
     transform: translateX(-50%);
     font-size: 1rem;
   }
-  .rentalSite,
-  .informationSite {
-    width: 100px;
-    padding: 5px 0;
-  }
   .eventTop {
     flex-direction: column;
     text-align: center;
