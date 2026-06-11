@@ -1,4 +1,5 @@
-import { index, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { check, index, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
 // Local copy of the tables this app queries. The canonical schema (and the
 // only thing that migrates the shared `appdata` database) is 2026-db —
@@ -30,6 +31,10 @@ export const sessions = pgTable(
   (table) => [
     index("sessions_username_idx").on(table.username),
     index("sessions_expires_at_idx").on(table.expiresAt),
+    // Belt-and-braces: `id` must be a lowercase SHA-256 hex digest (what the
+    // apps store). Rejects a raw token accidentally inserted as the id, which
+    // would otherwise be a replayable cookie value.
+    check("session_id_is_sha256_hex", sql`${table.id} ~ '^[0-9a-f]{64}$'`),
   ],
 );
 

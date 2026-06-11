@@ -2,7 +2,8 @@ CREATE TABLE "sessions" (
 	"id" varchar(64) PRIMARY KEY NOT NULL,
 	"username" varchar(32) NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "session_id_is_sha256_hex" CHECK ("sessions"."id" ~ '^[0-9a-f]{64}$')
 );
 --> statement-breakpoint
 ALTER TABLE "users" ALTER COLUMN "username" SET DATA TYPE varchar(32);--> statement-breakpoint

@@ -1,5 +1,5 @@
 {
-  "id": "eb0ca6a8-7f1c-434a-98f5-50daee612f63",
+  "id": "f3440990-4f03-46e4-927d-a43f88ea8b2e",
   "prevId": "9d727d9f-32af-4e91-9fb2-35d873dbabb9",
   "version": "7",
   "dialect": "postgresql",
@@ -71,12 +71,8 @@
           "name": "sessions_username_users_username_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "username"
-          ],
-          "columnsTo": [
-            "username"
-          ],
+          "columnsFrom": ["username"],
+          "columnsTo": ["username"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -84,7 +80,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "session_id_is_sha256_hex": {
+          "name": "session_id_is_sha256_hex",
+          "value": "\"sessions\".\"id\" ~ '^[0-9a-f]{64}$'"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.users": {
