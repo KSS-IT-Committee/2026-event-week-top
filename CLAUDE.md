@@ -18,7 +18,7 @@ The warning above is not boilerplate — Next.js 16 + React 19 are used here, an
 ```bash
 npm run dev          # predev runs the changelog generator, then `next dev`
 npm run build        # prebuild runs the changelog generator, then `next build`
-npm run start        # `drizzle-kit migrate` THEN `next start` — needs DATABASE_URL
+npm run start        # `next start` only — this app does NOT migrate (2026-db is the sole migrator)
 npm run lint         # ESLint (also: lint:fix)
 npm run format:check # Prettier check  (also: format to write)
 npm run changelog    # Regenerate lib/changelog.generated.json from content/changelog/*.json
@@ -27,7 +27,16 @@ npx tsc --noEmit     # Type check (CI runs this; there is no npm script wrapper)
 
 The `pre*` hooks mean you almost never invoke `npm run changelog` manually — `dev` and `build` already do it. The exception is when `tsc --noEmit` is run standalone: `app/changelog/page.tsx` statically imports the generated JSON, so tsc fails if the artifact is missing. Run `npm run changelog` first in that case (this is exactly what CI does before `tsc`).
 
-`DATABASE_URL` is required for `npm run start` (migrate step) and for any code path that touches `lib/db.ts`. It's not needed for `dev` / `build` unless you exercise DB code.
+`DATABASE_URL` is required at runtime (`npm run start`) and for any code path that touches `lib/db.ts`. It's not needed for `dev` / `build` unless you exercise DB code.
+
+### Shared login (env vars)
+
+The `/login` page and `lib/session.ts` implement a credentials login whose session is shared across every app under `2026.kss-it.com`. Two non-secret runtime env vars tune it (production sets them via `2026-server-ansible`'s `app_shared_env`):
+
+- `SESSION_COOKIE_DOMAIN` — cookie `Domain` (prod: `2026.kss-it.com`, so all four apps + PR previews share one login). **Leave it unset for local dev / vvps** — a host-only cookie on `127.0.0.1` is still sent across ports, so cross-app login keeps working locally.
+- `SESSION_TTL_SECONDS` — session lifetime, default `172800` (2 days). Expiry slides on access (`proxy.ts` re-stamps the cookie; `lib/session.ts` renews the DB row).
+
+`lib/session-cookie.ts`, `lib/session.ts`, and `proxy.ts` are **byte-identical across all four app repos** — see the root `CLAUDE.md` footgun list. Edit once, copy to the others, verify with `sha256sum`.
 
 ## Architecture
 
@@ -53,7 +62,7 @@ Consequences:
 - A single `postgres()` pool (`max: 10`) is stashed on `globalThis.pgClient` in non-production so HMR doesn't leak connections across reloads.
 - `DATABASE_URL` is read lazily, so importing the module without using it doesn't crash on missing env.
 
-If you add a new table: edit `db/schema.ts`, then `npx drizzle-kit generate` to create a new SQL file under `drizzle/`. Production applies migrations on container start via the `npm run start` script.
+If you add or change a table: edit `db/schema.ts` **here and in `2026-db`** (the canonical schema), generate the migration **in `2026-db`** (`npx drizzle-kit generate`), and keep the change additive. This app's `drizzle/` output is **dev-only** and must never run against `appdata` — `npm run start` is `next start` only; `2026-db` is the sole migrator. App-local migrations exist for local Drizzle tooling, not deployment.
 
 ### Docker / preview
 
