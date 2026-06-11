@@ -433,11 +433,12 @@
     font-size: 1rem;
   }
   .eventTop {
+    display:flex;
     flex-direction: column;
-    text-align: center;
+    align-items: left;
   }
   .themeImage {
-    width: 80%;
+    width: 400px !important;
     height: auto;
   }
 }
