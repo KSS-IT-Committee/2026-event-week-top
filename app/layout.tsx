@@ -4,6 +4,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
+import { AccountBar } from "@/app/components/AccountNav/AccountBar";
+import { Easter } from "@/app/components/Easter";
+import { Footer } from "@/app/components/Footer";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,22 +31,35 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
-        {/* Google tag (gtag.js) */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-STVFHMQS05"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
+        {/* Google tag (gtag.js) — skipped on PR preview deployments.
+            IS_PR_PREVIEW is injected at runtime by the deploy infra and read
+            here server-side, so it must NOT be NEXT_PUBLIC_ (those inline at
+            build time). */}
+        {process.env.IS_PR_PREVIEW !== "true" && (
+          <>
+            <Script
+              src="https://www.googletagmanager.com/gtag/js?id=G-STVFHMQS05"
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-STVFHMQS05');`}
-        </Script>
+            </Script>
+          </>
+        )}
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-screen flex flex-col">
+        <AccountBar />
+        <main className="flex-1"> {children}</main>
+        <Easter />
+        <Footer />
+        <Easter />
+      </body>
     </html>
   );
 }

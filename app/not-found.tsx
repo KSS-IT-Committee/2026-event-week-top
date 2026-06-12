@@ -1,13 +1,11 @@
 import Link from "next/link";
 
-import { Footer } from "@/components/Footer";
-
 import styles from "./not-found.module.css";
 
 export default function NotFound() {
   return (
     <>
-      <main className={styles.wrapper}>
+      <div className={styles.wrapper}>
         <h1 className={styles.code}>404</h1>
         <p className={styles.title}>ページが見つかりませんでした</p>
         <p className={styles.subtitle}>
@@ -32,8 +30,7 @@ export default function NotFound() {
         <Link href="/" className={styles.homeLink}>
           トップへ戻る
         </Link>
-      </main>
-      <Footer />
+      </div>
     </>
   );
 }

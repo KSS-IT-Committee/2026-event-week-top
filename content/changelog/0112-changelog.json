@@ -1,0 +1,5 @@
+{
+  "title": "Bump @types/node from 25.9.1 to 25.9.3",
+  "description": "CIのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
