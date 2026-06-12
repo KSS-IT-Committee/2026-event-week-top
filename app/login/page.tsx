@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
-import { Footer } from "@/app/components/Footer";
 import { getCurrentUser } from "@/lib/session";
 
 import { logoutAction } from "./actions";
