@@ -1,0 +1,5 @@
+{
+  "title": "ページのバグの修正",
+  "description": "最新版のページが表示されないバグを修正しました。",
+  "credits": ["@rotarymars"]
+}

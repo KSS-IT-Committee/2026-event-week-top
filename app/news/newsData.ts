@@ -1,6 +1,4 @@
-import fs from "fs";
-import matter from "gray-matter";
-import path from "path";
+import posts from "@/lib/posts.generated.json";
 
 export interface NewsItem {
   id: string;
@@ -11,22 +9,16 @@ export interface NewsItem {
 }
 
 export function getNews(): NewsItem[] {
-  const newsDir = path.join(process.cwd(), "content/posts");
-  const files = fs.readdirSync(newsDir).filter((file) => file.endsWith(".md"));
-
-  const news = files.map((file) => {
-    const filePath = path.join(newsDir, file);
-    const fileContent = fs.readFileSync(filePath, "utf-8");
-    const { data, content } = matter(fileContent);
-
-    return {
-      id: data.id,
-      title: data.title,
-      date: new Date(data.date).toISOString().split("T")[0],
-      tag: data.tag,
-      content,
-    } satisfies NewsItem;
-  });
+  const news = posts.map(
+    (post) =>
+      ({
+        id: post.id,
+        title: post.title,
+        date: post.date.split("T")[0],
+        tag: post.tag,
+        content: post.content,
+      }) satisfies NewsItem,
+  );
 
   return news.sort((a, b) => (a.date < b.date ? 1 : -1));
 }

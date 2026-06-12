@@ -92,6 +92,10 @@ jobs:
         # under shallow clone, but that's fine; we only need the file present.
         run: npm run changelog
 
+      - name: Generate posts artifact
+        # Same deal for `@/lib/posts.generated.json` (news pages).
+        run: npm run posts
+
       - name: Run TypeScript compiler
         run: npx tsc --noEmit
 

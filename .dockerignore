@@ -14,3 +14,4 @@ Dockerfile
 docker-compose*.yml
 scripts
 !scripts/build-changelog.mjs
+!scripts/build-posts.mjs
