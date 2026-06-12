@@ -1,8 +1,14 @@
+import { Metadata } from "next";
 import Link from "next/link";
 
 import { getAllPosts, getPostById } from "@/lib/posts";
 
 import styles from "../markdown.module.css";
+
+export const metadata: Metadata = {
+  title: "News",
+  description: "2026年度行事週間 ニュース詳細ページ",
+};
 
 export const dynamicParams = false;
 
@@ -27,10 +33,12 @@ export default async function Page({
             {new Date(post.date).toLocaleDateString("ja-JP")}
           </p>
         </div>
-        <div
-          className={styles.markdown}
-          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-        />
+        <div className={styles.wrapper}>
+          <div
+            className={styles.markdown}
+            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+          />
+        </div>
       </article>
       <Link href="/" className={styles.backButton}>
         トップに戻る

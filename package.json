@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "changelog": "node scripts/build-changelog.mjs",
-    "predev": "npm run changelog",
+    "posts": "node scripts/build-posts.mjs",
+    "predev": "npm run changelog && npm run posts",
     "dev": "next dev",
-    "prebuild": "npm run changelog",
+    "prebuild": "npm run changelog && npm run posts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -15,6 +16,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "gray-matter": "^4.0.3",
     "next": "^16",
@@ -32,11 +34,11 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.2.7",
+    "eslint-config-next": "16.2.9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-unused-imports": "^4.0.0",
-    "prettier": "^3.8.3",
+    "prettier": "^3.8.4",
     "tailwindcss": "^4",
     "typescript": "^6"
   }

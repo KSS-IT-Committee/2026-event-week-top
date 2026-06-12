@@ -1,0 +1,129 @@
+.main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 96px 24px;
+  flex: 1;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 15%, transparent);
+  border-radius: 12px;
+  padding: 32px 28px;
+  background: color-mix(in oklch, var(--foreground) 3%, var(--background));
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.note {
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+  margin-bottom: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.input {
+  border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.input:focus-visible {
+  outline: 2px solid #0b69eb;
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.error {
+  font-size: 0.9rem;
+  color: #d4380d;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error {
+    /* #d4380d is below WCAG AA contrast on the dark card background. */
+    color: #ff7a5c;
+  }
+}
+
+.button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #0b69eb;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.button:hover {
+  opacity: 0.85;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.loggedIn {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.username {
+  font-weight: 700;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.logoutButton {
+  border: 1px solid color-mix(in oklch, var(--foreground) 30%, transparent);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.logoutButton:hover {
+  background: color-mix(in oklch, var(--foreground) 8%, transparent);
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 56px 16px;
+  }
+
+  .card {
+    padding: 24px 20px;
+  }
+}

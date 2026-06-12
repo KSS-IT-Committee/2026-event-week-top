@@ -1,0 +1,5 @@
+{
+  "title": "Bump actions/cache from 4.3.0 to 5.0.5",
+  "description": "CIのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@rotarymars"]
+}

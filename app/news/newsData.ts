@@ -1,14 +1,24 @@
-export const news = [
-  {
-    id: "news1",
-    title: "予備大の日程が公開されました",
-    date: "2026-05-24",
-    tag: "sport",
-  },
-  {
-    id: "news2",
-    title: "予備大ドッヂボールの結果",
-    date: "2026-05-29",
-    tag: "sport",
-  },
-];
+import posts from "@/lib/posts.generated.json";
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  date: string;
+  tag: string;
+  content: string;
+}
+
+export function getNews(): NewsItem[] {
+  const news = posts.map(
+    (post) =>
+      ({
+        id: post.id,
+        title: post.title,
+        date: post.date.split("T")[0],
+        tag: post.tag,
+        content: post.content,
+      }) satisfies NewsItem,
+  );
+
+  return news.sort((a, b) => (a.date < b.date ? 1 : -1));
+}

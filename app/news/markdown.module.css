@@ -13,30 +13,37 @@
   margin-bottom: 10px;
 }
 .date {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
 }
+.wrapper {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  border-top: 4px solid rgb(0, 83, 200);
+  border-bottom: 4px solid rgb(0, 83, 200);
+}
 .markdown {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   padding: 20px;
-  text-align: center;
+  text-align: justify;
   line-height: 1.8;
 }
 .markdown h1 {
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   color: rgb(0, 33, 91);
   margin-bottom: 10px;
 }
 .markdown h2 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-family: "Yu Mincho";
   color: rgb(0, 33, 91);
 }
 .markdown ul {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   margin-bottom: 25px;
@@ -52,7 +59,7 @@
 
   background-color: rgb(0, 83, 200);
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   text-decoration: none;
 
@@ -74,19 +81,38 @@
 
 @media (prefers-color-scheme: dark) {
   .header {
-    background-color: rgb(42, 108, 202);
-  }
-  .main {
-    background-color: #0f1a2b;
+    background-color: #333;
   }
   .title,
   .date,
   .markdown,
+  .markdown h1,
+  .markdown h2,
   .markdown ul {
     color: rgb(255, 255, 255);
   }
-  .markdown h1,
-  .markdown h2 {
-    color: rgb(140, 184, 252);
+  .backButton {
+    background-color: rgb(0, 70, 170);
+    box-shadow: 0 4px 12px rgba(0, 70, 170, 0.3);
+  }
+  .wrapper {
+    border-top: 4px solid rgb(150, 187, 239);
+    border-bottom: 4px solid rgb(150, 187, 239);
+  }
+}
+@media (max-width: 600px) {
+  .header {
+    height: 150px;
+  }
+  .title {
+    font-size: 1.5rem;
+    margin-top: 40px;
+  }
+  .date {
+    font-size: 1rem;
+  }
+  .wrapper {
+    margin: 20px auto;
+    padding: 15px;
   }
 }

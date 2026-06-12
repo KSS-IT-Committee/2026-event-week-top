@@ -5,18 +5,26 @@ import Link from "next/link";
 import { Schedule } from "@/app/components/schedule";
 
 import { FloatingMenu } from "./components/FloatingMenu";
-import { news } from "./news/newsData";
+import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
 
-const latestNews = [...news]
+const latestNews = getNews()
   .sort((a, b) => (a.date < b.date ? 1 : -1))
   .slice(0, 4);
 
-const geinousaiNews = news.filter((item) => item.tag === "perform").slice(0, 3);
-const taiikusaiNews = news.filter((item) => item.tag === "sport").slice(0, 3);
-const sousakutenNews = news.filter((item) => item.tag === "create").slice(0, 3);
-const koyasaiNews = news.filter((item) => item.tag === "ceremony").slice(0, 3);
+const geinousaiNews = getNews()
+  .filter((data) => data.tag === "perform")
+  .slice(0, 3);
+const taiikusaiNews = getNews()
+  .filter((data) => data.tag === "sport")
+  .slice(0, 3);
+const sousakutenNews = getNews()
+  .filter((data) => data.tag === "create")
+  .slice(0, 3);
+const koyasaiNews = getNews()
+  .filter((data) => data.tag === "ceremony")
+  .slice(0, 3);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
@@ -82,11 +90,15 @@ export default function Toppage() {
         {/* News */}
         <div id="news" className={styles.news}>
           <h1 className={styles.newsTitle}>News</h1>
-          <ul className={styles.newsList}>
-            {latestNews.map((item) => (
-              <NewsItem key={item.id} item={item} />
-            ))}
-          </ul>
+          {latestNews.length === 0 ? (
+            <p>お知らせはまだありません。</p>
+          ) : (
+            <ul className={styles.newsList}>
+              {latestNews.map((item) => (
+                <NewsItem key={item.id} item={item} />
+              ))}
+            </ul>
+          )}
           <Link href="/news/list" className={styles.newsDetail}>
             もっと見る →
           </Link>

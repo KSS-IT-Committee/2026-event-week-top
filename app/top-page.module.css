@@ -163,19 +163,23 @@
   margin-left: 5%;
   margin-top: 10px;
 }
-.newsItem,
-.newsDate,
-.newsText {
-  font-size: 1.3rem;
+.newsList {
+  font-size: 1.1rem;
   color: rgb(255, 255, 255) !important;
   margin-left: 10px;
   margin-bottom: 5px;
+  list-style: none;
+  padding: 0 5%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .newsList a:hover {
   text-decoration: underline;
 }
 .newsDetail {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   color: rgb(255, 255, 255);
   text-align: left;
@@ -186,15 +190,6 @@
   color: rgb(15, 15, 136);
   text-decoration: underline;
 }
-.newsList {
-  list-style: none;
-  padding: 0 5%;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .event {
   font-size: 1.5rem;
   font-family: "Yu Mincho";
@@ -206,13 +201,13 @@
 .eventNewsList {
   list-style: disc;
   padding: 15px;
-  margin-left: 20px;
+  margin-left: 5px;
 }
 .eventNewsList a:hover {
   text-decoration: underline;
 }
 .introductionTitle {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-family: "Yu Mincho";
   color: rgb(49, 108, 184);
   text-align: left;
@@ -274,7 +269,7 @@
   object-fit: contain;
 }
 .lead {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   padding-left: 10px;
 }
@@ -285,13 +280,13 @@
 }
 .rentalSite,
 .informationSite {
-  width: 250px;
-  padding: 18px 0;
+  width: 200px;
+  padding: 10px 0;
   text-align: center;
   background-color: #676767;
   color: #ffffff;
   border-radius: 8px;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   font-weight: bold;
   transition: 0.25s ease;
@@ -338,7 +333,7 @@
   background-clip: border-box;
 }
 .content {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   text-align: left;
@@ -366,7 +361,7 @@
   line-height: 1.2;
 }
 .text {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   color: rgb(0, 0, 0);
   text-align: left;
@@ -416,6 +411,9 @@
   .eventTop {
     background-image: linear-gradient(90deg, #ffffff 50%, #1e2c66 100%);
   }
+  .eventNewsList * {
+    color: rgb(255, 255, 255) !important;
+  }
   .event {
     border-bottom: 1px solid rgb(255, 255, 255);
   }
@@ -462,6 +460,15 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 1rem;
+  }
+  .eventTop {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+  }
+  .themeImage {
+    width: 400px !important;
+    height: auto;
   }
 }
 
