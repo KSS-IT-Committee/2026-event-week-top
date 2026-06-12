@@ -58,6 +58,7 @@ gtag('config', 'G-STVFHMQS05');`}
         <main className="flex-1"> {children}</main>
         <Easter />
         <Footer />
+        <Easter />
       </body>
     </html>
   );

@@ -22,7 +22,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <>
-      <main className={styles.main}>
+      <div className={styles.main}>
         <section className={styles.card}>
           <h1 className={styles.title}>ログイン</h1>
           {user !== null ? (
@@ -49,9 +49,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </>
           )}
         </section>
-      </main>
+      </div>
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
-      <Footer />
     </>
   );
 }

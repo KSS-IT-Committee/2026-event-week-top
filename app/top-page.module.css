@@ -280,13 +280,13 @@
 }
 .rentalSite,
 .informationSite {
-  width: 250px;
-  padding: 18px 0;
+  width: 200px;
+  padding: 10px 0;
   text-align: center;
   background-color: #676767;
   color: #ffffff;
   border-radius: 8px;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-family: "Yu Mincho";
   font-weight: bold;
   transition: 0.25s ease;
@@ -430,6 +430,15 @@
     left: 50%;
     transform: translateX(-50%);
     font-size: 1rem;
+  }
+  .eventTop {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+  }
+  .themeImage {
+    width: 400px !important;
+    height: auto;
   }
 }
 
