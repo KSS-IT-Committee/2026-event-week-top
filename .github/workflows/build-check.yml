@@ -67,6 +67,10 @@ jobs:
         # this during `npm run build` below; that's fine and idempotent.
         run: npm run changelog
 
+      - name: Generate posts artifact
+        # Same deal for `@/lib/posts.generated.json` (news pages).
+        run: npm run posts
+
       - name: Run TypeScript compiler check
         run: npx tsc --noEmit
 
