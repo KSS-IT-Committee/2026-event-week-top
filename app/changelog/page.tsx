@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
-import { Footer } from "@/app/components/Footer";
 import changelog from "@/lib/changelog.generated.json";
 
 import styles from "./changelog.module.css";
@@ -35,7 +34,7 @@ export default function ChangelogPage() {
 
   return (
     <>
-      <main className={styles.main}>
+      <div className={styles.main}>
         <h1 className={styles.title}>Changelog</h1>
         <p className={styles.subtitle}>サイトの更新履歴</p>
 
@@ -74,9 +73,8 @@ export default function ChangelogPage() {
             ))}
           </ol>
         )}
-      </main>
+      </div>
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
-      <Footer />
     </>
   );
 }

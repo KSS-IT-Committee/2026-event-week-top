@@ -17,8 +17,11 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
+    "gray-matter": "^4.0.3",
     "next": "^16",
     "postgres": "^3.4.9",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
