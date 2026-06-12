@@ -1,11 +1,30 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Schedule } from "@/app/components/schedule";
-import { Footer } from "@/components/Footer";
 
 import { FloatingMenu } from "./components/FloatingMenu";
+import { getNews } from "./news/newsData";
+import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
+
+const latestNews = getNews()
+  .sort((a, b) => (a.date < b.date ? 1 : -1))
+  .slice(0, 4);
+
+const geinousaiNews = getNews()
+  .filter((data) => data.tag === "perform")
+  .slice(0, 3);
+const taiikusaiNews = getNews()
+  .filter((data) => data.tag === "sport")
+  .slice(0, 3);
+const sousakutenNews = getNews()
+  .filter((data) => data.tag === "create")
+  .slice(0, 3);
+const koyasaiNews = getNews()
+  .filter((data) => data.tag === "ceremony")
+  .slice(0, 3);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
@@ -67,197 +86,232 @@ export default function Toppage() {
         <br />
       </header>
 
-      <main className={styles.main}>
-        <div className={styles.container}>
-          {/* News */}
-          <div id="news" className={styles.news}>
-            <h1 className={styles.newsTitle}>News</h1>
+      <div className={styles.container}>
+        {/* News */}
+        <div id="news" className={styles.news}>
+          <h1 className={styles.newsTitle}>News</h1>
+          {latestNews.length === 0 ? (
+            <p>お知らせはまだありません。</p>
+          ) : (
             <ul className={styles.newsList}>
-              <li className={styles.newsItem}>
-                <time className={styles.newsDate} dateTime="2026-05-24">
-                  2026/05/24
-                </time>
-                <span className={styles.newsText}>
-                  現在特に連絡はありません
-                </span>
-              </li>
+              {latestNews.map((item) => (
+                <NewsItem key={item.id} item={item} />
+              ))}
             </ul>
-          </div>
+          )}
+          <Link href="/news/list" className={styles.newsDetail}>
+            もっと見る →
+          </Link>
+        </div>
 
-          {/* Introduction */}
-          <div className={styles.event}>
-            <h1 className={styles.introductionTitle}>Introduction</h1>
-            <p className={styles.text}>
-              こちらは行事週間の総合サイトです！様々な情報を発信していくのでお見逃しなく！
-            </p>
-          </div>
+        {/* Introduction */}
+        <div className={styles.event}>
+          <h1 className={styles.introductionTitle}>Introduction</h1>
+          <p className={styles.text}>
+            こちらは行事週間の総合サイトです！
+            <br />
+            各行事の最新情報やスケジュール、関連サイトへのリンクなどを掲載しています。
+            <br />
+            随時更新していきますので、ぜひチェックしてください！
+            <br />
+          </p>
+        </div>
 
-          {/* 芸能祭 */}
-          <div id="performance" className={styles.event}>
-            <div className={styles.eventTop}>
-              <h1 className={styles.performanceTitle}>芸能祭</h1>
-              <Image
-                className={styles.themeImage}
-                src="/performance-theme.svg"
-                alt="まぶしすぎて滅！"
-                width={400}
-                height={100}
-              />
-            </div>
-            <div className={styles.content}>
-              <p>《お知らせ》</p>
+        {/* 芸能祭 */}
+        <div id="performance" className={styles.event}>
+          <div className={styles.eventTop}>
+            <h1 className={styles.performanceTitle}>芸能祭</h1>
+            <Image
+              className={styles.themeImage}
+              src="/performance-theme.svg"
+              alt="まぶしすぎて滅！"
+              width={400}
+              height={100}
+            />
+          </div>
+          <div className={styles.content}>
+            <p>《お知らせ》</p>
+            {geinousaiNews.length === 0 ? (
               <p>お知らせはまだありません。</p>
-            </div>
+            ) : (
+              <ul className={styles.eventNewsList}>
+                {geinousaiNews.map((item) => (
+                  <NewsItem key={item.id} item={item} />
+                ))}
+              </ul>
+            )}
           </div>
+        </div>
 
-          {/* 体育祭 */}
-          <div id="sports" className={styles.event}>
-            <div className={styles.eventTop}>
-              <h1 className={styles.sportsTitle}>体育祭</h1>
-              <Image
-                className={styles.themeImage}
-                src="/sports-theme.svg"
-                alt="今日、勝ちにきました"
-                width={400}
-                height={100}
-              />
-            </div>
-            <div className={styles.content}>
-              <p>《お知らせ》</p>
-              <p>2026/05/24 予備大の日程が公開されました。</p>
-            </div>
-            <div className={styles.sportsGrid}>
-              <section className={styles.sportItem}>
-                <h2 className={styles.sportName}>サッカー</h2>
-                <Schedule
-                  subject="サッカー"
-                  items={[
-                    { label: "予選AB", date: "2026/05/28" },
-                    { label: "予選CD", date: "2026/06/01" },
-                    { label: "三位決定戦", date: "2026/06/04" },
-                    { label: "決勝", date: "2026/06/08" },
-                    { label: "予備", date: "2026/06/11", muted: true },
-                  ]}
-                />
-              </section>
-              <section className={styles.sportItem}>
-                <h2 className={styles.sportName}>ドッヂボール</h2>
-                <Schedule
-                  subject="ドッヂボール"
-                  items={[
-                    { label: "試合", date: "2026/05/29" },
-                    { label: "予備", date: "2026/06/05", muted: true },
-                  ]}
-                />
-              </section>
-              <section className={styles.sportItem}>
-                <h2 className={styles.sportName}>バスケットボール</h2>
-                <Schedule
-                  subject="バスケットボール"
-                  items={[
-                    { label: "予選AB", date: "2026/06/02" },
-                    { label: "予選CD", date: "2026/06/15" },
-                  ]}
-                />
-              </section>
-              <section className={styles.sportItem}>
-                <h2 className={styles.sportName}>バレーボール</h2>
-                <Schedule
-                  subject="バレーボール"
-                  items={[
-                    { label: "予選", date: "2026/06/16" },
-                    { label: "決勝", date: "2026/06/17" },
-                  ]}
-                />
-              </section>
-            </div>
+        {/* 体育祭 */}
+        <div id="sports" className={styles.event}>
+          <div className={styles.eventTop}>
+            <h1 className={styles.sportsTitle}>体育祭</h1>
+            <Image
+              className={styles.themeImage}
+              src="/sports-theme.svg"
+              alt="今日、勝ちにきました"
+              width={400}
+              height={100}
+            />
           </div>
-
-          {/* 創作展 */}
-          <div id="create" className={styles.event}>
-            <div className={styles.eventTop}>
-              <h1 className={styles.createTitle}>創作展</h1>
-              <Image
-                className={styles.themeImage}
-                src="/create-theme.png"
-                alt="正解なんて創ればいい"
-                width={400}
-                height={100}
-                sizes="(max-width: 1060px) 50vw, 400px"
-              />
-            </div>
-            <div className={styles.content}>
-              <p>《お知らせ》</p>
+          <div className={styles.content}>
+            <p>《お知らせ》</p>
+            {taiikusaiNews.length === 0 ? (
               <p>お知らせはまだありません。</p>
-              <br />
-            </div>
+            ) : (
+              <ul className={styles.eventNewsList}>
+                {taiikusaiNews.map((item) => (
+                  <NewsItem key={item.id} item={item} />
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className={styles.sportsGrid}>
+            <section className={styles.sportItem}>
+              <h2 className={styles.sportName}>サッカー</h2>
+              <Schedule
+                subject="サッカー"
+                items={[
+                  { label: "予選AB", date: "2026/05/28" },
+                  { label: "予選CD", date: "2026/06/01" },
+                  { label: "三位決定戦", date: "2026/06/04" },
+                  { label: "決勝", date: "2026/06/08" },
+                  { label: "予備", date: "2026/06/11", muted: true },
+                ]}
+              />
+            </section>
+            <section className={styles.sportItem}>
+              <h2 className={styles.sportName}>ドッヂボール</h2>
+              <Schedule
+                subject="ドッヂボール"
+                items={[
+                  { label: "試合", date: "2026/05/29" },
+                  { label: "予備", date: "2026/06/05", muted: true },
+                ]}
+              />
+            </section>
+            <section className={styles.sportItem}>
+              <h2 className={styles.sportName}>バスケットボール</h2>
+              <Schedule
+                subject="バスケットボール"
+                items={[
+                  { label: "予選AB", date: "2026/06/02" },
+                  { label: "予選CD", date: "2026/06/15" },
+                ]}
+              />
+            </section>
+            <section className={styles.sportItem}>
+              <h2 className={styles.sportName}>バレーボール</h2>
+              <Schedule
+                subject="バレーボール"
+                items={[
+                  { label: "予選", date: "2026/06/16" },
+                  { label: "決勝", date: "2026/06/17" },
+                ]}
+              />
+            </section>
+          </div>
+        </div>
 
-            <div className={styles.lead}>
-              <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
-            </div>
-            <div className={styles.linkContainer}>
-              <div className={styles.rentalSite}>
-                <p
-                  style={{
-                    color: "#fff",
-                    WebkitTextFillColor: "#fff",
-                    opacity: 1,
-                  }}
-                >
-                  工具貸出サイト
-                  <br />
-                  （Coming Soon）
-                </p>
-              </div>
-
-              <div className={styles.informationSite}>
-                <p
-                  style={{
-                    color: "#fff",
-                    WebkitTextFillColor: "#fff",
-                    opacity: 1,
-                  }}
-                >
-                  情報発信サイト
-                  <br />
-                  （Coming Soon）
-                </p>
-              </div>
-            </div>
+        {/* 創作展 */}
+        <div id="create" className={styles.event}>
+          <div className={styles.eventTop}>
+            <h1 className={styles.createTitle}>創作展</h1>
+            <Image
+              className={styles.themeImage}
+              src="/create-theme.png"
+              alt="正解なんて創ればいい"
+              width={400}
+              height={100}
+              sizes="(max-width: 1060px) 50vw, 400px"
+            />
+          </div>
+          <div className={styles.content}>
+            <p>《お知らせ》</p>
+            {sousakutenNews.length === 0 ? (
+              <p>お知らせはまだありません。</p>
+            ) : (
+              <ul className={styles.eventNewsList}>
+                {sousakutenNews.map((item) => (
+                  <NewsItem key={item.id} item={item} />
+                ))}
+              </ul>
+            )}
+            <br />
           </div>
 
-          {/* 後夜祭 */}
-          <div id="ceremony" className={styles.event}>
-            <div className={styles.eventTop}>
-              <h1 className={styles.ceremonyTitle}>後夜祭</h1>
-              <Image
-                className={styles.themeImage}
-                src="/ceremony-theme.png"
-                alt="最後まで、ハイライト"
-                width={400}
-                height={100}
-                sizes="(max-width: 1060px) 50vw, 400px"
-              />
+          <div className={styles.lead}>
+            <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
+          </div>
+          <div className={styles.linkContainer}>
+            <div className={styles.rentalSite}>
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
+              >
+                工具貸出サイト
+                <br />
+                （Coming Soon）
+              </p>
             </div>
-            <div className={styles.content}>
-              <p>《お知らせ》</p>
-              <p>お知らせはまだありません。</p>
+
+            <div className={styles.informationSite}>
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
+              >
+                情報発信サイト
+                <br />
+                （Coming Soon）
+              </p>
             </div>
           </div>
         </div>
-        <FloatingMenu
-          items={[
-            { label: "News", href: "#news" },
-            { label: "芸能祭", href: "#performance" },
-            { label: "体育祭", href: "#sports" },
-            { label: "創作展", href: "#create" },
-            { label: "後夜祭", href: "#ceremony" },
-            { label: "Changelog", href: "/changelog" },
-          ]}
-        />
-      </main>
 
-      <Footer />
+        {/* 後夜祭 */}
+        <div id="ceremony" className={styles.event}>
+          <div className={styles.eventTop}>
+            <h1 className={styles.ceremonyTitle}>後夜祭</h1>
+            <Image
+              className={styles.themeImage}
+              src="/ceremony-theme.png"
+              alt="最後まで、ハイライト"
+              width={400}
+              height={100}
+              sizes="(max-width: 1060px) 50vw, 400px"
+            />
+          </div>
+          <div className={styles.content}>
+            <p>《お知らせ》</p>
+            {koyasaiNews.length === 0 ? (
+              <p>お知らせはまだありません。</p>
+            ) : (
+              <ul className={styles.eventNewsList}>
+                {koyasaiNews.map((item) => (
+                  <NewsItem key={item.id} item={item} />
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+      <FloatingMenu
+        items={[
+          { label: "芸能祭", href: "#performance" },
+          { label: "体育祭", href: "#sports" },
+          { label: "創作展", href: "#create" },
+          { label: "後夜祭", href: "#ceremony" },
+          { label: "News", href: "/news/list" },
+          { label: "Changelog", href: "/changelog" },
+        ]}
+      />
     </>
   );
 }

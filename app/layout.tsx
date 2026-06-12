@@ -4,6 +4,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
+import { AccountBar } from "@/app/components/AccountNav/AccountBar";
+import { Easter } from "@/app/components/Easter";
+import { Footer } from "@/app/components/Footer";
 import { NoScriptAlert } from "@/components/NoScriptAlert";
 
 const geistSans = Geist({
@@ -29,7 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
         {/* Google tag (gtag.js) — skipped on PR preview deployments.
@@ -51,9 +54,13 @@ gtag('config', 'G-STVFHMQS05');`}
           </>
         )}
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-screen flex flex-col">
         <NoScriptAlert />
-        {children}
+        <AccountBar />
+        <main className="flex-1"> {children}</main>
+        <Easter />
+        <Footer />
+        <Easter />
       </body>
     </html>
   );
