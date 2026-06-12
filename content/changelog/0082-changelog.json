@@ -1,0 +1,5 @@
+{
+  "title": "svgの容量の削減",
+  "description": "svgの容量が削減されました。これによってわずかな読み込み速度の向上が期待されます。",
+  "credits": ["@rotarymars"]
+}

@@ -381,12 +381,11 @@
   .text {
     color: rgb(255, 255, 255);
   }
-  .sportName 
-  .introductionTitle{
+  .sportName .introductionTitle {
     color: rgb(140, 184, 252);
   }
-  .eventNewsList *{
-    color: rgb(255, 255, 255)!important;
+  .eventNewsList * {
+    color: rgb(255, 255, 255) !important;
   }
   .event {
     border-bottom: 1px solid rgb(255, 255, 255);
@@ -433,7 +432,7 @@
     font-size: 1rem;
   }
   .eventTop {
-    display:flex;
+    display: flex;
     flex-direction: column;
     align-items: left;
   }
