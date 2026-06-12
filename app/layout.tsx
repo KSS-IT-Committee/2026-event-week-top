@@ -56,6 +56,7 @@ gtag('config', 'G-STVFHMQS05');`}
       <body className="min-h-screen flex flex-col">
         <AccountBar />
         <main className="flex-1"> {children}</main>
+        <Easter />
         <Footer />
         <Easter />
       </body>
