@@ -1,0 +1,5 @@
+{
+  "title": "Bump prettier from 3.8.3 to 3.8.4",
+  "description": "CIのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
