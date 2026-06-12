@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
-import { Easter } from "@/app/components/Easter";
 import { AccountBar } from "@/app/components/AccountNav/AccountBar";
+import { Easter } from "@/app/components/Easter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
