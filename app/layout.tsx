@@ -5,7 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
 import { Easter } from "@/app/components/Easter";
-import { AccountBar } from "@/components/AccountNav/AccountBar";
+import { AccountBar } from "@/app/components/AccountNav/AccountBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

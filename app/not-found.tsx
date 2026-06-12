@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/app/components/Footer";
 
 import styles from "./not-found.module.css";
 
