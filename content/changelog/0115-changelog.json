@@ -1,0 +1,5 @@
+{
+  "title": "Bump eslint-config-next from 16.2.7 to 16.2.9",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
