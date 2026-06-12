@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
-import { Footer } from "@/app/components/Footer";
 import { AccountBar } from "@/app/components/AccountNav/AccountBar";
 import { Easter } from "@/app/components/Easter";
+import { Footer } from "@/app/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

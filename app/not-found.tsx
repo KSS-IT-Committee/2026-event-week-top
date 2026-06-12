@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-import { Footer } from "@/app/components/Footer";
-
 import styles from "./not-found.module.css";
 
 export default function NotFound() {
