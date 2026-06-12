@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 
-import { Schedule } from "@/app/components/schedule";
 import { Footer } from "@/app/components/Footer";
+import { Schedule } from "@/app/components/schedule";
 
 import { FloatingMenu } from "./components/FloatingMenu";
 import styles from "./top-page.module.css";
