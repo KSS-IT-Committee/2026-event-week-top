@@ -6,7 +6,6 @@
   align-items: center;
   justify-content: center;
   padding: 80px 24px;
-  background: #ffffff;
   text-align: center;
   color: #0a0a0a;
   opacity: 0;
@@ -55,7 +54,6 @@
 
 @media (prefers-color-scheme: dark) {
   .wrapper {
-    background: #0f1a2b;
     color: #ffffff;
   }
   .dot {
