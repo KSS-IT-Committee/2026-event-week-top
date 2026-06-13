@@ -1,3 +1,4 @@
+import { FloatingMenu } from "@/app/components/FloatingMenu";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -72,6 +73,7 @@ export default function RequestPage() {
           <MaintainerItem key={username} username={username} />
         ))}
       </ul>
+      <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </div>
   );
 }
