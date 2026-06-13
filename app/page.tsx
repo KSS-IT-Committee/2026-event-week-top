@@ -309,6 +309,7 @@ export default function Toppage() {
           { label: "創作展", href: "#create" },
           { label: "後夜祭", href: "#ceremony" },
           { label: "News", href: "/news/list" },
+          { label: "機能・修正の\nリクエスト", href: "/requests" },
           { label: "Changelog", href: "/changelog" },
         ]}
       />
