@@ -1,6 +1,7 @@
-import { FloatingMenu } from "@/app/components/FloatingMenu";
 import Image from "next/image";
 import Link from "next/link";
+
+import { FloatingMenu } from "@/app/components/FloatingMenu";
 
 import styles from "./requests.module.css";
 
