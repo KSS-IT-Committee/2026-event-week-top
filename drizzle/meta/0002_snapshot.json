@@ -71,12 +71,8 @@
           "name": "sessions_username_users_username_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "username"
-          ],
-          "columnsTo": [
-            "username"
-          ],
+          "columnsFrom": ["username"],
+          "columnsTo": ["username"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -137,11 +133,7 @@
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": [
-        "IT",
-        "Sousakuten",
-        "Taiikusai"
-      ]
+      "values": ["IT", "Sousakuten", "Taiikusai"]
     }
   },
   "schemas": {},
