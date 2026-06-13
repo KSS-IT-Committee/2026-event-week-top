@@ -1,9 +1,9 @@
 import { Metadata } from "next";
-import Link from "next/link";
 
+import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { getAllPosts, getPostById } from "@/lib/posts";
 
-import styles from "../markdown.module.css";
+import styles from "@/app/news/markdown.module.css";
 
 export const metadata: Metadata = {
   title: "News",
@@ -40,9 +40,7 @@ export default async function Page({
           />
         </div>
       </article>
-      <Link href="/" className={styles.backButton}>
-        トップに戻る
-      </Link>
+      <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </>
   );
 }
