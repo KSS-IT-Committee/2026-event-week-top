@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
-import { getAllPosts, getPostById } from "@/lib/posts";
-
 import styles from "@/app/news/markdown.module.css";
+import { getAllPosts, getPostById } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "News",
