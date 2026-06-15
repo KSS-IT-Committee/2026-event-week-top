@@ -73,9 +73,10 @@ export async function loginAction(
   _prevState: LoginFormState,
   formData: FormData,
 ): Promise<LoginFormState> {
-  // Usernames are upper-case by construction (e.g. 1A01); accept lower-case
-  // typing. Passwords are case-sensitive and only get NFKC + trim.
-  const username = normalizeInput(formData.get("username")).toUpperCase();
+  // Usernames are matched case-sensitively as printed: students are upper-case
+  // (e.g. 1A01), staff are lower-case (e.g. k0959176). Keep the raw case — only
+  // NFKC + trim. Passwords are case-sensitive too.
+  const username = normalizeInput(formData.get("username"));
   const password = normalizeInput(formData.get("password"));
   if (username === "" || password === "") {
     return { error: "ユーザー名とパスワードを入力してください。" };
