@@ -1,5 +1,3 @@
-import "@/db/schema";
-
 export type category = ["school", "external"];
 
 export function isInternal(username: string): boolean {
