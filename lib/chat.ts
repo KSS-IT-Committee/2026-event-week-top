@@ -2,7 +2,11 @@ import "server-only";
 
 import type { Content, FunctionCall, Part } from "@google/genai";
 
-import { chatToolDeclarations, dispatchTool } from "@/lib/chat-tools";
+import {
+  chatToolDeclarations,
+  type ChatViewer,
+  dispatchTool,
+} from "@/lib/chat-tools";
 import { CHAT_MODEL, getGemini } from "@/lib/gemini";
 import { type KnowledgeChunk, retrieveKnowledge } from "@/lib/knowledge";
 
@@ -22,7 +26,8 @@ const BASE_SYSTEM_INSTRUCTION = `あなたは小石川中等教育学校 IT委�
 - 行事に関係のない質問には丁寧にお断りし、行事に関する質問を促してください。
 - 伝達事項・備品の貸出状況・減点・ニュースなど、最新の状況が必要な場合は提供されたツールを使って確認してください。在庫数や件数を推測で答えてはいけません。
 - 確実な情報がない場合は、無理に答えず「わかりません」と正直に伝えてください。
-- クラスは 1A〜6D（学年1〜6 + 組A〜D）で表されます。`;
+- クラスは 1A〜6D（学年1〜6 + 組A〜D）で表されます。
+- 減点・伝達は、ログイン中のユーザー自身のクラス分のみ参照できます。他クラスの減点・伝達は取得できないため、求められても「自分のクラス分しか確認できません」と伝えてください。`;
 
 function buildSystemInstruction(knowledge: KnowledgeChunk[]): string {
   if (knowledge.length === 0) return BASE_SYSTEM_INSTRUCTION;
@@ -50,10 +55,12 @@ function toContent(message: ChatMessage): Content {
  * produces a final answer (which is streamed out as it is generated).
  *
  * The caller is responsible for auth, rate limiting, and validating/capping
- * `messages` before calling this.
+ * `messages` before calling this. `viewer` carries the authenticated caller's
+ * class so class-private tools can scope their results to it.
  */
 export async function* runChat(
   messages: ChatMessage[],
+  viewer: ChatViewer,
   signal?: AbortSignal,
 ): AsyncGenerator<string> {
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
@@ -111,7 +118,11 @@ export async function* runChat(
 
     const responseParts: Part[] = [];
     for (const call of functionCalls) {
-      const result = await dispatchTool(call.name ?? "", call.args ?? {});
+      const result = await dispatchTool(
+        call.name ?? "",
+        call.args ?? {},
+        viewer,
+      );
       responseParts.push({
         functionResponse: { name: call.name ?? "", response: result },
       });
