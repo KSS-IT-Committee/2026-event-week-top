@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { getCurrentUser } from "@/lib/session";
 
-import { logoutAction } from "./actions";
 import styles from "./login.module.css";
 import { LoginForm } from "./LoginForm";
+import { LogoutForm } from "./LogoutForm";
 
 export const metadata: Metadata = {
   title: "ログイン | 行事週間2026",
@@ -33,14 +33,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               <p className={styles.note}>
                 このログインは行事週間の各サイトで共通して使えます。
               </p>
-              <form action={logoutAction}>
-                {next !== undefined && (
-                  <input type="hidden" name="next" value={next} />
-                )}
-                <button className={styles.logoutButton} type="submit">
-                  ログアウト
-                </button>
-              </form>
+              <LogoutForm next={next} />
             </>
           ) : (
             <>
