@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Schedule } from "@/app/components/schedule";
 import { Internal } from "@/app/components/Internal";
+import { Schedule } from "@/app/components/schedule";
 
 import { FloatingMenu } from "./components/FloatingMenu";
 import { getNews } from "./news/newsData";
