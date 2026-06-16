@@ -103,8 +103,14 @@ export function Chat() {
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    // Enter sends; Shift+Enter inserts a newline.
-    if (event.key === "Enter" && !event.shiftKey) {
+    // Enter sends; Shift+Enter inserts a newline. Ignore Enter while an IME is
+    // composing (e.g. confirming a Japanese conversion) so it doesn't submit
+    // mid-composition.
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.nativeEvent.isComposing
+    ) {
       event.preventDefault();
       void send(input);
     }
