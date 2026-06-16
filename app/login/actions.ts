@@ -16,6 +16,10 @@ export type LoginFormState = {
   error: string | null;
 };
 
+export type LogoutFormState = {
+  error: string | null;
+};
+
 // Compared against when the username doesn't exist, so a login attempt
 // costs the same bcrypt time either way (no username probing via response
 // timing). Hash of a random throwaway string, cost 12 like the real ones.
@@ -103,7 +107,14 @@ export async function loginAction(
   redirect(safeNextPath(formData.get("next")));
 }
 
-export async function logoutAction(): Promise<void> {
+// Driven by useActionState (like loginAction) so logout runs through the same
+// client-side action transport that actually performs the post-action
+// navigation — a plain server-component <form action> here did not navigate to
+// `next` on submit.
+export async function logoutAction(
+  _prevState: LogoutFormState,
+  formData: FormData,
+): Promise<LogoutFormState> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (token) {
@@ -115,4 +126,6 @@ export async function logoutAction(): Promise<void> {
     ...sessionCookieOptions(),
     maxAge: 0,
   });
+
+  redirect(safeNextPath(formData.get("next")));
 }
