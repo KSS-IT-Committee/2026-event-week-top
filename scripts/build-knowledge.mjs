@@ -133,8 +133,14 @@ async function embedAll(ai, chunks) {
     }
     batch.forEach((chunk, j) => {
       const values = embeddings[j]?.values;
-      if (!values || values.length === 0) {
-        throw new Error(`empty embedding for chunk ${chunk.id}`);
+      // Reject empty or wrong-dimension vectors: a dimension mismatch would
+      // silently corrupt retrieval scores (lib/knowledge.ts compares vectors
+      // over min(length)), so fail loudly before writing the artifact.
+      if (!values || values.length !== DIMENSION) {
+        throw new Error(
+          `bad embedding for chunk ${chunk.id}: expected ${DIMENSION} dims, ` +
+            `got ${values?.length ?? 0}`,
+        );
       }
       embedded.push({ ...chunk, embedding: normalize(values) });
     });
