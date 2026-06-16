@@ -34,6 +34,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 このログインは行事週間の各サイトで共通して使えます。
               </p>
               <form action={logoutAction}>
+                {next !== undefined && (
+                  <input type="hidden" name="next" value={next} />
+                )}
                 <button className={styles.logoutButton} type="submit">
                   ログアウト
                 </button>

@@ -102,7 +102,7 @@ export async function loginAction(
   redirect(safeNextPath(formData.get("next")));
 }
 
-export async function logoutAction(): Promise<void> {
+export async function logoutAction(formData: FormData): Promise<void> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (token) {
@@ -114,4 +114,6 @@ export async function logoutAction(): Promise<void> {
     ...sessionCookieOptions(),
     maxAge: 0,
   });
+
+  redirect(safeNextPath(formData.get("next")));
 }
