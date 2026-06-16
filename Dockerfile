@@ -1,8 +1,7 @@
 # Mirrors 2026-server-ansible/roles/apps/templates/Dockerfile.nextjs.j2
 # so a local preview behaves the same as the production VPS runtime.
-ARG NODE_VERSION=24
 
-FROM node:${NODE_VERSION}-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package.json package-lock.json* ./
@@ -12,14 +11,14 @@ RUN if [ -f package-lock.json ]; then \
       npm install --no-audit --no-fund; \
     fi
 
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-FROM node:${NODE_VERSION}-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

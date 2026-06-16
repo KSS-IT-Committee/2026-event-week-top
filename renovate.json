@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests"
+  ],
+  "enabledManagers": ["dockerfile"],
+  "packageRules": [
+    {
+      "description": "Stay on the Node 24 Active LTS line: take minor/patch/digest updates, but do NOT auto-bump to a newer major (25/26). Bump this deliberately when 24 leaves LTS.",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["node"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}
