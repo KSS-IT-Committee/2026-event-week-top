@@ -3,9 +3,13 @@ import {
   boolean,
   check,
   index,
+  integer,
   pgEnum,
   pgTable,
+  serial,
+  text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -60,3 +64,119 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+
+/* ─────────────── read-only mirrors for the /chat assistant ───────────────
+ *
+ * These tables are owned and written by sousakuten-info + equipment-management
+ * and already exist in `appdata` (created by 2026-db migrations). They are
+ * mirrored here verbatim ONLY so the chat tools can READ them with Drizzle
+ * types. This app never writes them and never migrates — keep these identical
+ * to 2026-db/db/schema.ts. The class list must stay in lockstep with the
+ * canonical CLASSNAMES (and the other apps' copies).
+ */
+
+// 学年+組 (1A..6D). Lockstep with 2026-db's canonical pgEnum.
+export const CLASSNAMES = [
+  "1A",
+  "1B",
+  "1C",
+  "1D",
+  "2A",
+  "2B",
+  "2C",
+  "2D",
+  "3A",
+  "3B",
+  "3C",
+  "3D",
+  "4A",
+  "4B",
+  "4C",
+  "4D",
+  "5A",
+  "5B",
+  "5C",
+  "5D",
+  "6A",
+  "6B",
+  "6C",
+  "6D",
+] as const;
+
+export const classEnum = pgEnum("class_name", CLASSNAMES);
+
+export type ClassName = (typeof CLASSNAMES)[number];
+
+export function isClassName(value: string): value is ClassName {
+  return (CLASSNAMES as readonly string[]).includes(value);
+}
+
+// 減点クラスDB — per-class deductions.
+export const deductions = pgTable("deductions", {
+  id: serial("id").primaryKey(),
+  className: classEnum("class_name").notNull(),
+  content: text("content").notNull(),
+  points: integer("points").notNull(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+// 伝達内容DB — announcement bodies.
+export const announcements = pgTable("announcements", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+// 伝達クラスDB — junction linking announcements to the classes they target.
+export const announcementClasses = pgTable(
+  "announcement_classes",
+  {
+    id: serial("id").primaryKey(),
+    announcementId: integer("announcement_id")
+      .notNull()
+      .references(() => announcements.id, { onDelete: "cascade" }),
+    className: classEnum("class_name").notNull(),
+  },
+  (table) => [unique().on(table.announcementId, table.className)],
+);
+
+// 備品DB
+export const Equipments = pgTable(
+  "equipments",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    quantity: integer("quantity").notNull(),
+    picture: text("picture"),
+  },
+  (table) => [check("quantity_positive", sql`${table.quantity} > 0`)],
+);
+
+// 備品貸出DB
+export const Borrowings = pgTable(
+  "borrowings",
+  {
+    id: serial("id").primaryKey(),
+    equipmentId: integer("equipment_id")
+      .notNull()
+      .references(() => Equipments.id),
+    class: classEnum("class").notNull(),
+    borrowedAt: timestamp("borrowed_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    returnedAt: timestamp("returned_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("equipment_idx").on(table.equipmentId),
+    index("class_idx").on(table.class),
+    check(
+      "returned_at_after_borrowed_at",
+      sql`${table.returnedAt} IS NULL OR ${table.returnedAt} >= ${table.borrowedAt}`,
+    ),
+  ],
+);
