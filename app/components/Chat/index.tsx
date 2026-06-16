@@ -68,20 +68,27 @@ export function Chat() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      const appendDelta = (delta: string) => {
+        if (delta === "") return;
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          next[next.length - 1] = { ...last, text: last.text + delta };
+          return next;
+        });
+      };
+
       let done = false;
       while (!done) {
         const result = await reader.read();
         done = result.done;
         if (result.value) {
-          const delta = decoder.decode(result.value, { stream: true });
-          setMessages((prev) => {
-            const next = [...prev];
-            const last = next[next.length - 1];
-            next[next.length - 1] = { ...last, text: last.text + delta };
-            return next;
-          });
+          appendDelta(decoder.decode(result.value, { stream: true }));
         }
       }
+      // Flush any bytes the streaming decoder buffered, e.g. a multi-byte UTF-8
+      // character split across the final chunks (common with Japanese text).
+      appendDelta(decoder.decode());
     } catch {
       setMessages(outgoing);
       setError("通信エラーが発生しました。接続を確認してお試しください。");
