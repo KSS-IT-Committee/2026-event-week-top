@@ -104,7 +104,10 @@ export async function* runChat(
     modelParts.push(...callParts);
     contents.push({ role: "model", parts: modelParts });
 
-    if (functionCalls.length === 0) return; // final answer already streamed
+    if (functionCalls.length === 0) {
+      if (textBuf !== "") return; // final answer already streamed
+      break; // no tool calls and no text — fall through to the fallback below
+    }
 
     const responseParts: Part[] = [];
     for (const call of functionCalls) {
@@ -116,6 +119,7 @@ export async function* runChat(
     contents.push({ role: "user", parts: responseParts });
   }
 
-  // Safety net: only reached if the final tool-less turn produced no text.
+  // Safety net: reached when the model produced no text — either an empty turn
+  // (broke out above) or it kept calling tools until MAX_TOOL_ITERATIONS.
   yield "\n\n（うまく回答をまとめられませんでした。質問を少し変えてお試しください。）";
 }
