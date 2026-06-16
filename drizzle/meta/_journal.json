@@ -15,6 +15,13 @@
       "when": 1781210332733,
       "tag": "0001_loud_thunderbolt_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781360271382,
+      "tag": "0002_tidy_silverclaw",
+      "breakpoints": true
     }
   ]
 }

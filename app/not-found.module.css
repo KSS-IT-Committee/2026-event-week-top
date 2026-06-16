@@ -11,7 +11,7 @@
 }
 
 .code {
-  font-family: "Yu Mincho", serif;
+  font-family: "Yu Mincho", Georgia, "Times New Roman", serif;
   font-size: clamp(6rem, 20vw, 12rem);
   line-height: 1;
   margin: 0;
@@ -22,7 +22,7 @@
 }
 
 .title {
-  font-family: "Yu Mincho", serif;
+  font-family: "Yu Mincho", Georgia, "Times New Roman", serif;
   font-size: clamp(1.6rem, 4vw, 2.4rem);
   margin: 12px 0 8px;
   color: #0a0a0a;
@@ -32,7 +32,7 @@
 }
 
 .subtitle {
-  font-family: "Yu Mincho", serif;
+  font-family: "Yu Mincho", Georgia, "Times New Roman", serif;
   font-size: clamp(1rem, 2.2vw, 1.15rem);
   color: rgba(10, 10, 10, 0.75);
   line-height: 1.8;

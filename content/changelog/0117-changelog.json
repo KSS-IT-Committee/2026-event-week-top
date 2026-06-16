@@ -1,0 +1,5 @@
+{
+  "title": "CIのdocker/setup-qemu-actionのバージョン固定",
+  "description": "docker/setup-qemu-actionのハッシュをc7c53464625b32c7a7e944ae62b3e17d2b600130に固定しました。これによるページの変更はありません。",
+  "credits": ["@rotarymars"]
+}

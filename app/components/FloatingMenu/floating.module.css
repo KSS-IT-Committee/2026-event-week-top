@@ -37,7 +37,7 @@
   max-width: min(320px, calc(100vw - 2rem));
   max-height: min(70vh, 480px);
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.9);
+  background: #fff;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border-radius: 12px;
@@ -70,7 +70,7 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: #fff;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: none;

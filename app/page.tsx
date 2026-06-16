@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Internal } from "@/app/components/Internal";
 import { Schedule } from "@/app/components/schedule";
 
 import { FloatingMenu } from "./components/FloatingMenu";
@@ -244,35 +245,37 @@ export default function Toppage() {
           <div className={styles.lead}>
             <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
           </div>
-          <div className={styles.linkContainer}>
-            <div className={styles.rentalSite}>
-              <p
-                style={{
-                  color: "#fff",
-                  WebkitTextFillColor: "#fff",
-                  opacity: 1,
-                }}
-              >
-                工具貸出サイト
-                <br />
-                （Coming Soon）
-              </p>
-            </div>
+          <Internal>
+            <div className={styles.linkContainer}>
+              <div className={styles.rentalSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  工具貸出サイト
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
 
-            <div className={styles.informationSite}>
-              <p
-                style={{
-                  color: "#fff",
-                  WebkitTextFillColor: "#fff",
-                  opacity: 1,
-                }}
-              >
-                情報発信サイト
-                <br />
-                （Coming Soon）
-              </p>
+              <div className={styles.informationSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  情報発信サイト
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
             </div>
-          </div>
+          </Internal>
         </div>
 
         {/* 後夜祭 */}
