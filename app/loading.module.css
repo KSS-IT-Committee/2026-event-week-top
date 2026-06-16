@@ -1,0 +1,101 @@
+.wrapper {
+  min-height: calc(100vh - 200px);
+  min-height: calc(100dvh - 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+  color: #0a0a0a;
+  opacity: 0;
+  animation: fade-in 0.4s ease-out 0.15s forwards;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0a0a0a;
+  opacity: 0.35;
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #0a0a0a, transparent);
+  margin: 32px 0 24px;
+  opacity: 0.4;
+}
+
+.label {
+  font-family: "Yu Mincho", serif;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: rgba(10, 10, 10, 0.75);
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .wrapper {
+    color: #ffffff;
+  }
+  .dot {
+    background: #ffffff;
+  }
+  .divider {
+    background: linear-gradient(90deg, transparent, #ffffff, transparent);
+  }
+  .label {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dot-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapper {
+    animation: none;
+    opacity: 1;
+  }
+  .dot {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 60px 16px;
+  }
+}
