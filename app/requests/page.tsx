@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { Internal } from "@/app/components/Internal";
 
 import styles from "./requests.module.css";
 
@@ -41,11 +42,13 @@ export default function RequestPage() {
         <br />
         方法は以下の3種類です。
       </p>
-      <h2 className={styles.sectionTitle}>1. 委員に直接伝える</h2>
-      <p className={styles.description}>
-        委員に直接伝えていただければ、委員会で話し合いのうえ、機能の追加や修正を実装します。
-      </p>
-      <h2 className={styles.sectionTitle}>2. GitHubにてIssueを作成する</h2>
+      <Internal>
+        <h2 className={styles.sectionTitle}>委員に直接伝える</h2>
+        <p className={styles.description}>
+          委員に直接伝えていただければ、委員会で話し合いのうえ、機能の追加や修正を実装します。
+        </p>
+      </Internal>
+      <h2 className={styles.sectionTitle}>GitHubにてIssueを作成する</h2>
       <p className={styles.description}>
         <Link
           className={styles.link}
@@ -55,7 +58,7 @@ export default function RequestPage() {
         </Link>
         にIssueを作成していただくと、話し合いの後、新機能や修正が実装されます。
       </p>
-      <h2 className={styles.sectionTitle}>3. 委員会にメールを送る</h2>
+      <h2 className={styles.sectionTitle}>委員会にメールを送る</h2>
       <p className={styles.description}>
         <Link
           className={styles.link}
