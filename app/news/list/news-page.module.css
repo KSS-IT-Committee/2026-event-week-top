@@ -88,3 +88,20 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 83, 200, 0.4);
 }
+
+@media (prefers-color-scheme: dark) {
+  .newsTitle,
+  .newsIntro,
+  .newsInfo,
+  .information,
+  .newsList a {
+    color: rgb(255, 255, 255);
+  }
+  .newsContent {
+    background-color: #0f1a2b;
+  }
+  .newsList a:hover {
+    text-decoration: underline;
+    color: rgb(255, 255, 255);
+  }
+}
