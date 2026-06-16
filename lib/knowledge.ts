@@ -64,7 +64,14 @@ export async function retrieveKnowledge(
 ): Promise<KnowledgeChunk[]> {
   if (index.chunks.length === 0) return [];
 
-  const queryVec = await embedText(query, "RETRIEVAL_QUERY", index.dimension);
+  // Use the index's own model so query vectors match the stored document
+  // vectors (the model is recorded when the index is built).
+  const queryVec = await embedText(
+    query,
+    "RETRIEVAL_QUERY",
+    index.dimension,
+    index.model,
+  );
 
   return index.chunks
     .map((chunk) => ({

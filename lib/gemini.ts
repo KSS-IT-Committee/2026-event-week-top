@@ -21,13 +21,15 @@ export function getGemini(): GoogleGenAI {
   return _client;
 }
 
-// Chat + embedding models. Overridable via env; defaults are the cheap/fast
-// flash chat model and the current embedding model. The embedding model here
-// MUST match the one baked into lib/knowledge.generated.json by
-// scripts/build-knowledge.mjs, or query/document vectors won't be comparable.
+// Chat model. Overridable via env; defaults to the cheap/fast flash model.
+//
+// There is deliberately NO embedding-model constant here: the query embedding
+// must use the exact model the corpus was embedded with, which is recorded as
+// `model` in lib/knowledge.generated.json. Callers pass that value into
+// embedText() so query and document vectors always come from the same model —
+// a GEMINI_EMBED_MODEL override only applies at build time (the build script
+// reads it and bakes the choice into the index).
 export const CHAT_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-export const EMBED_MODEL =
-  process.env.GEMINI_EMBED_MODEL ?? "gemini-embedding-001";
 
 // L2-normalize so cosine similarity reduces to a dot product. A reduced
 // outputDimensionality from gemini-embedding-001 is not pre-normalized.
@@ -41,15 +43,17 @@ function normalize(values: number[]): number[] {
 /**
  * Embed a single string and return a normalized vector. `taskType` should be
  * "RETRIEVAL_QUERY" for user questions and "RETRIEVAL_DOCUMENT" for corpus
- * text; `dimension` must equal the corpus index's dimension.
+ * text. `model` and `dimension` must match the corpus index (pass the index's
+ * own `model`/`dimension`) so query and document vectors are comparable.
  */
 export async function embedText(
   text: string,
   taskType: "RETRIEVAL_QUERY" | "RETRIEVAL_DOCUMENT",
   dimension: number,
+  model: string,
 ): Promise<number[]> {
   const res = await getGemini().models.embedContent({
-    model: EMBED_MODEL,
+    model,
     contents: [text],
     config: { taskType, outputDimensionality: dimension },
   });
