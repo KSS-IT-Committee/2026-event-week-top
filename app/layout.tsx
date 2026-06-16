@@ -7,6 +7,7 @@ import Script from "next/script";
 import { AccountBar } from "@/app/components/AccountNav/AccountBar";
 import { Easter } from "@/app/components/Easter";
 import { Footer } from "@/app/components/Footer";
+import { NoScriptAlert } from "@/components/NoScriptAlert";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ gtag('config', 'G-STVFHMQS05');`}
         )}
       </head>
       <body className="min-h-screen flex flex-col">
+        <NoScriptAlert />
         <AccountBar />
         <main className="flex-1"> {children}</main>
         <Easter />

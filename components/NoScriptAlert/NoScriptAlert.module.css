@@ -1,0 +1,31 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.alert {
+  max-width: 32rem;
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #664d03;
+  background: #fff3cd;
+  border: 1px solid #ffe69c;
+  border-radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert {
+    color: #ffda6a;
+    background: #332701;
+    border-color: #66510a;
+  }
+}

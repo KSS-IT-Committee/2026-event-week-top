@@ -1,8 +1,8 @@
 export const dynamic = "force-static";
 
 import { Metadata } from "next";
-import Link from "next/link";
 
+import { FloatingMenu } from "@/app/components/FloatingMenu";
 import styles from "@/app/news/list/news-page.module.css";
 import { getNews } from "@/app/news/newsData";
 import { NewsItem } from "@/app/news/newsItem";
@@ -32,9 +32,7 @@ export default function NewsListPage() {
           ))}
         </ul>
       </div>
-      <Link href="/" className={styles.backButton}>
-        トップに戻る
-      </Link>
+      <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </div>
   );
 }
