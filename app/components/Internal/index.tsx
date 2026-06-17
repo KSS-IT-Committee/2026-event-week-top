@@ -22,7 +22,7 @@ export async function Internal({
   }
 
   // Otherwise the user must also match a requested role or class.
-  if (await hasAccess(user.username, role, classCode)) {
+  if (hasAccess(user, role, classCode)) {
     return <>{children}</>;
   }
   return null;
