@@ -62,11 +62,11 @@ export async function getAnnouncements(
 
   let list = [...byId.values()];
   if (className) {
-    // Scope to the class: announcements targeting it, plus untargeted ones
-    // (no class = a general/global announcement everyone should see).
-    list = list.filter(
-      (a) => a.classes.length === 0 || a.classes.includes(className),
-    );
+    // Scope to the class: only announcements explicitly targeting it. A
+    // class-less announcement is NOT treated as global here — sousakuten-info
+    // (which owns and writes announcements) inner-joins the link table and
+    // never surfaces a class-less row, so this keeps both apps in agreement.
+    list = list.filter((a) => a.classes.includes(className));
   }
   return list.slice(0, limit);
 }
