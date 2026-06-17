@@ -28,7 +28,7 @@ export async function AuthGuard({
 
   // A constraint was requested: admit the user if they match any of them
   // (role OR class). Nest guards when ALL must hold.
-  if (!(await hasAccess(user.username, role, classCode))) {
+  if (!hasAccess(user, role, classCode)) {
     forbidden(); // 403
   }
   return <>{children}</>;

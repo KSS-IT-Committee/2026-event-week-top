@@ -12,7 +12,7 @@ import { validateSessionTokenViaDb } from "@/lib/session";
  * token here — to production event-week-top, which serves the namespace apex and
  * owns the real `appdata` — over a read-only server-to-server call:
  *
- *   GET /api/session  →  resolve the token to { username }.
+ *   GET /api/session  →  resolve the token to { username, roles }.
  *
  * It is intentionally read-only: there is no logout/DELETE here, so the only
  * capability this grants a caller is resolving a token they already hold to a
@@ -21,10 +21,11 @@ import { validateSessionTokenViaDb } from "@/lib/session";
  *
  * Authorization is a shared secret (PREVIEW_AUTH_SECRET) carried in a header,
  * NOT in the cookie, so the endpoint is immune to CSRF and the secret never
- * reaches the browser. Only the username is ever returned — never password
- * hashes or session tokens. It fails closed: with PREVIEW_AUTH_SECRET unset the
- * endpoint denies every request, so it is inert until the infra wires the secret
- * into both production and the preview containers.
+ * reaches the browser. Only the username and authorization roles are ever
+ * returned — never password hashes or session tokens. It fails closed: with
+ * PREVIEW_AUTH_SECRET unset the endpoint denies every request, so it is inert
+ * until the infra wires the secret into both production and the preview
+ * containers.
  *
  * Resolution goes through validateSessionTokenViaDb (the direct-DB path), never
  * validateSessionToken, so even if this host were ever mis-flagged as a preview
@@ -83,5 +84,8 @@ export async function GET(request: NextRequest) {
       { status: 401, headers: NO_STORE },
     );
   }
-  return Response.json({ username: user.username }, { headers: NO_STORE });
+  return Response.json(
+    { username: user.username, roles: user.roles },
+    { headers: NO_STORE },
+  );
 }
