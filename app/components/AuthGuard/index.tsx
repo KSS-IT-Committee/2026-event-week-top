@@ -11,7 +11,7 @@ type Role = (typeof ROLENAMES)[number];
 // Inlined here so this guard stays self-contained; DRY it up once
 // user-category.ts is on main.
 const STUDENT_RE = /^[1-6][A-D]\d{2}$/; // 1A01 … 6D40
-const TEACHER_RE = /^k/; // k-prefixed staff accounts
+const TEACHER_RE = /^k\d{7}$/; // staff accounts: k + 7 digits, e.g. k0959176
 
 function isInternal(username: string): boolean {
   return STUDENT_RE.test(username) || TEACHER_RE.test(username);
