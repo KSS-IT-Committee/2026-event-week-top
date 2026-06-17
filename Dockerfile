@@ -28,13 +28,14 @@ ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+# `output: standalone` (next.config.ts) emits a self-contained server with only
+# the traced runtime deps plus a minimal server.js (replaces `next start`). The
+# trace does NOT include public/ or .next/static, so copy those in by hand.
+# Migrations are NOT run from this image — the preview compose uses 2026-db's
+# migrator image, which is also the sole production migrator.
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/next.config* ./
-COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./
-COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
 # Persistent files dir. At runtime the deploy scripts bind-mount a host dir here
 # (which overlays this), but create it owned by the app user so the image is
 # also usable — and writable — when run without the mount (e.g. scripts/preview.sh).
@@ -43,4 +44,4 @@ RUN mkdir -p /app/files && chown nextjs:nodejs /app/files
 USER nextjs
 EXPOSE 3000
 
-CMD ["npm", "run", "start", "--", "-p", "3000", "-H", "0.0.0.0"]
+CMD ["node", "server.js"]

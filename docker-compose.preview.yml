@@ -11,18 +11,17 @@ services:
       timeout: 2s
       retries: 30
 
-  # Apply the app's bundled drizzle migrations to the fresh, empty preview DB
-  # before the app boots. The image ships drizzle-kit + drizzle/, but the app's
-  # `start` is `next start` only, so nothing else creates the schema and
-  # DB-backed pages would otherwise 500 with "relation ... does not exist".
+  # Apply the canonical appdata schema to the fresh, empty preview DB before the
+  # app boots. The app image is now `output: standalone` and no longer ships
+  # drizzle-kit, so we use 2026-db's migrator image — the same image that is the
+  # sole migrator in production. Its entrypoint runs `drizzle-kit migrate`.
   migrate:
-    image: ghcr.io/${IMAGE_SLUG:?IMAGE_SLUG must be set}/preview:${TAG:-latest}
+    image: ghcr.io/kss-it-committee/2026-db/migrator:latest
     depends_on:
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://top:top@db:5432/top
-    command: ["npx", "drizzle-kit", "migrate"]
     restart: "no"
 
   app:
