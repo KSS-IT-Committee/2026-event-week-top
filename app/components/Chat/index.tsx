@@ -1,0 +1,203 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+import styles from "./Chat.module.css";
+
+type Message = {
+  role: "user" | "model";
+  text: string;
+};
+
+const SUGGESTIONS = [
+  "創作展はいつ開催されますか？",
+  "体育祭の競技について教えて",
+  "今の伝達事項を教えて",
+];
+
+async function readError(response: Response): Promise<string> {
+  if (response.status === 429) {
+    return "リクエストが多すぎます。少し待ってからお試しください。";
+  }
+  if (response.status === 401) {
+    return "ログインが必要です。ログインし直してください。";
+  }
+  try {
+    const data = (await response.json()) as { error?: string };
+    if (typeof data.error === "string") return data.error;
+  } catch {
+    // fall through
+  }
+  return "エラーが発生しました。時間をおいて再度お試しください。";
+}
+
+export function Chat() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+  }, [messages]);
+
+  async function send(question: string) {
+    const trimmed = question.trim();
+    if (trimmed === "" || isStreaming) return;
+
+    setError(null);
+    setInput("");
+    const outgoing: Message[] = [...messages, { role: "user", text: trimmed }];
+    // Show the user turn plus an empty assistant bubble that fills as it streams.
+    setMessages([...outgoing, { role: "model", text: "" }]);
+    setIsStreaming(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ messages: outgoing }),
+      });
+
+      if (!response.ok || response.body === null) {
+        setMessages(outgoing); // drop the empty assistant bubble
+        setError(await readError(response));
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      const appendDelta = (delta: string) => {
+        if (delta === "") return;
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          next[next.length - 1] = { ...last, text: last.text + delta };
+          return next;
+        });
+      };
+
+      let done = false;
+      while (!done) {
+        const result = await reader.read();
+        done = result.done;
+        if (result.value) {
+          appendDelta(decoder.decode(result.value, { stream: true }));
+        }
+      }
+      // Flush any bytes the streaming decoder buffered, e.g. a multi-byte UTF-8
+      // character split across the final chunks (common with Japanese text).
+      appendDelta(decoder.decode());
+    } catch {
+      setMessages(outgoing);
+      setError("通信エラーが発生しました。接続を確認してお試しください。");
+    } finally {
+      setIsStreaming(false);
+    }
+  }
+
+  function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    void send(input);
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    // Enter sends; Shift+Enter inserts a newline. Ignore Enter while an IME is
+    // composing (e.g. confirming a Japanese conversion) so it doesn't submit
+    // mid-composition.
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      !event.nativeEvent.isComposing
+    ) {
+      event.preventDefault();
+      void send(input);
+    }
+  }
+
+  const isEmpty = messages.length === 0;
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>行事AIチャット</h1>
+        <p className={styles.subtitle}>
+          創作展・体育祭など2026年度の行事について質問できます。
+        </p>
+      </header>
+
+      <div className={styles.messages} ref={scrollRef}>
+        {isEmpty ? (
+          <div className={styles.empty}>
+            <p className={styles.emptyText}>
+              行事について何でも聞いてください。
+            </p>
+            <div className={styles.suggestions}>
+              {SUGGESTIONS.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className={styles.suggestion}
+                  onClick={() => void send(suggestion)}
+                  disabled={isStreaming}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          messages.map((message, index) => (
+            <div
+              key={index}
+              className={
+                message.role === "user" ? styles.userRow : styles.modelRow
+              }
+            >
+              <div
+                className={
+                  message.role === "user"
+                    ? styles.userBubble
+                    : styles.modelBubble
+                }
+              >
+                {message.text === "" ? (
+                  <span className={styles.typing}>…</span>
+                ) : (
+                  message.text
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {error !== null && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
+
+      <form className={styles.inputRow} onSubmit={onSubmit}>
+        <textarea
+          className={styles.textarea}
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder="質問を入力…"
+          rows={1}
+          maxLength={4000}
+          disabled={isStreaming}
+        />
+        <button
+          className={styles.sendButton}
+          type="submit"
+          disabled={isStreaming || input.trim() === ""}
+        >
+          {isStreaming ? "…" : "送信"}
+        </button>
+      </form>
+    </div>
+  );
+}

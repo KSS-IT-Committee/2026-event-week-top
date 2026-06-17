@@ -6,7 +6,7 @@ import { eq, lt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { sessions } from "@/db/schema";
+import { sessions, users } from "@/db/schema";
 import { db } from "@/lib/db";
 import {
   getSessionTtlSeconds,
@@ -43,6 +43,12 @@ const RENEW_AFTER_SECONDS = 60 * 60;
 
 export type SessionUser = {
   username: string;
+  // Authorization roles (see lib/access.ts), carried on the session so PR
+  // previews — which resolve the cookie via the auth host and have no local
+  // `users` table to read — can gate on roles just like production. Typed as
+  // string[], not the Role enum, so this byte-identical file stays decoupled
+  // from each app's schema; lib/access.ts narrows these against ROLENAMES.
+  roles: string[];
 };
 
 // The DB stores only this hash; the cookie holds the raw token. A leaked
@@ -108,9 +114,16 @@ async function validateSessionTokenViaAuthHost(
     return null;
   }
   if (typeof data !== "object" || data === null) return null;
-  const { username } = data as { username?: unknown };
+  const { username, roles } = data as { username?: unknown; roles?: unknown };
   if (typeof username !== "string" || username === "") return null;
-  return { username };
+  // Roles only drive gating; if the host omits them or sends an unexpected
+  // shape, fall back to none (role checks then deny, class checks still work)
+  // rather than rejecting the whole session.
+  const safeRoles =
+    Array.isArray(roles) && roles.every((role) => typeof role === "string")
+      ? (roles as string[])
+      : [];
+  return { username, roles: safeRoles };
 }
 
 /* ─────────────────────────────── direct DB path ─────────────────────────────── */
@@ -122,9 +135,18 @@ async function validateSessionTokenViaAuthHost(
 export async function validateSessionTokenViaDb(
   token: string,
 ): Promise<SessionUser | null> {
+  // Join users so the session carries the user's roles (see SessionUser). The
+  // sessions.username FK cascades on user delete, so a session can never
+  // outlive its user — the inner join can't drop an otherwise-valid session.
   const [session] = await db
-    .select()
+    .select({
+      id: sessions.id,
+      username: sessions.username,
+      expiresAt: sessions.expiresAt,
+      roles: users.roles,
+    })
     .from(sessions)
+    .innerJoin(users, eq(users.username, sessions.username))
     .where(eq(sessions.id, hashToken(token)));
   if (!session) return null;
 
@@ -148,7 +170,7 @@ export async function validateSessionTokenViaDb(
       .where(eq(sessions.id, session.id));
   }
 
-  return { username: session.username };
+  return { username: session.username, roles: session.roles };
 }
 
 /* ─────────────────────────────────── public API ─────────────────────────────────── */

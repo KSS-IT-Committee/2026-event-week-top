@@ -5,6 +5,7 @@
   "scripts": {
     "changelog": "node scripts/build-changelog.mjs",
     "posts": "node scripts/build-posts.mjs",
+    "knowledge": "dotenv -e .env.local -- node scripts/build-knowledge.mjs",
     "predev": "npm run changelog && npm run posts",
     "dev": "next dev",
     "prebuild": "npm run changelog && npm run posts",
@@ -16,15 +17,17 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@google/genai": "^2.8.0",
+    "@next/third-parties": "^16.2.9",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "gray-matter": "^4.0.3",
     "next": "^16",
     "postgres": "^3.4.9",
-    "remark": "^15.0.1",
-    "remark-html": "^16.0.1",
     "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "react-dom": "19.2.7",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -1,0 +1,164 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 16px 24px;
+  /* Fill the viewport minus the AccountBar/Footer chrome so the input sits low. */
+  min-height: calc(100vh - 180px);
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 4px;
+}
+
+.empty {
+  margin: auto;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 1rem;
+  color: color-mix(in oklch, var(--foreground) 65%, transparent);
+  margin-bottom: 16px;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.suggestion {
+  border: 1px solid color-mix(in oklch, var(--foreground) 18%, transparent);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  background: color-mix(in oklch, var(--foreground) 3%, var(--background));
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.suggestion:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--foreground) 8%, var(--background));
+}
+
+.suggestion:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.userRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modelRow {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.userBubble,
+.modelBubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.userBubble {
+  background: #0b69eb;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.modelBubble {
+  background: color-mix(in oklch, var(--foreground) 6%, var(--background));
+  border: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+  border-bottom-left-radius: 4px;
+}
+
+.typing {
+  color: color-mix(in oklch, var(--foreground) 50%, transparent);
+  letter-spacing: 2px;
+}
+
+.error {
+  font-size: 0.85rem;
+  color: #d23b3b;
+  padding: 4px 4px 8px;
+}
+
+.inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  border-top: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+  padding-top: 12px;
+}
+
+.textarea {
+  flex: 1;
+  resize: none;
+  max-height: 160px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  line-height: 1.5;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.textarea:focus-visible {
+  outline: 2px solid #0b69eb;
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+}
+
+.sendButton {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #0b69eb;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
