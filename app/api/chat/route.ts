@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 
+import { isClassName } from "@/db/schema";
 import { type ChatMessage, runChat } from "@/lib/chat";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
@@ -121,8 +122,12 @@ export async function POST(request: NextRequest) {
   }
 
   // The caller's class, derived from the session — drives class-private tool
-  // scoping. null for non-students (teachers / committee / admin).
-  const viewer = { className: classOf(user.username) };
+  // scoping. null for non-students (teachers / committee / admin). classOf
+  // returns a validated class string; isClassName narrows it to ClassName.
+  const rawClass = classOf(user.username);
+  const viewer = {
+    className: rawClass !== null && isClassName(rawClass) ? rawClass : null,
+  };
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
