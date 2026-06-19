@@ -231,12 +231,18 @@ async function embedAll(ai, chunks) {
 
   const embedded = [];
 
-  // Text chunks batch: BATCH_SIZE strings in -> BATCH_SIZE vectors out per call.
+  // Text chunks batch: BATCH_SIZE chunks in -> BATCH_SIZE vectors out per call.
+  // Each chunk MUST be its own Content object ({ parts: [{ text }] }). A bare
+  // array of strings is fused by gemini-embedding-2 into a SINGLE vector (one
+  // input, many parts) rather than one-per-string, which then trips the
+  // count-mismatch check below.
   for (let i = 0; i < textChunks.length; i += BATCH_SIZE) {
     const batch = textChunks.slice(i, i + BATCH_SIZE);
     const res = await ai.models.embedContent({
       model: EMBED_MODEL,
-      contents: batch.map((c) => embedDocInput(EMBED_MODEL, c)),
+      contents: batch.map((c) => ({
+        parts: [{ text: embedDocInput(EMBED_MODEL, c) }],
+      })),
       config: embedConfig(EMBED_MODEL),
     });
     const embeddings = res.embeddings ?? [];
