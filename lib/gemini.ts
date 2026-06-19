@@ -21,45 +21,100 @@ export function getGemini(): GoogleGenAI {
   return _client;
 }
 
-// Chat model pool. The free-tier request quota that throttles /chat is charged
-// PER MODEL, so each request is spread across several interchangeable
-// flash-class models to multiply the available free headroom, and a request
-// fails over to a different model when one is rate-limited (429) / overloaded
-// (503) / returns nothing. Every model here supports function calling AND a
-// TEXT response (verified against the API) and uses the standard Gemini
-// tool-call format, so a request can switch models mid-conversation without
-// breaking the agentic tool loop. TTS/audio-only and non-tool models are
-// deliberately excluded — they 400 on `tools` / TEXT output.
+// Chat model pool, ordered best-quality first. The free-tier request quota that
+// throttles /chat is charged PER MODEL, so we prefer the strongest model and
+// fall back down this ladder only when a model is rate-limited (429) /
+// overloaded (503) / returns nothing — using the per-model cooldown memory
+// below so we keep serving the best model that still has quota instead of
+// wasting a request re-probing an exhausted one. Every model here supports
+// function calling AND a TEXT response (verified against the API) and uses the
+// standard Gemini tool-call format, so a request can switch models
+// mid-conversation without breaking the agentic tool loop. TTS/audio-only and
+// non-tool models are deliberately excluded — they 400 on `tools` / TEXT output.
+//
+// NOTE: higher-quality models tend to have SMALLER free-tier quotas, so traffic
+// degrades onto the lite fallbacks often — that's the intended graceful
+// degradation. Reorder this list to change the quality preference.
 //
 // Setting GEMINI_MODEL pins one model (no rotation, no failover) — handy for
 // local testing or forcing a specific model via env.
 export const CHAT_MODELS = [
-  "gemini-3.1-flash-lite",
-  "gemini-2.5-flash-lite",
-  "gemini-3.5-flash",
-  "gemini-3-flash-preview",
+  "gemini-3.5-flash", // newest full flash — highest quality
+  "gemini-3-flash-preview", // full flash
+  "gemini-3.1-flash-lite", // lite — cheaper/faster, larger free quota
+  "gemini-2.5-flash-lite", // oldest lite — last resort
 ] as const;
 
 // How many distinct models to try for a single chat turn before giving up. A
 // failure is most likely a per-model rate limit, so we retry on another model.
 export const MAX_MODEL_ATTEMPTS = 3;
 
+// Per-process memory of models that recently hit a quota/availability limit and
+// the earliest time they may be retried. Best-effort and per-instance — like
+// lib/rate-limit, blue/green containers don't share it, which is fine for a soft
+// quality preference. It lets us keep using the best model until it's exhausted,
+// then skip it (no wasted probe per request) until its cooldown lapses.
+const modelCooldownUntil = new Map<string, number>();
+const DEFAULT_COOLDOWN_MS = 60_000;
+
 /**
- * The ordered list of models to use for one chat request. Normally a random
- * rotation of the pool (so load spreads across per-model quotas); callers use
- * element 0 as the primary for every turn and fall through to the rest only on
- * failure. If GEMINI_MODEL is set it pins that single model (no rotation).
+ * A Gemini error worth switching models over: a quota (429 / RESOURCE_EXHAUSTED)
+ * or overload (503 / UNAVAILABLE) failure, as opposed to a bug in our request.
+ */
+export function isModelUnavailableError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const status = (error as { status?: unknown }).status;
+  if (status === 429 || status === 503) return true;
+  const message = (error as { message?: unknown }).message;
+  return (
+    typeof message === "string" &&
+    /RESOURCE_EXHAUSTED|UNAVAILABLE|quota|overloaded|\b429\b|\b503\b/i.test(
+      message,
+    )
+  );
+}
+
+// Pull the API's suggested wait (e.g. `"retryDelay": "58s"`) out of the error so
+// the cooldown matches the real reset window when available. The Gemini error
+// body is double-encoded JSON, so the field arrives escaped as
+// `\"retryDelay\": \"58s\"`; the character class tolerates the quotes/backslashes
+// between the key and the value either way.
+function parseRetryDelayMs(error: unknown): number | undefined {
+  const message = (error as { message?: unknown })?.message;
+  if (typeof message !== "string") return undefined;
+  const match = message.match(/retryDelay[\\"\s:]*?(\d+(?:\.\d+)?)s/);
+  return match ? Math.ceil(parseFloat(match[1]) * 1000) : undefined;
+}
+
+/**
+ * Record that `model` is (briefly) unavailable so later requests skip it until
+ * it may have recovered. Honors the API's retryDelay when present.
+ */
+export function noteModelUnavailable(model: string, error?: unknown): void {
+  const retryMs = parseRetryDelayMs(error) ?? DEFAULT_COOLDOWN_MS;
+  modelCooldownUntil.set(model, Date.now() + retryMs);
+}
+
+/**
+ * The ordered list of models to try for one chat request: best-quality first,
+ * but any model currently in cooldown (recently rate-limited) is demoted to the
+ * back, so the primary is the strongest model that still has quota. Cooled
+ * models stay on as a last resort (their cooldown is only an estimate). Callers
+ * use element 0 as the primary and fall through on failure. GEMINI_MODEL pins
+ * a single model (no rotation/failover).
  */
 export function chatModelOrder(): string[] {
   const override = process.env.GEMINI_MODEL;
   if (override) return [override];
-  // Fisher–Yates shuffle a copy so each request starts on a random model.
-  const models = [...CHAT_MODELS];
-  for (let i = models.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [models[i], models[j]] = [models[j], models[i]];
+  const now = Date.now();
+  const ready: string[] = [];
+  const cooling: string[] = [];
+  for (const model of CHAT_MODELS) {
+    if ((modelCooldownUntil.get(model) ?? 0) <= now) ready.push(model);
+    else cooling.push(model);
   }
-  return models;
+  // ready[] and cooling[] each preserve the quality order; cooling trails.
+  return [...ready, ...cooling];
 }
 
 // There is deliberately NO embedding-model constant here: the query embedding

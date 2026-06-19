@@ -7,7 +7,13 @@ import {
   type ChatViewer,
   dispatchTool,
 } from "@/lib/chat-tools";
-import { chatModelOrder, getGemini, MAX_MODEL_ATTEMPTS } from "@/lib/gemini";
+import {
+  chatModelOrder,
+  getGemini,
+  isModelUnavailableError,
+  MAX_MODEL_ATTEMPTS,
+  noteModelUnavailable,
+} from "@/lib/gemini";
 import { type KnowledgeChunk, retrieveKnowledge } from "@/lib/knowledge";
 
 export type ChatMessage = {
@@ -137,6 +143,11 @@ export async function* runChat(
         break;
       } catch (error) {
         lastError = error;
+        // A quota/overload error means this model is (briefly) unavailable —
+        // remember it so later requests skip it until it may have recovered.
+        if (isModelUnavailableError(error)) {
+          noteModelUnavailable(modelOrder[a], error);
+        }
         // Don't retry a client-aborted request, and don't retry once we've
         // already streamed text (the user has seen partial output).
         if (signal?.aborted || streamedThisTurn) throw error;
