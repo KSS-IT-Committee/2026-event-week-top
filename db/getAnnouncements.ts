@@ -61,6 +61,12 @@ export async function getAnnouncements(
   }
 
   let list = [...byId.values()];
-  if (className) list = list.filter((a) => a.classes.includes(className));
+  if (className) {
+    // Scope to the class: announcements targeting it, plus untargeted ones
+    // (no class = a general/global announcement everyone should see).
+    list = list.filter(
+      (a) => a.classes.length === 0 || a.classes.includes(className),
+    );
+  }
   return list.slice(0, limit);
 }
