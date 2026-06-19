@@ -7,11 +7,7 @@ import {
   type ChatViewer,
   dispatchTool,
 } from "@/lib/chat-tools";
-import {
-  chatModelOrder,
-  getGemini,
-  MAX_MODEL_ATTEMPTS,
-} from "@/lib/gemini";
+import { chatModelOrder, getGemini, MAX_MODEL_ATTEMPTS } from "@/lib/gemini";
 import { type KnowledgeChunk, retrieveKnowledge } from "@/lib/knowledge";
 
 export type ChatMessage = {
