@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Embeds the static knowledge corpus (content/knowledge/*.md) into a single
-// lib/knowledge.generated.json at authoring time, NOT at build time.
+// Embeds the static knowledge corpus (content/knowledge/*.md and *.pdf) into a
+// single lib/knowledge.generated.json at authoring time, NOT at build time.
 //
 // Unlike the changelog/posts artifacts, this one is COMMITTED to git: it is
 // produced by a paid Gemini embeddings call, so we never want `npm run build`
@@ -11,8 +11,9 @@
 // ships it without ever reading content/ at runtime.
 //
 // Vectors are L2-normalized here so the retriever's cosine similarity is a
-// plain dot product. gemini-embedding-001 only pre-normalizes its full 3072-d
-// output; a reduced outputDimensionality must be normalized by the caller.
+// plain dot product. gemini-embedding-2 already returns unit vectors (even at a
+// reduced outputDimensionality), so normalize() is an idempotent safety net that
+// keeps this correct if the model is ever swapped for one that does not.
 
 import {
   existsSync,
@@ -26,6 +27,8 @@ import { fileURLToPath } from "node:url";
 
 import { GoogleGenAI } from "@google/genai";
 import matter from "gray-matter";
+import { PDFDocument } from "pdf-lib";
+import { extractText, getDocumentProxy } from "unpdf";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_DIR = join(repoRoot, "content", "knowledge");
@@ -33,13 +36,41 @@ const OUT_FILE = join(repoRoot, "lib", "knowledge.generated.json");
 
 // Keep these in sync with lib/knowledge.ts (it reads `model`/`dimension` from
 // the artifact, but the query embedding must use the same model + dimension).
-const EMBED_MODEL = process.env.GEMINI_EMBED_MODEL ?? "gemini-embedding-001";
+//
+// gemini-embedding-2 is Gemini's natively multimodal embedding model (text /
+// image / PDF / audio / video), which is why we moved off the text-only
+// gemini-embedding-001 — it lets the corpus grow to include PDFs. NOTE: the two
+// models' embedding spaces are INCOMPATIBLE, so changing this constant requires
+// a full re-embed (`npm run knowledge`); a half-migrated artifact (v2 query
+// vectors vs v1 document vectors) silently corrupts retrieval scores.
+const EMBED_MODEL =
+  process.env.GEMINI_EMBED_MODEL ?? "gemini-embedding-2-preview";
 const DIMENSION = 768;
 const MAX_CHARS = 1200; // target chunk size
 const OVERLAP_CHARS = 150; // carry-over between chunks for context continuity
 const BATCH_SIZE = 100; // chunks embedded per API call
 
 const log = (msg) => console.log(`[knowledge] ${msg}`);
+
+// gemini-embedding-2 dropped the taskType config field: it ignores taskType and
+// the retrieval task must instead be prepended to the input as an instruction.
+// Older models (gemini-embedding-001, still reachable via GEMINI_EMBED_MODEL)
+// take taskType and must NOT receive the prefix. Keep this dual handling — and
+// the exact instruction strings — in sync with lib/gemini.ts#embedText (the
+// query-side encoder), so query and document vectors stay comparable.
+const usesTaskInstruction = (model) => model.startsWith("gemini-embedding-2");
+
+function embedDocInput(model, chunk) {
+  return usesTaskInstruction(model)
+    ? `title: ${chunk.title} | text: ${chunk.text}`
+    : chunk.text;
+}
+
+function embedConfig(model) {
+  return usesTaskInstruction(model)
+    ? { outputDimensionality: DIMENSION }
+    : { taskType: "RETRIEVAL_DOCUMENT", outputDimensionality: DIMENSION };
+}
 
 function writeArtifact(chunks) {
   mkdirSync(dirname(OUT_FILE), { recursive: true });
@@ -94,36 +125,119 @@ function normalize(values) {
   return values.map((v) => v / norm);
 }
 
-function collectChunks() {
+// PDFs are embedded one page at a time (the user-chosen "multimodal, per page"
+// strategy): pdf-lib splits the file into single-page PDFs so every page gets
+// its own vector, and unpdf pulls each page's text for the retrieved-evidence
+// block shown to the chat model. The page bytes are embedded as inlineData
+// (multimodal) but are NOT stored in the artifact — only the text + vector are.
+async function splitPdfPages(bytes) {
+  const src = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const pages = [];
+  for (let i = 0; i < src.getPageCount(); i++) {
+    const doc = await PDFDocument.create();
+    const [page] = await doc.copyPages(src, [i]);
+    doc.addPage(page);
+    pages.push(Buffer.from(await doc.save()));
+  }
+  return pages;
+}
+
+async function extractPdfPageTexts(bytes) {
+  const proxy = await getDocumentProxy(new Uint8Array(bytes));
+  const { text } = await extractText(proxy, { mergePages: false });
+  return Array.isArray(text) ? text : [text];
+}
+
+async function pdfChunks(file) {
+  const source = file.replace(/\.pdf$/, "");
+  const bytes = readFileSync(join(SOURCE_DIR, file));
+  const [pages, texts] = await Promise.all([
+    splitPdfPages(bytes),
+    extractPdfPageTexts(bytes),
+  ]);
+  return pages.map((pageBytes, i) => {
+    const extracted = (texts[i] ?? "").replace(/\s+/g, " ").trim();
+    return {
+      kind: "pdf",
+      id: `${source}#p${i + 1}`,
+      source,
+      title: `${source}（${i + 1}ページ目）`,
+      // Evidence text the chat model quotes. Falls back to a marker when a page
+      // has no extractable text (e.g. a scan) — the page is still retrievable
+      // because the vector is over the rendered PDF, not this string.
+      text:
+        extracted ||
+        `（${source} の ${i + 1} ページ目：抽出可能なテキストがありません）`,
+      pdf: pageBytes.toString("base64"),
+    };
+  });
+}
+
+async function collectChunks() {
   if (!existsSync(SOURCE_DIR)) return [];
   const files = readdirSync(SOURCE_DIR)
-    .filter((f) => f.endsWith(".md") && f !== "README.md" && !f.startsWith("_"))
+    .filter(
+      (f) =>
+        (f.endsWith(".md") || f.endsWith(".pdf")) &&
+        f !== "README.md" &&
+        !f.startsWith("_"),
+    )
     .sort();
 
   const chunks = [];
   for (const file of files) {
+    if (file.endsWith(".pdf")) {
+      chunks.push(...(await pdfChunks(file)));
+      continue;
+    }
     const raw = readFileSync(join(SOURCE_DIR, file), "utf8");
     const { data, content } = matter(raw);
     const source = file.replace(/\.md$/, "");
     const title = typeof data.title === "string" ? data.title : source;
     chunkBody(content).forEach((text, i) => {
-      chunks.push({ id: `${source}#${i}`, source, title, text });
+      chunks.push({ kind: "text", id: `${source}#${i}`, source, title, text });
     });
   }
   return chunks;
 }
 
+// Validate the vector, drop the raw PDF bytes, and attach the normalized
+// embedding. A dimension mismatch would silently corrupt retrieval scores
+// (lib/knowledge.ts compares vectors over min(length)), so fail loudly here.
+function finalizeChunk(chunk, values) {
+  if (!values || values.length !== DIMENSION) {
+    throw new Error(
+      `bad embedding for chunk ${chunk.id}: expected ${DIMENSION} dims, ` +
+        `got ${values?.length ?? 0}`,
+    );
+  }
+  const out = { ...chunk, embedding: normalize(values) };
+  delete out.pdf; // raw PDF bytes are never shipped in the artifact
+  return out;
+}
+
 async function embedAll(ai, chunks) {
+  const textChunks = chunks.filter((c) => c.kind !== "pdf");
+  const pdfPageChunks = chunks.filter((c) => c.kind === "pdf");
+
+  // PDF pages are embedded as inlineData, which only the multimodal v2 model
+  // accepts; a text-only model (e.g. a gemini-embedding-001 override) would 400.
+  if (pdfPageChunks.length > 0 && !usesTaskInstruction(EMBED_MODEL)) {
+    throw new Error(
+      `PDF sources require a multimodal embedding model (e.g. ` +
+        `gemini-embedding-2-preview); ${EMBED_MODEL} is text-only`,
+    );
+  }
+
   const embedded = [];
-  for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
-    const batch = chunks.slice(i, i + BATCH_SIZE);
+
+  // Text chunks batch: BATCH_SIZE strings in -> BATCH_SIZE vectors out per call.
+  for (let i = 0; i < textChunks.length; i += BATCH_SIZE) {
+    const batch = textChunks.slice(i, i + BATCH_SIZE);
     const res = await ai.models.embedContent({
       model: EMBED_MODEL,
-      contents: batch.map((c) => c.text),
-      config: {
-        taskType: "RETRIEVAL_DOCUMENT",
-        outputDimensionality: DIMENSION,
-      },
+      contents: batch.map((c) => embedDocInput(EMBED_MODEL, c)),
+      config: embedConfig(EMBED_MODEL),
     });
     const embeddings = res.embeddings ?? [];
     if (embeddings.length !== batch.length) {
@@ -131,25 +245,33 @@ async function embedAll(ai, chunks) {
         `embedding count mismatch: asked ${batch.length}, got ${embeddings.length}`,
       );
     }
-    batch.forEach((chunk, j) => {
-      const values = embeddings[j]?.values;
-      // Reject empty or wrong-dimension vectors: a dimension mismatch would
-      // silently corrupt retrieval scores (lib/knowledge.ts compares vectors
-      // over min(length)), so fail loudly before writing the artifact.
-      if (!values || values.length !== DIMENSION) {
-        throw new Error(
-          `bad embedding for chunk ${chunk.id}: expected ${DIMENSION} dims, ` +
-            `got ${values?.length ?? 0}`,
-        );
-      }
-      embedded.push({ ...chunk, embedding: normalize(values) });
-    });
-    log(`embedded ${Math.min(i + BATCH_SIZE, chunks.length)}/${chunks.length}`);
+    batch.forEach((chunk, j) =>
+      embedded.push(finalizeChunk(chunk, embeddings[j]?.values)),
+    );
+    log(
+      `embedded text ${Math.min(i + BATCH_SIZE, textChunks.length)}/${textChunks.length}`,
+    );
   }
+
+  // PDF pages: one request per page. Multiple inlineData parts in a single call
+  // would fuse into one vector instead of one-per-page, so they can't be batched.
+  for (let i = 0; i < pdfPageChunks.length; i++) {
+    const chunk = pdfPageChunks[i];
+    const res = await ai.models.embedContent({
+      model: EMBED_MODEL,
+      contents: [
+        { inlineData: { mimeType: "application/pdf", data: chunk.pdf } },
+      ],
+      config: { outputDimensionality: DIMENSION },
+    });
+    embedded.push(finalizeChunk(chunk, res.embeddings?.[0]?.values));
+    log(`embedded pdf ${i + 1}/${pdfPageChunks.length} (${chunk.id})`);
+  }
+
   return embedded;
 }
 
-const chunks = collectChunks();
+const chunks = await collectChunks();
 
 // No corpus yet (or none after filtering): write an empty artifact and stop
 // BEFORE requiring an API key, so a fresh checkout can build the empty index.

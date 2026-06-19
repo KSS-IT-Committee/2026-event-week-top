@@ -18,7 +18,11 @@ import knowledgeIndex from "./knowledge.generated.json";
  * query — the retrieveKnowledge() contract can stay identical.
  */
 
+type ChunkKind = "text" | "pdf";
+
 type StoredChunk = {
+  // Older artifacts predate this field; treat a missing kind as "text".
+  kind?: ChunkKind;
   id: string;
   source: string;
   title: string;
@@ -44,7 +48,15 @@ export type KnowledgeChunk = {
 const index = knowledgeIndex as KnowledgeIndex;
 
 // Discard weak matches so an off-topic question doesn't drag in unrelated text.
-const MIN_SCORE = 0.5;
+// These thresholds are MODEL- AND MODALITY-specific. gemini-embedding-2 has a
+// markedly higher cosine floor than gemini-embedding-001 did, and a text query
+// scores LOWER against a PDF-page vector than against a text vector (the
+// embedding "modality gap"). Measured against the current corpus: text docs
+// separate around ~0.6 (off-topic ~0.55, on-topic ~0.63–0.73) while text→PDF
+// hits run ~0.5 (off-topic ~0.38, on-topic ~0.57–0.62). A single cutoff can't
+// serve both, so each modality gets its own. Re-tune when real content lands or
+// `index.model` changes.
+const MIN_SCORE: Record<ChunkKind, number> = { text: 0.6, pdf: 0.5 };
 
 function dot(a: number[], b: number[]): number {
   let sum = 0;
@@ -74,14 +86,15 @@ export async function retrieveKnowledge(
   );
 
   return index.chunks
-    .map((chunk) => ({
+    .map((chunk) => ({ chunk, score: dot(queryVec, chunk.embedding) }))
+    .filter(({ chunk, score }) => score >= MIN_SCORE[chunk.kind ?? "text"])
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topK)
+    .map(({ chunk, score }) => ({
       id: chunk.id,
       source: chunk.source,
       title: chunk.title,
       text: chunk.text,
-      score: dot(queryVec, chunk.embedding),
-    }))
-    .filter((chunk) => chunk.score >= MIN_SCORE)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topK);
+      score,
+    }));
 }

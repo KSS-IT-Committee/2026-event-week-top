@@ -69,8 +69,9 @@ export function chatModelOrder(): string[] {
 // a GEMINI_EMBED_MODEL override only applies at build time (the build script
 // reads it and bakes the choice into the index).
 
-// L2-normalize so cosine similarity reduces to a dot product. A reduced
-// outputDimensionality from gemini-embedding-001 is not pre-normalized.
+// L2-normalize so cosine similarity reduces to a dot product. gemini-embedding-2
+// already returns unit vectors (even at a reduced outputDimensionality), so this
+// is an idempotent safety net that keeps callers correct across model swaps.
 function normalize(values: number[]): number[] {
   let norm = 0;
   for (const v of values) norm += v * v;
@@ -90,10 +91,25 @@ export async function embedText(
   dimension: number,
   model: string,
 ): Promise<number[]> {
+  // gemini-embedding-2 dropped the taskType field (it ignores it); the task is
+  // instead prepended to the text as an instruction. Older models
+  // (gemini-embedding-001) still take taskType and must NOT get the prefix. Keep
+  // these instruction strings in sync with scripts/build-knowledge.mjs (the
+  // document-side encoder) so query and document vectors stay comparable.
+  const usesTaskInstruction = model.startsWith("gemini-embedding-2");
+  const contents = usesTaskInstruction
+    ? taskType === "RETRIEVAL_QUERY"
+      ? `task: search result | query: ${text}`
+      : `title:  | text: ${text}`
+    : text;
+  const config = usesTaskInstruction
+    ? { outputDimensionality: dimension }
+    : { taskType, outputDimensionality: dimension };
+
   const res = await getGemini().models.embedContent({
     model,
-    contents: [text],
-    config: { taskType, outputDimensionality: dimension },
+    contents: [contents],
+    config,
   });
   const values = res.embeddings?.[0]?.values;
   if (!values || values.length === 0) {
