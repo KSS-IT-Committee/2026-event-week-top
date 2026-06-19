@@ -39,8 +39,6 @@ export default function RequestPage() {
       <h1 className={styles.title}>新機能や修正をリクエストするには？</h1>
       <p className={styles.lead}>
         このサイトへの新機能の追加や修正を提案することができます。
-        <br />
-        方法は以下の3種類です。
       </p>
       <Internal>
         <h2 className={styles.sectionTitle}>委員に直接伝える</h2>
