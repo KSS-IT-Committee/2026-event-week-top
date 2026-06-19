@@ -7,7 +7,7 @@ import {
   type ChatViewer,
   dispatchTool,
 } from "@/lib/chat-tools";
-import { CHAT_MODEL, getGemini } from "@/lib/gemini";
+import { chatModelOrder, getGemini, MAX_MODEL_ATTEMPTS } from "@/lib/gemini";
 import { type KnowledgeChunk, retrieveKnowledge } from "@/lib/knowledge";
 
 export type ChatMessage = {
@@ -70,39 +70,85 @@ export async function* runChat(
   const contents: Content[] = messages.map(toContent);
   const ai = getGemini();
 
+  // One randomized model rotation for the whole request: every turn uses the
+  // same primary model (element 0) for a consistent voice, and only falls over
+  // to the next models on failure. All pool models share the standard Gemini
+  // tool-call format, so failing over mid-conversation is safe.
+  const modelOrder = chatModelOrder();
+
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
     const isLastIteration = i === MAX_TOOL_ITERATIONS - 1;
-    const stream = await ai.models.generateContentStream({
-      model: CHAT_MODEL,
-      contents,
-      config: {
-        systemInstruction,
-        // Force a worded answer on the final allowed turn by withholding tools.
-        tools: isLastIteration
-          ? undefined
-          : [{ functionDeclarations: chatToolDeclarations }],
-        temperature: 0.4,
-        maxOutputTokens: 2048,
-        abortSignal: signal,
-      },
-    });
+    const config = {
+      systemInstruction,
+      // Force a worded answer on the final allowed turn by withholding tools.
+      tools: isLastIteration
+        ? undefined
+        : [{ functionDeclarations: chatToolDeclarations }],
+      temperature: 0.4,
+      maxOutputTokens: 2048,
+      abortSignal: signal,
+    };
 
     let textBuf = "";
-    const callParts: Part[] = [];
-    const functionCalls: FunctionCall[] = [];
+    let callParts: Part[] = [];
+    let functionCalls: FunctionCall[] = [];
 
-    for await (const chunk of stream) {
-      const parts = chunk.candidates?.[0]?.content?.parts ?? [];
-      for (const part of parts) {
-        if (part.thought) continue; // never surface model "thoughts" as answer
-        if (typeof part.text === "string" && part.text.length > 0) {
-          textBuf += part.text;
-          yield part.text;
-        } else if (part.functionCall) {
-          callParts.push(part);
-          functionCalls.push(part.functionCall);
+    // Try this turn on up to MAX_MODEL_ATTEMPTS distinct models. A thrown error
+    // (most likely a per-model 429/503) or an empty response (no text, no tool
+    // call) counts as "failed to return something" and fails over to the next
+    // model — but only while nothing has streamed to the user yet this turn, so
+    // a partially-streamed answer is never duplicated or interleaved.
+    let streamedThisTurn = false;
+    let gotResponse = false;
+    let lastError: unknown;
+    const attempts = Math.min(MAX_MODEL_ATTEMPTS, modelOrder.length);
+    for (let a = 0; a < attempts; a++) {
+      // Reset per-attempt accumulators so a retry starts clean.
+      textBuf = "";
+      callParts = [];
+      functionCalls = [];
+      try {
+        const stream = await ai.models.generateContentStream({
+          model: modelOrder[a],
+          contents,
+          config,
+        });
+        for await (const chunk of stream) {
+          const parts = chunk.candidates?.[0]?.content?.parts ?? [];
+          for (const part of parts) {
+            if (part.thought) continue; // never surface model "thoughts" as answer
+            if (typeof part.text === "string" && part.text.length > 0) {
+              textBuf += part.text;
+              streamedThisTurn = true;
+              yield part.text;
+            } else if (part.functionCall) {
+              callParts.push(part);
+              functionCalls.push(part.functionCall);
+            }
+          }
         }
+        // Empty turn (no text, no tool call) → treat as a failure and retry on
+        // another model rather than bailing straight to the safety net.
+        if (textBuf === "" && functionCalls.length === 0) {
+          lastError = new Error("model returned an empty response");
+          continue;
+        }
+        gotResponse = true;
+        break;
+      } catch (error) {
+        lastError = error;
+        // Don't retry a client-aborted request, and don't retry once we've
+        // already streamed text (the user has seen partial output).
+        if (signal?.aborted || streamedThisTurn) throw error;
+        // otherwise fall through and try the next model
       }
+    }
+
+    if (!gotResponse) {
+      // Exhausted every model attempt without a usable turn.
+      if (streamedThisTurn) return; // partial answer already streamed
+      console.error("[chat] all model attempts failed", lastError);
+      break; // fall through to the safety-net message below
     }
 
     // Record this model turn so tool results have the matching call to attach to.

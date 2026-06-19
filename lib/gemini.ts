@@ -21,15 +21,53 @@ export function getGemini(): GoogleGenAI {
   return _client;
 }
 
-// Chat model. Overridable via env; defaults to the cheap/fast flash model.
+// Chat model pool. The free-tier request quota that throttles /chat is charged
+// PER MODEL, so each request is spread across several interchangeable
+// flash-class models to multiply the available free headroom, and a request
+// fails over to a different model when one is rate-limited (429) / overloaded
+// (503) / returns nothing. Every model here supports function calling AND a
+// TEXT response (verified against the API) and uses the standard Gemini
+// tool-call format, so a request can switch models mid-conversation without
+// breaking the agentic tool loop. TTS/audio-only and non-tool models are
+// deliberately excluded — they 400 on `tools` / TEXT output.
 //
+// Setting GEMINI_MODEL pins one model (no rotation, no failover) — handy for
+// local testing or forcing a specific model via env.
+export const CHAT_MODELS = [
+  "gemini-3.1-flash-lite",
+  "gemini-2.5-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3-flash-preview",
+] as const;
+
+// How many distinct models to try for a single chat turn before giving up. A
+// failure is most likely a per-model rate limit, so we retry on another model.
+export const MAX_MODEL_ATTEMPTS = 3;
+
+/**
+ * The ordered list of models to use for one chat request. Normally a random
+ * rotation of the pool (so load spreads across per-model quotas); callers use
+ * element 0 as the primary for every turn and fall through to the rest only on
+ * failure. If GEMINI_MODEL is set it pins that single model (no rotation).
+ */
+export function chatModelOrder(): string[] {
+  const override = process.env.GEMINI_MODEL;
+  if (override) return [override];
+  // Fisher–Yates shuffle a copy so each request starts on a random model.
+  const models = [...CHAT_MODELS];
+  for (let i = models.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [models[i], models[j]] = [models[j], models[i]];
+  }
+  return models;
+}
+
 // There is deliberately NO embedding-model constant here: the query embedding
 // must use the exact model the corpus was embedded with, which is recorded as
 // `model` in lib/knowledge.generated.json. Callers pass that value into
 // embedText() so query and document vectors always come from the same model —
 // a GEMINI_EMBED_MODEL override only applies at build time (the build script
 // reads it and bakes the choice into the index).
-export const CHAT_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 
 // L2-normalize so cosine similarity reduces to a dot product. A reduced
 // outputDimensionality from gemini-embedding-001 is not pre-normalized.
