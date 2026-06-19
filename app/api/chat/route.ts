@@ -80,6 +80,22 @@ function parseMessages(body: unknown): ParsedBody | { error: string } {
   return { messages };
 }
 
+/**
+ * Whether an error is a Gemini quota / rate-limit failure (HTTP 429 /
+ * RESOURCE_EXHAUSTED). These are transient — the free-tier request quota is
+ * exhausted and resets shortly — so the client gets a distinct "try again in a
+ * moment" note rather than the generic failure message.
+ */
+function isQuotaError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  if ((error as { status?: unknown }).status === 429) return true;
+  const message = (error as { message?: unknown }).message;
+  return (
+    typeof message === "string" &&
+    /RESOURCE_EXHAUSTED|quota|\b429\b/i.test(message)
+  );
+}
+
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
@@ -145,7 +161,9 @@ export async function POST(request: NextRequest) {
         console.error("[chat] generation error", error);
         controller.enqueue(
           encoder.encode(
-            "\n\n（エラーが発生しました。時間をおいて再度お試しください。）",
+            isQuotaError(error)
+              ? "\n\n（ただいまアクセスが集中しています。少し時間をおいて再度お試しください。）"
+              : "\n\n（エラーが発生しました。時間をおいて再度お試しください。）",
           ),
         );
       } finally {
