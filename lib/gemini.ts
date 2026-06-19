@@ -21,7 +21,10 @@ export function getGemini(): GoogleGenAI {
   return _client;
 }
 
-// Chat model. Overridable via env; defaults to the cheap/fast flash model.
+// Chat model. Overridable via env; defaults to the cheap/fast flash-lite model
+// (gemini-3.1-flash-lite has a more generous free-tier request quota than
+// gemini-2.5-flash, which the agentic /chat loop — 2+ requests per tool answer
+// — exhausts quickly).
 //
 // There is deliberately NO embedding-model constant here: the query embedding
 // must use the exact model the corpus was embedded with, which is recorded as
@@ -29,7 +32,7 @@ export function getGemini(): GoogleGenAI {
 // embedText() so query and document vectors always come from the same model —
 // a GEMINI_EMBED_MODEL override only applies at build time (the build script
 // reads it and bakes the choice into the index).
-export const CHAT_MODEL = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+export const CHAT_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite";
 
 // L2-normalize so cosine similarity reduces to a dot product. A reduced
 // outputDimensionality from gemini-embedding-001 is not pre-normalized.
