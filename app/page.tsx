@@ -242,10 +242,10 @@ export default function Toppage() {
             <br />
           </div>
 
-          <div className={styles.lead}>
-            <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
-          </div>
           <Internal>
+            <div className={styles.lead}>
+              <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
+            </div>
             <div className={styles.linkContainer}>
               <div className={styles.rentalSite}>
                 <p
