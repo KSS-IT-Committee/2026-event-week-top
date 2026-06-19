@@ -70,7 +70,21 @@ export async function* runChat(
   signal?: AbortSignal,
 ): AsyncGenerator<string> {
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
-  const knowledge = lastUser ? await retrieveKnowledge(lastUser.text) : [];
+  // Knowledge retrieval is a best-effort enhancement. The query embedding runs
+  // on a single model with no failover, so a transient embed failure (e.g. a
+  // 429/503) must degrade to "no corpus" — exactly like an empty index — rather
+  // than abort the whole chat turn.
+  let knowledge: KnowledgeChunk[] = [];
+  if (lastUser) {
+    try {
+      knowledge = await retrieveKnowledge(lastUser.text);
+    } catch (err) {
+      console.warn(
+        "[chat] knowledge retrieval failed; continuing without it",
+        err,
+      );
+    }
+  }
 
   const systemInstruction = buildSystemInstruction(knowledge);
   const contents: Content[] = messages.map(toContent);
