@@ -1,0 +1,5 @@
+{
+  "title": "Bump tailwindcss from 4.3.0 to 4.3.1",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
