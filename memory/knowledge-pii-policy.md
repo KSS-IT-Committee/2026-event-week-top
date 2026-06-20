@@ -10,7 +10,7 @@ into the RAG chat corpus (`npm run knowledge`):
 
 - **Individual student names tied to a class/identity MUST be redacted.** Example fixed:
   `【開拓部門】当日生徒マニュアル.pdf` had "5B 寺澤・5D 長部" on its last page; the user
-  re-exported it masked as "******・******".
+  re-exported it masked as "**\*\***・**\*\***".
 - **Committee/role-based email addresses are OK to keep** — the user decided
   `kss.sakuten93@gmail.com` (shared 創作展委員会 inbox, appears in 部活用 p.19/23 and
   クラス用 p.31/32/38) does NOT need redaction.
