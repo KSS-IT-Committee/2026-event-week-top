@@ -34,13 +34,19 @@ const BASE_SYSTEM_INSTRUCTION = `あなたは小石川中等教育学校 IT委�
 - 伝達事項・備品の貸出状況・減点・ニュースなど、最新の状況が必要な場合は提供されたツールを使って確認してください。在庫数や件数を推測で答えてはいけません。
 - 確実な情報がない場合は、無理に答えず「わかりません」と正直に伝えてください。
 - クラスは 1A〜6D（学年1〜6 + 組A〜D）で表されます。
-- 減点・伝達は、ログイン中のユーザー自身のクラス分のみ参照できます。他クラスの減点・伝達は取得できないため、求められても「自分のクラス分しか確認できません」と伝えてください。`;
+- 減点・伝達は、ログイン中のユーザー自身のクラス分のみ参照できます。他クラスの減点・伝達は取得できないため、求められても「自分のクラス分しか確認できません」と伝えてください。
+- 参考資料に「【参考・第93回】」などの注記が付いている場合、それは昨年度（第93回）の資料です。第94回の規則は変更される可能性があるため、引用する際は第93回の参考資料である旨を必ず明示し、最新の正式な規則は委員会の伝達事項で確認するよう案内してください。`;
 
 function buildSystemInstruction(knowledge: KnowledgeChunk[]): string {
   if (knowledge.length === 0) return BASE_SYSTEM_INSTRUCTION;
 
   const refs = knowledge
-    .map((chunk, i) => `## [${i + 1}] ${chunk.title}\n${chunk.text}`)
+    .map((chunk, i) => {
+      // A chunk's `context` (e.g. "this is last year's reference") rides with
+      // every chunk so the model sees it even on a mid-document fragment.
+      const note = chunk.context ? `${chunk.context}\n` : "";
+      return `## [${i + 1}] ${chunk.title}\n${note}${chunk.text}`;
+    })
     .join("\n\n");
 
   return `${BASE_SYSTEM_INSTRUCTION}
