@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { CHAT_RESET_SIGNAL } from "@/lib/chat-protocol";
+
 import styles from "./Chat.module.css";
 
 type Message = {
@@ -73,7 +75,18 @@ export function Chat() {
         setMessages((prev) => {
           const next = [...prev];
           const last = next[next.length - 1];
-          next[next.length - 1] = { ...last, text: last.text + delta };
+          // A RESET marker means the server is re-answering on another model
+          // (the previous one failed mid-stream). Discard the partial shown so
+          // far for this bubble and keep only what follows the marker. This
+          // clears the ENTIRE bubble — including any visible preamble from an
+          // earlier tool iteration — which is fine: the re-answer is
+          // self-contained and prior turns remain in the model's own history.
+          const text = delta.includes(CHAT_RESET_SIGNAL)
+            ? delta.slice(
+                delta.lastIndexOf(CHAT_RESET_SIGNAL) + CHAT_RESET_SIGNAL.length,
+              )
+            : last.text + delta;
+          next[next.length - 1] = { ...last, text };
           return next;
         });
       };
