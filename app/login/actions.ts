@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { getUserByUsername } from "@/db/getUserByUsername";
 import { setUserLoggedIn } from "@/db/setUserLoggedIn";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { createSession, invalidateSession } from "@/lib/session";
 import {
   SESSION_COOKIE_NAME,
@@ -25,6 +26,14 @@ export type LogoutFormState = {
 // timing). Hash of a random throwaway string, cost 12 like the real ones.
 const DUMMY_PASSWORD_HASH =
   "$2b$12$b9knPwSWvdYaEpu/5ogc1esBjm6AIkZxstMde5jGCUCTMizZEUogO";
+
+// Per-account login throttle, checked before the cost-12 bcrypt.compare.
+// Keyed by username, NOT IP: the school logs in en masse from a shared NAT,
+// so a per-IP cap would lock out legitimate students. This slows targeted
+// guessing of a single account; the unauthenticated CPU-exhaustion vector is
+// for nginx limit_req at the edge. Per-process only (see lib/rate-limit.ts).
+const LOGIN_MAX_ATTEMPTS = 10;
+const LOGIN_RATE_WINDOW_MS = 60_000;
 
 // Students type credentials from printed cards, often through a Japanese
 // IME — fold full-width characters back to ASCII and trim stray whitespace.
@@ -84,6 +93,17 @@ export async function loginAction(
   const password = normalizeInput(formData.get("password"));
   if (username === "" || password === "") {
     return { error: "ユーザー名とパスワードを入力してください。" };
+  }
+
+  const attempt = checkRateLimit(
+    `login:${username}`,
+    LOGIN_MAX_ATTEMPTS,
+    LOGIN_RATE_WINDOW_MS,
+  );
+  if (!attempt.ok) {
+    return {
+      error: "試行回数が多すぎます。しばらくしてからもう一度お試しください。",
+    };
   }
 
   const user = await getUserByUsername(username);
