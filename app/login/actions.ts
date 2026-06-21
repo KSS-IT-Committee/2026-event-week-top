@@ -8,6 +8,7 @@ import { deleteUserSessions } from "@/db/deleteUserSessions";
 import { getUserByUsername } from "@/db/getUserByUsername";
 import { setUserLoggedIn } from "@/db/setUserLoggedIn";
 import { updateUserPassword } from "@/db/updateUserPassword";
+import { db } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { safeNextPath } from "@/lib/safe-next";
 import {
@@ -219,14 +220,20 @@ export async function changePasswordAction(
 
   // Cost 12 to match the existing seeded hashes (and the login dummy hash).
   const newHash = await bcrypt.hash(newPassword, 12);
-  await updateUserPassword(username, newHash);
 
-  // A password change logs the user out everywhere: drop every session for the
-  // account (shared `sessions` table → all apps), then re-issue one for this
-  // device so the person who just changed it stays logged in here. On a PR
-  // preview the schema-only clone has no rows, so both calls are harmless
-  // no-ops (the verify above already fails closed there).
-  await deleteUserSessions(username);
+  // Write the new hash and revoke every session for the account atomically, so
+  // a partial failure can never leave the new password active while old
+  // sessions still validate. A password change logs the user out everywhere
+  // (shared `sessions` table → all apps). On a PR preview the schema-only clone
+  // has no rows, so both writes are harmless no-ops (the verify above already
+  // fails closed there).
+  await db.transaction(async (tx) => {
+    await updateUserPassword(username, newHash, tx);
+    await deleteUserSessions(username, tx);
+  });
+
+  // Re-issue a session for this device only after the change has committed, so
+  // the person who just changed their password stays logged in here.
   const token = await createSession(username);
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, token, sessionCookieOptions());
