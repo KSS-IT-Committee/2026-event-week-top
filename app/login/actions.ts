@@ -4,10 +4,17 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { deleteUserSessions } from "@/db/deleteUserSessions";
 import { getUserByUsername } from "@/db/getUserByUsername";
 import { setUserLoggedIn } from "@/db/setUserLoggedIn";
+import { updateUserPassword } from "@/db/updateUserPassword";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { createSession, invalidateSession } from "@/lib/session";
+import { safeNextPath } from "@/lib/safe-next";
+import {
+  createSession,
+  getCurrentUser,
+  invalidateSession,
+} from "@/lib/session";
 import {
   SESSION_COOKIE_NAME,
   sessionCookieOptions,
@@ -19,6 +26,11 @@ export type LoginFormState = {
 
 export type LogoutFormState = {
   error: string | null;
+};
+
+export type ChangePasswordFormState = {
+  error: string | null;
+  success: boolean;
 };
 
 // Compared against when the username doesn't exist, so a login attempt
@@ -40,46 +52,6 @@ const LOGIN_RATE_WINDOW_MS = 60_000;
 function normalizeInput(value: FormDataEntryValue | null): string {
   if (typeof value !== "string") return "";
   return value.normalize("NFKC").trim();
-}
-
-// A satellite app (equipment.2026.kss-it.com, …) sends the user here to log
-// in and wants them back afterwards, so we accept absolute https URLs whose
-// host is in the SESSION_COOKIE_DOMAIN family — and nothing else. The whole
-// `*.2026.kss-it.com` namespace is committee-controlled, so this isn't an
-// open redirect; an unrelated host still falls back to "/".
-function isAllowedReturnHost(host: string): boolean {
-  const domain = process.env.SESSION_COOKIE_DOMAIN;
-  if (!domain) return false;
-  return host === domain || host.endsWith(`.${domain}`);
-}
-
-function safeNextPath(value: FormDataEntryValue | null): string {
-  if (typeof value !== "string") return "/";
-
-  // Same-site relative path. Resolve against a sentinel origin and require it
-  // to survive unchanged: a plain startsWith("/") check isn't enough because
-  // browsers fold "\" to "/", so "/\evil.com" (and control chars, "//evil.com")
-  // resolve to a foreign origin.
-  if (value.startsWith("/")) {
-    try {
-      const url = new URL(value, "https://placeholder.invalid");
-      if (url.origin !== "https://placeholder.invalid") return "/";
-      return url.pathname + url.search + url.hash;
-    } catch {
-      return "/";
-    }
-  }
-
-  // Absolute URL back to a sibling app under the 2026 namespace.
-  try {
-    const url = new URL(value);
-    if (url.protocol === "https:" && isAllowedReturnHost(url.host)) {
-      return url.toString();
-    }
-  } catch {
-    // not a parseable absolute URL — fall through
-  }
-  return "/";
 }
 
 export async function loginAction(
@@ -148,4 +120,116 @@ export async function logoutAction(
   });
 
   redirect(safeNextPath(formData.get("next")));
+}
+
+// Minimum length of a self-chosen password. A floor, not a strength policy —
+// the seeded card passwords are stronger than this; we only stop someone
+// replacing one with something trivially short.
+const PASSWORD_MIN_LENGTH = 8;
+// bcrypt (and bcryptjs) silently truncates its input at 72 *bytes*, so anything
+// past that wouldn't really be part of the password. NFKC-folded Japanese input
+// is multi-byte, so this is a byte cap, not a character cap. Reject rather than
+// store a password whose tail is ignored.
+const PASSWORD_MAX_BYTES = 72;
+
+// Per-account throttle on the cost-12 bcrypt verify, mirroring loginAction.
+const PWCHANGE_MAX_ATTEMPTS = 10;
+const PWCHANGE_RATE_WINDOW_MS = 60_000;
+
+// Change the logged-in user's password. This lives on the shared /login page,
+// so — like the session itself — it works from every app under the namespace:
+// each app's AccountNav links here, the cookie is read with getCurrentUser, and
+// the write lands in the shared `appdata`. A successful change invalidates the
+// user's sessions on *all* apps and re-issues one for this device.
+export async function changePasswordAction(
+  _prevState: ChangePasswordFormState,
+  formData: FormData,
+): Promise<ChangePasswordFormState> {
+  // Self-authorize from the session, NOT from form input: a Server Action is
+  // independently invocable, and the new password must always apply to the
+  // caller's own account. Never read a username from formData here — that would
+  // be a "change anyone's password" hole.
+  const sessionUser = await getCurrentUser();
+  if (sessionUser === null) {
+    return {
+      error: "セッションが無効です。再度ログインしてください。",
+      success: false,
+    };
+  }
+  const { username } = sessionUser;
+
+  // Normalize exactly like loginAction so a password set here is byte-for-byte
+  // what the login form will later submit (NFKC-fold full-width IME input, trim
+  // surrounding whitespace).
+  const currentPassword = normalizeInput(formData.get("currentPassword"));
+  const newPassword = normalizeInput(formData.get("newPassword"));
+  const confirmPassword = normalizeInput(formData.get("confirmPassword"));
+
+  if (currentPassword === "" || newPassword === "" || confirmPassword === "") {
+    return { error: "すべての項目を入力してください。", success: false };
+  }
+  if (newPassword !== confirmPassword) {
+    return { error: "新しいパスワードが一致しません。", success: false };
+  }
+  if (newPassword.length < PASSWORD_MIN_LENGTH) {
+    return {
+      error: `新しいパスワードは${PASSWORD_MIN_LENGTH}文字以上にしてください。`,
+      success: false,
+    };
+  }
+  if (Buffer.byteLength(newPassword, "utf8") > PASSWORD_MAX_BYTES) {
+    return { error: "新しいパスワードが長すぎます。", success: false };
+  }
+  if (newPassword === currentPassword) {
+    return {
+      error: "新しいパスワードが現在のパスワードと異なるものにしてください。",
+      success: false,
+    };
+  }
+
+  const attempt = checkRateLimit(
+    `pwchange:${username}`,
+    PWCHANGE_MAX_ATTEMPTS,
+    PWCHANGE_RATE_WINDOW_MS,
+  );
+  if (!attempt.ok) {
+    return {
+      error: "試行回数が多すぎます。しばらくしてからもう一度お試しください。",
+      success: false,
+    };
+  }
+
+  // Re-verify the current password against the stored hash. SessionUser carries
+  // only { username, roles }, so re-fetch the row for its hash. This stops a
+  // shoulder-surfed or hijacked session from silently resetting the password.
+  const account = await getUserByUsername(username);
+  if (account === null) {
+    return {
+      error: "セッションが無効です。再度ログインしてください。",
+      success: false,
+    };
+  }
+  const isCurrentValid = await bcrypt.compare(
+    currentPassword,
+    account.passwordHash,
+  );
+  if (!isCurrentValid) {
+    return { error: "現在のパスワードが正しくありません。", success: false };
+  }
+
+  // Cost 12 to match the existing seeded hashes (and the login dummy hash).
+  const newHash = await bcrypt.hash(newPassword, 12);
+  await updateUserPassword(username, newHash);
+
+  // A password change logs the user out everywhere: drop every session for the
+  // account (shared `sessions` table → all apps), then re-issue one for this
+  // device so the person who just changed it stays logged in here. On a PR
+  // preview the schema-only clone has no rows, so both calls are harmless
+  // no-ops (the verify above already fails closed there).
+  await deleteUserSessions(username);
+  const token = await createSession(username);
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, token, sessionCookieOptions());
+
+  return { error: null, success: true };
 }

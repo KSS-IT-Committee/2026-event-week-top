@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { safeNextPath } from "@/lib/safe-next";
 import { getCurrentUser } from "@/lib/session";
 
+import { ChangePasswordForm } from "./ChangePasswordForm";
 import styles from "./login.module.css";
 import { LoginForm } from "./LoginForm";
 import { LogoutForm } from "./LogoutForm";
@@ -19,6 +21,10 @@ type LoginPageProps = {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const [user, { next }] = await Promise.all([getCurrentUser(), searchParams]);
 
+  // Sanitize once on the server so the change-password return link (rendered as
+  // an href) can never become an open redirect or a `javascript:` URL.
+  const returnTo = next !== undefined ? safeNextPath(next) : undefined;
+
   return (
     <>
       <div className={styles.main}>
@@ -34,6 +40,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 このログインは行事週間の各サイトで共通して使えます。
               </p>
               <LogoutForm next={next} />
+              <hr className={styles.divider} />
+              <h2 className={styles.subtitle}>パスワードの変更</h2>
+              <p className={styles.note}>
+                配布されたパスワードを、自分だけが知っているものに変更できます。各サイト共通のパスワードなので、変更すると他の端末・サイトからはログアウトされます。
+              </p>
+              <ChangePasswordForm next={returnTo} />
             </>
           ) : (
             <>

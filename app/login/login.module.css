@@ -27,6 +27,18 @@
   margin-bottom: 24px;
 }
 
+.divider {
+  margin: 28px 0 24px;
+  border: none;
+  border-top: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+}
+
+.subtitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -64,10 +76,26 @@
   color: #d4380d;
 }
 
+.success {
+  font-size: 0.9rem;
+  color: #237804;
+}
+
+.returnLink {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0b69eb;
+}
+
 @media (prefers-color-scheme: dark) {
   .error {
     /* #d4380d is below WCAG AA contrast on the dark card background. */
     color: #ff7a5c;
+  }
+
+  .success {
+    /* #237804 is below WCAG AA contrast on the dark card background. */
+    color: #95de64;
   }
 }
 
