@@ -77,9 +77,12 @@ jobs:
       - name: Log in to the container registry
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
+          # GitHub: GHCR with the built-in token. Forgejo: its own registry needs
+          # a PAT (the auto Actions token can't push packages), supplied via the
+          # FORGEJO_REGISTRY_USER / FORGEJO_REGISTRY_TOKEN Actions secrets.
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ env.REGISTRY == 'ghcr.io' && github.actor || secrets.FORGEJO_REGISTRY_USER }}
+          password: ${{ env.REGISTRY == 'ghcr.io' && secrets.GITHUB_TOKEN || secrets.FORGEJO_REGISTRY_TOKEN }}
 
       - name: Extract image metadata
         id: meta
