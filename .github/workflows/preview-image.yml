@@ -30,13 +30,18 @@ jobs:
 
     steps:
       - name: Resolve registry + image name
+        env:
+          FORGEJO_REGISTRY: ${{ vars.FORGEJO_REGISTRY }}
         run: |
-          host="${GITHUB_SERVER_URL#http://}"; host="${host#https://}"
+          host="${GITHUB_SERVER_URL#http://}"; host="${host#https://}"; host="${host%%/*}"
           if [ "$host" = "github.com" ]; then
             registry="ghcr.io"
           else
-            # Forgejo's built-in container registry shares the instance host.
-            registry="$host"
+            # On Forgejo, GITHUB_SERVER_URL is the runner's INTERNAL connection URL
+            # (forgejo:3000, plain HTTP), which docker can't use as a registry.
+            # Push to Forgejo's PUBLIC registry host over HTTPS (via nginx) instead.
+            # Override with the FORGEJO_REGISTRY repo/org variable if the host differs.
+            registry="${FORGEJO_REGISTRY:-git.kss-it.com}"
           fi
           image="${registry}/${GITHUB_REPOSITORY}/preview"
           echo "REGISTRY=${registry}" >> "$GITHUB_ENV"
