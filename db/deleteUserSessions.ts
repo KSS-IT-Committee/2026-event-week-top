@@ -8,6 +8,9 @@ import { db, type Executor } from "@/lib/db";
 // fresh session for the device that performed the change. Keyed by username, so
 // it needs no knowledge of any current token. Accepts an executor so it can run
 // in the same transaction as the password update.
-export async function deleteUserSessions(username: string, executor: Executor = db) {
+export async function deleteUserSessions(
+  username: string,
+  executor: Executor = db,
+) {
   await executor.delete(sessions).where(eq(sessions.username, username));
 }
