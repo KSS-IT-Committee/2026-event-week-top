@@ -180,10 +180,15 @@ describe("runChat", () => {
     vi.mocked(retrieveKnowledge).mockRejectedValue(new Error("embed 429"));
     const gemini = fakeGeminiFromStreams([() => streamOf(textChunk("答え"))]);
     vi.mocked(getGemini).mockReturnValue(gemini);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     const out = await drain(runChat([{ role: "user", text: "hi" }], VIEWER));
 
     expect(out.join("")).toBe("答え");
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[chat] knowledge retrieval failed; continuing without it",
+      expect.any(Error),
+    );
   });
 
   it("yields the Japanese safety net when every turn only calls tools", async () => {
@@ -308,6 +313,7 @@ describe("runChat", () => {
         })(),
     ]);
     vi.mocked(getGemini).mockReturnValue(gemini);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const out = await drain(runChat([{ role: "user", text: "hi" }], VIEWER));
 
@@ -320,6 +326,10 @@ describe("runChat", () => {
     expect(out[out.length - 1]).toContain("うまく回答をまとめられませんでした");
     expect(noteModelUnavailable).toHaveBeenCalledWith("m1", expect.any(Error));
     expect(noteModelUnavailable).toHaveBeenCalledWith("m2", expect.any(Error));
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[chat] all model attempts failed",
+      expect.any(Error),
+    );
   });
 
   it("falls through to the safety net when all attempts fail with no streamed text", async () => {
@@ -342,12 +352,17 @@ describe("runChat", () => {
         })(),
     ]);
     vi.mocked(getGemini).mockReturnValue(gemini);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const out = await drain(runChat([{ role: "user", text: "hi" }], VIEWER));
 
     expect(out.join("")).toContain("うまく回答をまとめられませんでした");
     // MAX_MODEL_ATTEMPTS is 3, modelOrder length 3 → 3 attempts, then break.
     expect(gemini.models.generateContentStream).toHaveBeenCalledTimes(3);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "[chat] all model attempts failed",
+      expect.any(Error),
+    );
   });
 
   it("streams text emitted alongside a tool call, then the next turn's answer", async () => {
