@@ -30,3 +30,8 @@ export const db = new Proxy({} as Db, {
     return typeof value === "function" ? value.bind(target) : value;
   },
 });
+
+// A Drizzle executor: either the shared `db` or a transaction handle yielded by
+// `db.transaction(...)`. Query helpers accept this (defaulting to `db`) so a
+// caller can compose several writes into one atomic transaction.
+export type Executor = Db | Parameters<Parameters<Db["transaction"]>[0]>[0];

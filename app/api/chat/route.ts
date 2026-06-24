@@ -31,7 +31,31 @@ const MAX_TOTAL_CHARS = 20000;
 const RATE_LIMIT = 15;
 const RATE_WINDOW_MS = 60_000;
 
+// Per-instance global ceiling across ALL users, on top of the per-user limit.
+// The ~1000 printed credentials mean the per-user cap alone permits a large
+// aggregate, and each accepted request can fan out to several Gemini calls, so
+// cap total accepted requests per instance to bound worst-case cost. Still
+// per-process — a true global cap needs shared state (see lib/rate-limit.ts).
+// Tunable via CHAT_GLOBAL_RATE_LIMIT for high-traffic events.
+const GLOBAL_RATE_KEY = "__chat_global__";
+const DEFAULT_GLOBAL_RATE_LIMIT = 600;
+
+function globalRateLimit(): number {
+  const raw = Number.parseInt(process.env.CHAT_GLOBAL_RATE_LIMIT ?? "", 10);
+  return Number.isInteger(raw) && raw > 0 ? raw : DEFAULT_GLOBAL_RATE_LIMIT;
+}
+
 const NO_STORE = { "cache-control": "no-store" } as const;
+
+function rateLimitedResponse(retryAfterSeconds: number): Response {
+  return Response.json(
+    { error: "rate limited" },
+    {
+      status: 429,
+      headers: { ...NO_STORE, "retry-after": String(retryAfterSeconds) },
+    },
+  );
+}
 
 type ParsedBody = { messages: ChatMessage[] };
 
@@ -107,16 +131,18 @@ export async function POST(request: NextRequest) {
 
   const limit = checkRateLimit(user.username, RATE_LIMIT, RATE_WINDOW_MS);
   if (!limit.ok) {
-    return Response.json(
-      { error: "rate limited" },
-      {
-        status: 429,
-        headers: {
-          ...NO_STORE,
-          "retry-after": String(limit.retryAfterSeconds),
-        },
-      },
-    );
+    return rateLimitedResponse(limit.retryAfterSeconds);
+  }
+
+  // Global ceiling so a flood of distinct accounts on one instance can't blow
+  // past the aggregate the per-user cap would otherwise allow.
+  const globalLimit = checkRateLimit(
+    GLOBAL_RATE_KEY,
+    globalRateLimit(),
+    RATE_WINDOW_MS,
+  );
+  if (!globalLimit.ok) {
+    return rateLimitedResponse(globalLimit.retryAfterSeconds);
   }
 
   let body: unknown;

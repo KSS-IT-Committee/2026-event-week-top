@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Content, FunctionCall, Part } from "@google/genai";
 
+import { CHAT_RESET_SIGNAL } from "@/lib/chat-protocol";
 import {
   chatToolDeclarations,
   type ChatViewer,
@@ -122,8 +123,9 @@ export async function* runChat(
     // Try this turn on up to MAX_MODEL_ATTEMPTS distinct models. A thrown error
     // (most likely a per-model 429/503) or an empty response (no text, no tool
     // call) counts as "failed to return something" and fails over to the next
-    // model — but only while nothing has streamed to the user yet this turn, so
-    // a partially-streamed answer is never duplicated or interleaved.
+    // model. When the failure lands AFTER partial text has streamed, we emit
+    // CHAT_RESET_SIGNAL so the client clears that partial before the next model
+    // re-answers — so a model switch is never duplicated or interleaved on screen.
     let streamedThisTurn = false;
     let gotResponse = false;
     let lastError: unknown;
@@ -168,9 +170,18 @@ export async function* runChat(
         if (isModelUnavailableError(error)) {
           noteModelUnavailable(modelOrder[a], error);
         }
-        // Don't retry a client-aborted request, and don't retry once we've
-        // already streamed text (the user has seen partial output).
-        if (signal?.aborted || streamedThisTurn) throw error;
+        // A client-aborted request is dead — stop immediately.
+        if (signal?.aborted) throw error;
+        if (streamedThisTurn) {
+          // We've already streamed partial text from this now-failed attempt.
+          // For a transient model-unavailable error, tell the client to DISCARD
+          // that partial (CHAT_RESET_SIGNAL) and re-answer this turn from scratch
+          // on the next model — no duplicated text. Any other error (a real bug,
+          // not a transient limit) is surfaced as before.
+          if (!isModelUnavailableError(error)) throw error;
+          yield CHAT_RESET_SIGNAL;
+          streamedThisTurn = false;
+        }
         // otherwise fall through and try the next model
       }
     }
