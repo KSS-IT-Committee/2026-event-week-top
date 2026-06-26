@@ -25,7 +25,7 @@ npm run changelog    # Regenerate lib/changelog.generated.json from content/chan
 npx tsc --noEmit     # Type check (CI runs this; there is no npm script wrapper)
 ```
 
-The `pre*` hooks mean you almost never invoke `npm run changelog` manually — `dev` and `build` already do it. The exception is when `tsc --noEmit` is run standalone: `app/changelog/page.tsx` statically imports the generated JSON, so tsc fails if the artifact is missing. Run `npm run changelog` first in that case (this is exactly what CI does before `tsc`).
+The `pre*` hooks mean you almost never invoke `npm run changelog` / `npm run posts` manually — `dev` and `build` already run both. The exception is when `tsc --noEmit` is run standalone: `app/changelog/page.tsx` statically imports `lib/changelog.generated.json`, and `lib/posts.ts` / `app/news/newsData.ts` statically import `lib/posts.generated.json`, so tsc fails if either gitignored artifact is missing. Run `npm run changelog && npm run posts` first in that case (this is exactly what CI does before `tsc`).
 
 `DATABASE_URL` is required at runtime (`npm run start`) and for any code path that touches `lib/db.ts`. It's not needed for `dev` / `build` unless you exercise DB code.
 
@@ -58,7 +58,7 @@ Consequences:
 
 ### Posts / news pipeline
 
-A second content pipeline mirrors the changelog: `scripts/build-posts.mjs` (also run by `predev` / `prebuild`) renders `content/posts/*.md` — frontmatter via `gray-matter`, body via `remark` — into the gitignored `lib/posts.generated.json`, statically imported by `lib/posts.ts` and rendered at `/news`, `/news/list`, `/news/[id]` (also surfaced to the chat via its `get_recent_news` tool). Adding news = drop a new markdown file in `content/posts/`; like the changelog, never hand-edit the generated JSON.
+A second content pipeline mirrors the changelog: `scripts/build-posts.mjs` (also run by `predev` / `prebuild`, or standalone via `npm run posts`) renders `content/posts/*.md` — frontmatter via `gray-matter`, body via `remark` — into the gitignored `lib/posts.generated.json`, statically imported by `lib/posts.ts` and `app/news/newsData.ts` and rendered at `/news`, `/news/list`, `/news/[id]` (also surfaced to the chat via its `get_recent_news` tool). Adding news = drop a new markdown file in `content/posts/`; like the changelog, never hand-edit the generated JSON. Same standalone-`tsc` caveat applies: this artifact is gitignored, so run `npm run posts` (alongside `npm run changelog`) before a cold `tsc --noEmit`.
 
 ### Database access
 
