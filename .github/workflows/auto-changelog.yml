@@ -1,0 +1,88 @@
+name: Auto Changelog
+
+on:
+  pull_request_target:
+    # synchronize: dependabot の recreate (force-push) などでエントリが
+    # 消えたら再追加する。既にエントリがあれば何もしないためループしない
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+
+# 同一 PR で opened と synchronize が同時に走って push が衝突しないよう直列化
+concurrency:
+  group: auto-changelog-${{ github.event.pull_request.number }}
+
+jobs:
+  create-file:
+    # fork からの PR は対象外: pull_request_target は secrets と書き込み権限を
+    # 持つため、fork のコード (package.json など) を扱ってはいけない
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
+
+      - name: Write log
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          FILE="content/changelog/$(printf "%04d" "$PR_NUMBER")-changelog.json"
+
+          # 既にエントリがあれば上書きしない (手動で記入した説明を守る)
+          if [ -f "$FILE" ]; then
+            exit 0
+          fi
+
+          mkdir -p content/changelog
+
+          if [[ "$BRANCH" == dependabot/github_actions/* ]]; then
+            DESCRIPTION="Actionのバージョンを上げました。これによるページの変更はありません。"
+          elif [[ "$BRANCH" == dependabot/npm_and_yarn/* ]]; then
+            DESCRIPTION="パッケージのバージョンを上げました。これによるページの変更はありません。"
+          else
+            DESCRIPTION="TODO"
+          fi
+
+          jq -n \
+            --arg title "$TITLE" \
+            --arg description "$DESCRIPTION" \
+            --arg author "@$AUTHOR" \
+            '{
+              title: $title,
+              description: $description,
+              credits: [$author]
+            }' > "$FILE"
+
+          # jq の整形は Prettier と一致しないため、マージ後 main の
+          # format:check が落ちないようにリポジトリと同じ Prettier で整形する
+          npx --yes "prettier@$(node -p 'require("./package.json").devDependencies.prettier')" --write "$FILE"
+
+      - name: Commit
+        env:
+          # GITHUB_TOKEN の push は workflow をトリガーせず、追加コミットが
+          # CI 未検証のままマージされてしまうため PAT で push する
+          GH_TOKEN: ${{ secrets.ROTARYMARS_PR_ACTION_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add content/changelog
+
+          git diff --cached --quiet && exit 0
+
+          git commit -m "Add changelog for PR #$PR_NUMBER"
+
+          git remote set-url origin \
+            "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          git push origin "HEAD:$BRANCH"
