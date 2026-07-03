@@ -1,5 +1,5 @@
 {
-  "title": "change request page's Japanese",
-  "description": "TODO",
-  "credits": ["@SakaYq4875"]
+  "title": "リクエストページの日本語とリンクを修正",
+  "description": "リクエストページの日本語の表現とGitHubリンクを修正しました。",
+  "credits": ["@SakaYq4875", "@rotarymars"]
 }
