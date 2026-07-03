@@ -1,0 +1,5 @@
+{
+  "title": "PR発動時などに自動でChangelogを生成",
+  "description": "PR発動時などに自動でChangelogを生成するように変更しました。これによるページの変更はありません。",
+  "credits": ["@sakaYq4875", "@rotarymars"]
+}
