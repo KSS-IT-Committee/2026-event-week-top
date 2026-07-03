@@ -50,7 +50,9 @@ export default function RequestPage() {
       <p className={styles.description}>
         <Link
           className={styles.link}
-          href={"https://github.com/KSS-IT-Committee/2026-event-week-top"}
+          href={
+            "https://github.com/KSS-IT-Committee/2026-event-week-top/issues/new"
+          }
         >
           このページのリポジトリ
         </Link>
