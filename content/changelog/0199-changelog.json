@@ -1,0 +1,5 @@
+{
+  "title": "Bump docker/metadata-action from 6.1.0 to 6.2.0",
+  "description": "Actionのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
