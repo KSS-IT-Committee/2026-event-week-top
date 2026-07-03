@@ -42,7 +42,7 @@
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-unused-imports": "^4.0.0",
     "pdf-lib": "^1.17.1",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.4",
     "tailwindcss": "^4",
     "typescript": "^6",
     "unpdf": "^1.6.2"
