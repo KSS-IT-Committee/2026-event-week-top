@@ -1,5 +1,5 @@
 {
-  "title": "adding forced-colors",
-  "description": "TODO",
-  "credits": ["@rotarymars"]
+  "title": "メニューの色設定の改善",
+  "description": "特定のブラウザ設定において、ハンバーガーメニューの色が正しく表示されない問題を解決しました。",
+  "credits": ["@Kawasemi", "@rotarymars"]
 }
