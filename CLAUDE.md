@@ -11,7 +11,7 @@ The warning above is not boilerplate — Next.js 16 + React 19 are used here, an
 - **Next.js 16** (App Router) on **React 19**, TypeScript strict, `@/*` aliased to the repo root.
 - **Postgres** accessed via **Drizzle ORM** (`postgres-js` driver). Schema in `db/schema.ts`, migrations in `drizzle/`, kit config in `drizzle.config.ts`.
 - **Tailwind CSS v4** via `@tailwindcss/postcss` plus per-component **CSS Modules** (`*.module.css`).
-- **No test runner is configured.** CI has a `test` job that no-ops when no `test` script exists — don't claim "tests pass" by running this; there are none.
+- **Vitest** for unit tests (`*.test.ts` colocated in `lib/` and `db/`; `test/` holds app route / server-action tests + the `server-only` stub). `vitest.config.ts` runs in the `node` env, aliases `@/*` to the repo root, and stubs `server-only` so server modules import cleanly. DB, network, and Gemini are mocked — tests need no live services and are deterministic (fake timers where time matters).
 
 ## Commands
 
@@ -21,11 +21,13 @@ npm run build        # prebuild runs the changelog + posts generators, then `nex
 npm run start        # `next start` only — this app does NOT migrate (2026-db is the sole migrator)
 npm run lint         # ESLint (also: lint:fix)
 npm run format:check # Prettier check  (also: format to write)
+npm run test         # Vitest unit tests (pretest regenerates changelog+posts artifacts first)
+npm run test:watch   # Vitest in watch mode (also: test:coverage for a V8 coverage report)
 npm run changelog    # Regenerate lib/changelog.generated.json from content/changelog/*.json
 npx tsc --noEmit     # Type check (CI runs this; there is no npm script wrapper)
 ```
 
-The `pre*` hooks mean you almost never invoke `npm run changelog` / `npm run posts` manually — `dev` and `build` already run both. The exception is when `tsc --noEmit` is run standalone: `app/changelog/page.tsx` statically imports `lib/changelog.generated.json`, and `lib/posts.ts` / `app/news/newsData.ts` statically import `lib/posts.generated.json`, so tsc fails if either gitignored artifact is missing. Run `npm run changelog && npm run posts` first in that case (this is exactly what CI does before `tsc`).
+The `pre*` hooks mean you almost never invoke `npm run changelog` / `npm run posts` manually — `dev`, `build`, and `test` already run both. The exception is when `tsc --noEmit` is run standalone: `app/changelog/page.tsx` statically imports `lib/changelog.generated.json`, and `lib/posts.ts` / `app/news/newsData.ts` statically import `lib/posts.generated.json`, so tsc fails if either gitignored artifact is missing. Run `npm run changelog && npm run posts` first in that case (this is exactly what CI does before `tsc`).
 
 `DATABASE_URL` is required at runtime (`npm run start`) and for any code path that touches `lib/db.ts`. It's not needed for `dev` / `build` unless you exercise DB code.
 

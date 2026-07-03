@@ -14,7 +14,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "pretest": "npm run changelog && npm run posts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@google/genai": "^2.10.0",
@@ -34,6 +38,7 @@
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.9",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
@@ -45,6 +50,7 @@
     "prettier": "^3.8.4",
     "tailwindcss": "^4",
     "typescript": "^6",
-    "unpdf": "^1.6.2"
+    "unpdf": "^1.6.2",
+    "vitest": "^4.1.9"
   }
 }
