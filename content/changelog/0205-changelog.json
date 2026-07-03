@@ -1,0 +1,5 @@
+{
+  "title": "Bump @next/third-parties from 16.2.9 to 16.2.10",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
