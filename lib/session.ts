@@ -215,8 +215,9 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
   if (process.env.LOCAL_DEV_USER && process.env.NODE_ENV === "development") {
     return {
       username: process.env.LOCAL_DEV_USER,
-      roles: (process.env.LOCAL_DEV_ROLES?.split(/[,\s]+/).filter(Boolean) ??
-        []) as string[],
+      roles: process.env.LOCAL_DEV_ROLES
+        ? process.env.LOCAL_DEV_ROLES.split(/,\s*/)
+        : [],
     };
   }
   const cookieStore = await cookies();
