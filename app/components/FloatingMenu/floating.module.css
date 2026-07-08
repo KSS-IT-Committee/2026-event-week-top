@@ -100,6 +100,52 @@
   }
 }
 
+/*
+ * Forced Colors Mode (Edge "Page colours" / Windows High Contrast).
+ * The browser drops box-shadow and rewrites background to the system Canvas
+ * color, so the menu and hamburger would blend into the page. Add explicit
+ * system-color borders/fills so their boundaries stay visible with guaranteed
+ * contrast.
+ */
+@media (forced-colors: active) {
+  .menu {
+    /* Force a solid system background so blurred page content can't bleed
+       through and drop contrast; add a border for a visible boundary. */
+    background: Canvas;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 1px solid CanvasText;
+  }
+
+  .link {
+    /* Pin the link text to a system color; the author #333 would otherwise
+       stay dark and vanish on a dark forced-colors Canvas. */
+    color: LinkText;
+  }
+
+  .link:hover,
+  .link:focus-visible {
+    /* SelectedItem/SelectedItemText are an opaque, guaranteed-contrast system
+       pair. forced-color-adjust:none opts this state out of the Canvas text
+       backplate the browser paints behind glyphs, which would otherwise wash
+       the label out (e.g. white-on-white in a light high-contrast theme). */
+    background: SelectedItem;
+    color: SelectedItemText;
+    forced-color-adjust: none;
+  }
+
+  .hamburger {
+    background: ButtonFace;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 1px solid ButtonText;
+  }
+
+  .hamburger span {
+    background: ButtonText;
+  }
+}
+
 @media (max-width: 640px) {
   .wrapper {
     right: 0.5rem;
