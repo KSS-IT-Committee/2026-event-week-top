@@ -210,6 +210,7 @@ export async function validateSessionToken(
  * cookie, so any page using it renders dynamically. Renews the session's
  * expiry as a side effect (see validateSessionToken). Deduplicated per
  * request via React cache().
+ * if process.env.LOCAL_DEV_USER is set, returns a fake user for local dev
  */
 export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
   if (process.env.LOCAL_DEV_USER && process.env.NODE_ENV === "development") {
