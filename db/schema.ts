@@ -65,6 +65,80 @@ export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
 
+/* ──────────────── viewing lottery (owned by this app) ────────────────
+ *
+ * This app is the only writer. Lottery definitions (slots, acts,
+ * eligibility, windows) are code in lib/lotteries.ts, not rows — adding a
+ * future lottery only introduces new `lottery_id` values, no schema change.
+ */
+
+// Who a lottery entry applies for: the student themselves, or their
+// parents/guardians (who log in with the student's account).
+export const LOTTERY_APPLICANT_TYPES = ["student", "parent"] as const;
+
+export const lotteryApplicantTypeEnum = pgEnum(
+  "lottery_applicant_type",
+  LOTTERY_APPLICANT_TYPES,
+);
+
+export type LotteryApplicantType = (typeof LOTTERY_APPLICANT_TYPES)[number];
+
+export function isLotteryApplicantType(
+  value: string,
+): value is LotteryApplicantType {
+  return (LOTTERY_APPLICANT_TYPES as readonly string[]).includes(value);
+}
+
+// 公演観覧抽選 希望DB — one row per (lottery, slot, account, applicant type):
+// the ranked act preferences one applicant submitted for one performance
+// slot. Mirrored verbatim in 2026-db (the sole migrator).
+export const lotteryEntries = pgTable(
+  "lottery_entries",
+  {
+    id: serial("id").primaryKey(),
+    lotteryId: varchar("lottery_id", { length: 64 }).notNull(),
+    slotId: varchar("slot_id", { length: 64 }).notNull(),
+    // Parents apply through their child's student account, so this is the
+    // child's username for `parent` entries too.
+    username: varchar("username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
+    applicantType: lotteryApplicantTypeEnum("applicant_type").notNull(),
+    // Ranked choices among the lottery's act ids (class codes today). The app
+    // validates them against its lottery definition before writing.
+    firstChoice: varchar("first_choice", { length: 64 }).notNull(),
+    secondChoice: varchar("second_choice", { length: 64 }),
+    thirdChoice: varchar("third_choice", { length: 64 }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    // One submission per slot per account per applicant type; resubmitting
+    // replaces it. Doubles as the draw-time (lottery, slot) scan index.
+    unique("lottery_entries_slot_applicant_unique").on(
+      table.lotteryId,
+      table.slotId,
+      table.username,
+      table.applicantType,
+    ),
+    index("lottery_entries_username_idx").on(table.username),
+    // Ranks fill top-down: no third choice without a second.
+    check(
+      "choice_ranks_fill_top_down",
+      sql`${table.thirdChoice} IS NULL OR ${table.secondChoice} IS NOT NULL`,
+    ),
+    // A slot's choices never repeat an act.
+    check(
+      "choices_are_distinct",
+      sql`${table.secondChoice} IS DISTINCT FROM ${table.firstChoice} AND ${table.thirdChoice} IS DISTINCT FROM ${table.firstChoice} AND (${table.thirdChoice} IS NULL OR ${table.secondChoice} IS NULL OR ${table.thirdChoice} <> ${table.secondChoice})`,
+    ),
+  ],
+);
+
+export type LotteryEntry = typeof lotteryEntries.$inferSelect;
+export type NewLotteryEntry = typeof lotteryEntries.$inferInsert;
+
 /* ─────────────── read-only mirrors for the /chat assistant ───────────────
  *
  * These tables are owned and written by sousakuten-info + equipment-management
