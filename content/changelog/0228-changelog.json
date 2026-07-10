@@ -1,0 +1,5 @@
+{
+  "title": "Bump eslint from 9.39.4 to 10.6.0",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
