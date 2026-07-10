@@ -1,0 +1,5 @@
+{
+  "title": "Bump @vitest/coverage-v8 from 4.1.9 to 4.1.10",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
