@@ -1,5 +1,5 @@
 {
-  "title": "changing the floating menu to support internal",
-  "description": "TODO",
+  "title": "フローティングメニューの表示切り替えの実装",
+  "description": "ログインしている人の状態に合わせてメニューの表示・非表示が一部切り替わるようになりました。",
   "credits": ["@rotarymars"]
 }
