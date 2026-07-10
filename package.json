@@ -49,7 +49,7 @@
     "pdf-lib": "^1.17.1",
     "prettier": "^3.9.4",
     "tailwindcss": "^4",
-    "typescript": "^6",
+    "typescript": "^7",
     "unpdf": "^1.6.2",
     "vitest": "^4.1.9"
   }
