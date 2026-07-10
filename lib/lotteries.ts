@@ -205,8 +205,7 @@ export type LotteryEntryInput = {
 };
 
 export type ParseLotteryEntriesResult =
-  | { ok: true; entries: LotteryEntryInput[] }
-  | { ok: false; error: string };
+  { ok: true; entries: LotteryEntryInput[] } | { ok: false; error: string };
 
 /**
  * Validate raw per-slot rank inputs against a lottery definition and shape
