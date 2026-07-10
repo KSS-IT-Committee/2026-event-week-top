@@ -1,0 +1,5 @@
+{
+  "title": "Bump typescript from 6.0.3 to 7.0.2",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
