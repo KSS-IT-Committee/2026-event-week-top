@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 
 import type { LotteryApplicantType } from "@/db/schema";
 import type { LotteryAct, LotterySlot } from "@/lib/lotteries";
@@ -61,6 +61,20 @@ export function LotteryEntryForm({
     },
   );
 
+  // React 19 auto-resets a form's DOM fields after a <form action> dispatch.
+  // A reset fires no change events, so these controlled selects would show
+  // blank (DOM reset to the first option) while state still holds the choices
+  // — until the next interaction re-syncs them. Dispatching the action
+  // manually from onSubmit skips the auto-reset; the action prop stays on the
+  // form as the no-JS fallback.
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => {
+      formAction(formData);
+    });
+  }
+
   function handleChoiceChange(
     slotId: string,
     rankIndex: number,
@@ -81,7 +95,7 @@ export function LotteryEntryForm({
   }
 
   return (
-    <form action={formAction} className={styles.form}>
+    <form action={formAction} onSubmit={handleSubmit} className={styles.form}>
       <input type="hidden" name="lotteryId" value={lotteryId} />
       <input type="hidden" name="applicantType" value={applicantType} />
       {slots.map((slot) => {
