@@ -9,6 +9,7 @@ import { isLotteryApplicantType, type LotteryApplicantType } from "@/db/schema";
 import {
   APPLICANT_TYPE_LABELS,
   canApplyToLottery,
+  describeApplicationDeadline,
   describeEligibleGrades,
   getLottery,
   getLotteryAvailability,
@@ -85,6 +86,7 @@ async function LotteryDetail({
 
   const canApply = canApplyToLottery(lottery, user.username, applicantType);
   const availability = getLotteryAvailability(lottery, new Date());
+  const deadline = describeApplicationDeadline(lottery);
   const savedEntries = canApply
     ? await getLotteryEntries(user.username, lottery.id, applicantType)
     : [];
@@ -101,6 +103,7 @@ async function LotteryDetail({
           {lottery.notes.map((note) => (
             <li key={note}>{note}</li>
           ))}
+          {deadline !== null && <li>申込期限は{deadline}です。</li>}
         </ul>
         {offeredTypes.length > 1 && (
           <nav className={styles.tabs} aria-label="申込者の区分">

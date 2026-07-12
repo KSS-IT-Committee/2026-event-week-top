@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   type LotteryEntryFormState,
@@ -57,6 +57,10 @@ function expectNoWrites() {
 }
 
 beforeEach(() => {
+  // Pin "now" inside the application window: the action checks
+  // getLotteryAvailability against the real clock, and the lotteries close
+  // 2026-08-31T00:00+09:00 — without this the suite would break on that day.
+  vi.useFakeTimers({ now: new Date("2026-07-20T12:00:00+09:00") });
   // clearMocks wipes call history AND implementations, so re-apply the
   // default mock implementations every test.
   vi.mocked(getCurrentUser).mockResolvedValue(null);
@@ -67,6 +71,10 @@ beforeEach(() => {
   vi.mocked(db.transaction).mockImplementation(((
     cb: (tx: unknown) => unknown,
   ) => Promise.resolve(cb({}))) as never);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("submitLotteryEntriesAction", () => {
@@ -222,6 +230,33 @@ describe("submitLotteryEntriesAction", () => {
     expect(state.success).toBe(false);
     expect(state.error).toContain("試行回数");
     expectNoWrites();
+  });
+
+  it("accepts up to the last JST instant of Aug 30 and rejects from midnight", async () => {
+    asUser("3A05");
+
+    vi.setSystemTime(new Date("2026-08-30T23:59:59.999+09:00"));
+    const lastMinute = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "kaitaku-performance",
+        applicantType: "parent",
+        "choice-slot-1-1": "3A",
+      }),
+    );
+    expect(lastMinute.success).toBe(true);
+
+    vi.setSystemTime(new Date("2026-08-31T00:00:00+09:00"));
+    const afterClose = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "kaitaku-performance",
+        applicantType: "parent",
+        "choice-slot-1-1": "3A",
+      }),
+    );
+    expect(afterClose.success).toBe(false);
+    expect(afterClose.error).toContain("期間外");
   });
 
   it("rejects a repeated act within one slot, without writing", async () => {

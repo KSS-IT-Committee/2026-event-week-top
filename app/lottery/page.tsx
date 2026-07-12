@@ -6,6 +6,7 @@ import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import {
   APPLICANT_TYPE_LABELS,
+  describeApplicationDeadline,
   describeEligibleGrades,
   getLotteryAvailability,
   isEligibleForLottery,
@@ -47,6 +48,7 @@ async function LotteryIndex() {
           {LOTTERIES.map((lottery) => {
             const availability = getLotteryAvailability(lottery, now);
             const isEligible = isEligibleForLottery(lottery, user.username);
+            const deadline = describeApplicationDeadline(lottery);
             return (
               <article key={lottery.id} className={styles.lotteryCard}>
                 <h2 className={styles.lotteryTitle}>{lottery.title}</h2>
@@ -58,6 +60,9 @@ async function LotteryIndex() {
                   ）{lottery.canStaffApply && "と教職員"}／全
                   {lottery.slots.length}公演
                 </p>
+                {deadline !== null && (
+                  <p className={styles.lotteryMeta}>申込期限: {deadline}</p>
+                )}
                 <p className={styles.lotteryDescription}>
                   {lottery.description}
                 </p>

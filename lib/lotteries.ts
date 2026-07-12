@@ -113,7 +113,9 @@ export const LOTTERIES: readonly Lottery[] = [
       { id: "slot-8", label: "第八公演", time: "14:45～15:15" },
     ],
     opensAt: null,
-    closesAt: null,
+    // 令和8年8月30日（日）まで (per the parent letter): exclusive bound at the
+    // JST midnight that ends Aug 30.
+    closesAt: new Date("2026-08-31T00:00:00+09:00"),
   },
   {
     id: "sousaku-performance",
@@ -137,7 +139,8 @@ export const LOTTERIES: readonly Lottery[] = [
       { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
     ],
     opensAt: null,
-    closesAt: null,
+    // Same deadline as kaitaku — the parent letter announces one date for both.
+    closesAt: new Date("2026-08-31T00:00:00+09:00"),
   },
 ];
 
@@ -150,6 +153,24 @@ export const APPLICANT_TYPE_LABELS: Record<LotteryApplicantType, string> = {
 
 export function getLottery(lotteryId: string): Lottery | null {
   return LOTTERIES.find((lottery) => lottery.id === lotteryId) ?? null;
+}
+
+// 「2026年8月30日（日）まで」 — the last day applications are accepted, or
+// null when no deadline is configured. Derived from the exclusive closesAt
+// bound and rendered in JST, so the pages can never disagree with the
+// enforced window (or with what the parent letter announced).
+export function describeApplicationDeadline(lottery: Lottery): string | null {
+  if (lottery.closesAt === null) return null;
+  const lastIncludedInstant = new Date(lottery.closesAt.getTime() - 1);
+  const date = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    dateStyle: "long",
+  }).format(lastIncludedInstant);
+  const weekday = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    weekday: "short",
+  }).format(lastIncludedInstant);
+  return `${date}（${weekday}）まで`;
 }
 
 // 「3・4年生」/「全学年」 — who the lottery is for, from its class list.

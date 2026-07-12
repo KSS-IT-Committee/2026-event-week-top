@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CLASSNAMES } from "@/db/schema";
 import {
   canApplyToLottery,
+  describeApplicationDeadline,
   describeEligibleGrades,
   getLottery,
   getLotteryAvailability,
@@ -39,6 +40,14 @@ describe("LOTTERIES registry", () => {
 
   it("allows up to three choices per slot", () => {
     expect(MAX_CHOICES_PER_SLOT).toBe(3);
+  });
+
+  it("closes both lotteries at JST midnight ending Aug 30 (the announced 締切)", () => {
+    const closesAt = new Date("2026-08-31T00:00:00+09:00");
+    expect(kaitaku.closesAt?.getTime()).toBe(closesAt.getTime());
+    expect(sousaku.closesAt?.getTime()).toBe(closesAt.getTime());
+    expect(kaitaku.opensAt).toBeNull();
+    expect(sousaku.opensAt).toBeNull();
   });
 
   it("matches the announced kaitaku timetable (8 performances)", () => {
@@ -207,6 +216,20 @@ describe("getLotteryAvailability", () => {
         now,
       ),
     ).toBe("open");
+  });
+});
+
+describe("describeApplicationDeadline", () => {
+  it("renders the last accepted day in JST from the exclusive bound", () => {
+    expect(describeApplicationDeadline(kaitaku)).toBe(
+      "2026年8月30日（日）まで",
+    );
+  });
+
+  it("returns null when no deadline is configured", () => {
+    expect(describeApplicationDeadline({ ...kaitaku, closesAt: null })).toBe(
+      null,
+    );
   });
 });
 
