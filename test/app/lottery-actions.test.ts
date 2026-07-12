@@ -141,7 +141,7 @@ describe("submitLotteryEntriesAction", () => {
     expectNoWrites();
   });
 
-  it("rejects staff accounts (no class) even for the all-grades lottery", async () => {
+  it("rejects a staff account applying as a parent, without writing", async () => {
     asUser("k0959176");
     const state = await submitLotteryEntriesAction(
       prev,
@@ -151,6 +151,43 @@ describe("submitLotteryEntriesAction", () => {
     expect(state.success).toBe(false);
     expect(state.error).toContain("申し込めません");
     expectNoWrites();
+  });
+
+  it("rejects a staff account on the kaitaku lottery, without writing", async () => {
+    asUser("k0959176");
+    const state = await submitLotteryEntriesAction(
+      prev,
+      fd({ lotteryId: "kaitaku-performance", applicantType: "parent" }),
+    );
+
+    expect(state.success).toBe(false);
+    expect(state.error).toContain("申し込めません");
+    expectNoWrites();
+  });
+
+  it("lets a staff account submit as 本人 on the sousaku lottery", async () => {
+    asUser("k0959176");
+    const state = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "sousaku-performance",
+        applicantType: "student",
+        "choice-slot-1-1": "6A",
+      }),
+    );
+
+    expect(state).toEqual({ error: null, success: true, savedSlotCount: 1 });
+    expect(addLotteryEntries).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          username: "k0959176",
+          applicantType: "student",
+          slotId: "slot-1",
+          firstChoice: "6A",
+        }),
+      ],
+      {},
+    );
   });
 
   it("rejects alias accounts (suffixed usernames), without writing", async () => {

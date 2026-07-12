@@ -16,17 +16,20 @@ the moving parts and, most importantly, **how to add another lottery later**.
   `second_choice` / `third_choice`. Resubmitting replaces the account's rows
   for that lottery + applicant type wholesale (delete + insert in one
   transaction), so a blank submission withdraws the application.
-- **Accounts and eligibility.** Only student accounts exist, so parents apply
-  through their child's account. Eligibility requires an exact base student
-  username (`/^[1-6][A-D]\d{2}$/` — alias accounts like `4D11_sakuten` are
-  excluded, so one student never yields two entry sets) whose class is in the
-  lottery's `eligibleClasses` — "parents with a child in 開拓部門" is exactly
-  "accounts of grade 3–4 classes". Staff accounts (`k…`) have no class and
-  can never apply. On lotteries offering both `student` and `parent` types,
-  one account may hold one entry set per type. **Note for the draw:** the
-  parent entry is per _child account_, not per household — a family with
-  several children can hold one parent entry per child; decide at draw time
-  whether and how to dedupe.
+- **Accounts and eligibility.** Parents have no accounts of their own, so
+  they apply through their child's account. Eligibility requires an exact
+  base student username (`/^[1-6][A-D]\d{2}$/` — alias accounts like
+  `4D11_sakuten` are excluded, so one student never yields two entry sets)
+  whose class is in the lottery's `eligibleClasses` — "parents with a child
+  in 開拓部門" is exactly "accounts of grade 3–4 classes". Staff accounts
+  (exactly `/^k\d{7}$/`) have no class; they are eligible only on lotteries
+  with `canStaffApply` (currently 創作部門 only), always as themselves via
+  the `student` applicant type (labeled 本人), never as `parent`. On
+  lotteries offering both `student` and `parent` types, one account may hold
+  one entry set per type. **Note for the draw:** the parent entry is per
+  _child account_, not per household — a family with several children can
+  hold one parent entry per child; decide at draw time whether and how to
+  dedupe.
 - **The pages.** `/lottery` lists the lotteries with per-account eligibility;
   `/lottery/[lotteryId]` hosts the form (`?as=student|parent` switches the
   applicant type where both are offered). Both are wrapped in `AuthGuard`.
@@ -37,8 +40,8 @@ the moving parts and, most importantly, **how to add another lottery later**.
 ## Adding a new lottery
 
 1. Append a definition to `LOTTERIES` in `lib/lotteries.ts` — id, title,
-   description, notes, `applicantTypes`, `eligibleClasses`, `acts`, `slots`,
-   window. **No schema change and no migration is needed.**
+   description, notes, `applicantTypes`, `eligibleClasses`, `canStaffApply`,
+   `acts`, `slots`, window. **No schema change and no migration is needed.**
 2. Pick ids that will stay stable (`lottery_id`, slot ids, act ids are what
    gets stored; renaming them orphans saved entries).
 3. Extend `lib/lotteries.test.ts` with the new definition's pins (slot/act

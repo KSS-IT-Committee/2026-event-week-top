@@ -49,6 +49,10 @@ export type Lottery = {
   // parents this is the child's class — "parents with a child in the
   // division" is exactly "accounts of that division's classes".
   eligibleClasses: readonly ClassName[];
+  // Whether staff (k-prefixed) accounts may enter. Staff have no class, so
+  // eligibleClasses never admits them; they apply as themselves via the
+  // "student" applicant type (labeled 本人), never as "parent".
+  canStaffApply: boolean;
   acts: readonly LotteryAct[];
   slots: readonly LotterySlot[];
   // Application window. null = no bound on that side. Always construct with
@@ -64,6 +68,12 @@ export type Lottery = {
 // accounts like "4D11_sakuten" must not hold a second entry set on top of
 // the base account's, so lottery eligibility requires the exact form.
 const BASE_STUDENT_RE = /^[1-6][A-D]\d{2}$/;
+
+// Staff accounts: exactly k + 7 digits. Mirrors TEACHER_RE in
+// lib/user-category.ts (unexported there, and that file is byte-identical
+// across the four apps, so it must not change). Anchored for the same
+// one-account-one-entry-set reason as BASE_STUDENT_RE.
+const STAFF_RE = /^k\d{7}$/;
 
 function classesInGrades(grades: readonly string[]): ClassName[] {
   return CLASSNAMES.filter((className) => grades.includes(className[0]));
@@ -90,6 +100,7 @@ export const LOTTERIES: readonly Lottery[] = [
     ],
     applicantTypes: ["parent"],
     eligibleClasses: KAITAKU_CLASSES,
+    canStaffApply: false,
     acts: KAITAKU_CLASSES.map(actForClass),
     slots: [
       { id: "slot-1", label: "第一公演", time: "8:45～9:15" },
@@ -108,14 +119,16 @@ export const LOTTERIES: readonly Lottery[] = [
     id: "sousaku-performance",
     title: "創作部門公演 観覧抽選",
     description:
-      "創作部門（5・6年生）のクラス劇の観覧抽選です。全学年の生徒と保護者の方が対象で、公演ごとに観たいクラスを第1〜第3希望まで選べます。",
+      "創作部門（5・6年生）のクラス劇の観覧抽選です。全学年の生徒・保護者の方と教職員の方が対象で、公演ごとに観たいクラスを第1〜第3希望まで選べます。",
     notes: [
       "公演時間は75分、幕間は20分です。",
       "お昼休憩は55分です。第二公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
       "生徒本人と保護者の方は、同じアカウントからそれぞれ別に申し込めます。保護者の方の希望はお子様のアカウント1つにつき1件です。",
+      "教職員の方はご自身のアカウントでログインして申し込んでください。",
     ],
     applicantTypes: ["student", "parent"],
     eligibleClasses: [...CLASSNAMES],
+    canStaffApply: true,
     acts: SOUSAKU_CLASSES.map(actForClass),
     slots: [
       { id: "slot-1", label: "第一公演", time: "8:45～10:00" },
@@ -128,8 +141,10 @@ export const LOTTERIES: readonly Lottery[] = [
   },
 ];
 
+// "student" reads 本人 (not 生徒本人): staff accounts also apply through it
+// on lotteries with canStaffApply.
 export const APPLICANT_TYPE_LABELS: Record<LotteryApplicantType, string> = {
-  student: "生徒本人",
+  student: "本人",
   parent: "保護者",
 };
 
@@ -147,16 +162,17 @@ export function describeEligibleGrades(lottery: Lottery): string {
 }
 
 /**
- * Whether the account may take part in the lottery at all: it must be a base
- * student account (aliases like "4D11_sakuten" are excluded so one student
- * never yields two entry sets) whose class (the child's class, for parents)
- * is one of the eligible classes. Staff and committee accounts have no
- * class, so they never pass.
+ * Whether the account may take part in the lottery at all: either a staff
+ * account on a lottery that admits staff, or a base student account
+ * (aliases like "4D11_sakuten" are excluded so one student never yields two
+ * entry sets) whose class (the child's class, for parents) is one of the
+ * eligible classes. Committee and other non-matching accounts never pass.
  */
 export function isEligibleForLottery(
   lottery: Lottery,
   username: string,
 ): boolean {
+  if (STAFF_RE.test(username)) return lottery.canStaffApply;
   if (!BASE_STUDENT_RE.test(username)) return false;
   const classCode = classOf(username);
   if (classCode === null || !isClassName(classCode)) return false;
@@ -169,6 +185,9 @@ export function canApplyToLottery(
   applicantType: LotteryApplicantType,
 ): boolean {
   if (!lottery.applicantTypes.includes(applicantType)) return false;
+  // Staff apply as themselves only — there is no child behind a k-account
+  // for a "parent" entry to belong to.
+  if (applicantType === "parent" && STAFF_RE.test(username)) return false;
   return isEligibleForLottery(lottery, username);
 }
 

@@ -55,7 +55,8 @@ async function LotteryIndex() {
                   {lottery.applicantTypes
                     .map((type) => APPLICANT_TYPE_LABELS[type])
                     .join("・")}
-                  ）／全{lottery.slots.length}公演
+                  ）{lottery.canStaffApply && "と教職員"}／全
+                  {lottery.slots.length}公演
                 </p>
                 <p className={styles.lotteryDescription}>
                   {lottery.description}

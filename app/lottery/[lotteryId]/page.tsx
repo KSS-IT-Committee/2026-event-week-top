@@ -65,14 +65,23 @@ async function LotteryDetail({
   // type (getCurrentUser is request-cached, so it costs nothing).
   if (user === null) unauthorized();
 
-  // ?as= picks between the lottery's applicant types (tabs below); anything
-  // else falls back to the first offered type.
+  // The applicant types THIS viewer can use (e.g. staff never get 保護者).
+  // For a fully ineligible viewer nothing matches — fall back to the
+  // lottery's own list so the page still renders the 対象外 explanation.
+  const usableTypes = lottery.applicantTypes.filter((type) =>
+    canApplyToLottery(lottery, user.username, type),
+  );
+  const offeredTypes =
+    usableTypes.length > 0 ? usableTypes : lottery.applicantTypes;
+
+  // ?as= picks between the offered types (tabs below); anything else falls
+  // back to the first of them.
   const applicantType: LotteryApplicantType =
     requestedType !== undefined &&
     isLotteryApplicantType(requestedType) &&
-    lottery.applicantTypes.includes(requestedType)
+    offeredTypes.includes(requestedType)
       ? requestedType
-      : lottery.applicantTypes[0];
+      : offeredTypes[0];
 
   const canApply = canApplyToLottery(lottery, user.username, applicantType);
   const availability = getLotteryAvailability(lottery, new Date());
@@ -93,9 +102,9 @@ async function LotteryDetail({
             <li key={note}>{note}</li>
           ))}
         </ul>
-        {lottery.applicantTypes.length > 1 && (
+        {offeredTypes.length > 1 && (
           <nav className={styles.tabs} aria-label="申込者の区分">
-            {lottery.applicantTypes.map((type) => (
+            {offeredTypes.map((type) => (
               <Link
                 key={type}
                 className={
@@ -138,8 +147,8 @@ async function LotteryDetail({
           />
         ) : (
           <p className={styles.ineligible}>
-            この抽選は{describeEligibleGrades(lottery)}
-            のクラスのアカウントが対象です。
+            この抽選は{describeEligibleGrades(lottery)}のクラス
+            {lottery.canStaffApply && "と教職員"}のアカウントが対象です。
             {applicantType === "parent" &&
               "保護者の方はお子様のアカウントでログインしてください。"}
           </p>

@@ -72,8 +72,9 @@ export type NewSession = typeof sessions.$inferInsert;
  * future lottery only introduces new `lottery_id` values, no schema change.
  */
 
-// Who a lottery entry applies for: the student themselves, or their
-// parents/guardians (who log in with the student's account).
+// Who a lottery entry applies for: the account holder themselves ("student"
+// — staff accounts entering a staff-open lottery also use it), or the
+// student's parents/guardians (who log in with the student's account).
 export const LOTTERY_APPLICANT_TYPES = ["student", "parent"] as const;
 
 export const lotteryApplicantTypeEnum = pgEnum(

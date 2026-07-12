@@ -90,8 +90,9 @@ describe("LOTTERIES registry", () => {
     ]);
   });
 
-  it("restricts kaitaku to parents of grade 3-4 classes", () => {
+  it("restricts kaitaku to parents of grade 3-4 classes, no staff", () => {
     expect(kaitaku.applicantTypes).toEqual(["parent"]);
+    expect(kaitaku.canStaffApply).toBe(false);
     expect(kaitaku.eligibleClasses).toEqual([
       "3A",
       "3B",
@@ -104,8 +105,9 @@ describe("LOTTERIES registry", () => {
     ]);
   });
 
-  it("opens sousaku to all students and all parents", () => {
+  it("opens sousaku to all students, all parents, and staff", () => {
     expect(sousaku.applicantTypes).toEqual(["student", "parent"]);
+    expect(sousaku.canStaffApply).toBe(true);
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
   });
 });
@@ -136,9 +138,14 @@ describe("isEligibleForLottery", () => {
     expect(isEligibleForLottery(kaitaku, "5A01")).toBe(false);
   });
 
-  it("rejects staff accounts (no class) for every lottery", () => {
+  it("accepts staff accounts only where canStaffApply is set", () => {
+    expect(isEligibleForLottery(sousaku, "k0959176")).toBe(true);
     expect(isEligibleForLottery(kaitaku, "k0959176")).toBe(false);
-    expect(isEligibleForLottery(sousaku, "k0959176")).toBe(false);
+  });
+
+  it("rejects malformed staff usernames even on a staff lottery", () => {
+    expect(isEligibleForLottery(sousaku, "k0959176_x")).toBe(false);
+    expect(isEligibleForLottery(sousaku, "k095917")).toBe(false);
   });
 
   it("accepts every grade's students for the sousaku lottery", () => {
@@ -158,9 +165,14 @@ describe("canApplyToLottery", () => {
     expect(canApplyToLottery(sousaku, "1A01", "parent")).toBe(true);
   });
 
+  it("lets staff apply only as themselves, never as a parent", () => {
+    expect(canApplyToLottery(sousaku, "k0959176", "student")).toBe(true);
+    expect(canApplyToLottery(sousaku, "k0959176", "parent")).toBe(false);
+    expect(canApplyToLottery(kaitaku, "k0959176", "parent")).toBe(false);
+  });
+
   it("rejects an ineligible account even for an offered type", () => {
     expect(canApplyToLottery(kaitaku, "5A01", "parent")).toBe(false);
-    expect(canApplyToLottery(sousaku, "k0959176", "parent")).toBe(false);
   });
 });
 
