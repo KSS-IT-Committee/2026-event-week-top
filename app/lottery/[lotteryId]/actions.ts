@@ -2,6 +2,7 @@
 
 import { addLotteryEntries } from "@/db/addLotteryEntries";
 import { deleteLotteryEntries } from "@/db/deleteLotteryEntries";
+import { ensurePreviewUser } from "@/db/ensurePreviewUser";
 import { isLotteryApplicantType } from "@/db/schema";
 import { db } from "@/lib/db";
 import {
@@ -126,6 +127,9 @@ export async function submitLotteryEntriesAction(
   // must never leave a half-applied mix of old and new preferences.
   try {
     await db.transaction(async (tx) => {
+      // On a PR preview the session-vouched account has no users row in the
+      // clone DB; stub it so the entries' username FK passes (no-op elsewhere).
+      await ensurePreviewUser(user.username, tx);
       await deleteLotteryEntries(user.username, lottery.id, applicantType, tx);
       await addLotteryEntries(
         parsed.entries.map((entry) => ({

@@ -65,6 +65,17 @@ GROUP BY slot_id, first_choice
 ORDER BY slot_id, first_choice;
 ```
 
+## PR previews
+
+VPS previews run against a schema-only clone of `appdata` (empty `users`)
+while the login cookie is vouched for by the production auth host, so a
+save would normally fail the `lottery_entries.username → users.username`
+foreign key. `db/ensurePreviewUser.ts` handles this: on `IS_PR_PREVIEW`
+(and only there) the save transaction first upserts a stub `users` row for
+the session's username — the stub's password hash is a discarded random
+secret, so it can never be logged in with. Production and local runs skip
+this entirely; the FK stays fully enforced there.
+
 ## Not included (yet)
 
 - **The draw itself.** Winner selection needs per-venue capacities, which are

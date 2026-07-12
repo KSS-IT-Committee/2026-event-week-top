@@ -6,6 +6,7 @@ import {
 } from "@/app/lottery/[lotteryId]/actions";
 import { addLotteryEntries } from "@/db/addLotteryEntries";
 import { deleteLotteryEntries } from "@/db/deleteLotteryEntries";
+import { ensurePreviewUser } from "@/db/ensurePreviewUser";
 import { db } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
@@ -18,6 +19,9 @@ vi.mock("@/db/addLotteryEntries", () => ({
 }));
 vi.mock("@/db/deleteLotteryEntries", () => ({
   deleteLotteryEntries: vi.fn(async () => {}),
+}));
+vi.mock("@/db/ensurePreviewUser", () => ({
+  ensurePreviewUser: vi.fn(async () => {}),
 }));
 vi.mock("@/lib/db", () => ({
   db: { transaction: vi.fn(async (cb: (tx: unknown) => unknown) => cb({})) },
@@ -59,6 +63,7 @@ beforeEach(() => {
   vi.mocked(checkRateLimit).mockReturnValue({ ok: true, retryAfterSeconds: 0 });
   vi.mocked(addLotteryEntries).mockResolvedValue(undefined);
   vi.mocked(deleteLotteryEntries).mockResolvedValue(undefined);
+  vi.mocked(ensurePreviewUser).mockResolvedValue(undefined);
   vi.mocked(db.transaction).mockImplementation(((
     cb: (tx: unknown) => unknown,
   ) => Promise.resolve(cb({}))) as never);
@@ -261,7 +266,12 @@ describe("submitLotteryEntriesAction", () => {
       ],
       {},
     );
-    // The old entries must be gone before the new ones land.
+    // Inside the one transaction: the preview user stub (a users-FK
+    // prerequisite on PR previews) first, then delete, then insert.
+    expect(ensurePreviewUser).toHaveBeenCalledWith("3A05", {});
+    expect(
+      vi.mocked(ensurePreviewUser).mock.invocationCallOrder[0],
+    ).toBeLessThan(vi.mocked(deleteLotteryEntries).mock.invocationCallOrder[0]);
     expect(
       vi.mocked(deleteLotteryEntries).mock.invocationCallOrder[0],
     ).toBeLessThan(vi.mocked(addLotteryEntries).mock.invocationCallOrder[0]);
