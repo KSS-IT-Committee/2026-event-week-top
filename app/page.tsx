@@ -311,7 +311,7 @@ export default function Toppage() {
           { label: "体育祭", href: "#sports" },
           { label: "創作展", href: "#create" },
           { label: "後夜祭", href: "#ceremony" },
-          { label: "観覧抽選", href: "/lottery", isInternal: true },
+          // { label: "観覧抽選", href: "/lottery", isInternal: true },
           { label: "News", href: "/news/list" },
           { label: "ページ改善の提案", href: "/requests" },
           { label: "Changelog", href: "/changelog" },
