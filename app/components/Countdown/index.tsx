@@ -45,6 +45,7 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
 
   return (
     <div className="text-center text-2xl font-bold">
+      <div className="mb-4">{time}</div>
       <div className="countdown">
         <div className="box">
           <strong>{weeks}</strong>
