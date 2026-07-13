@@ -1,6 +1,7 @@
 .countdown {
   display: flex;
   gap: 14px;
+  flex-direction: row;
   font-family: "Kosugi Maru", sans-serif;
 }
 .bubble {
