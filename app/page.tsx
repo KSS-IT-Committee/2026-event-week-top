@@ -8,6 +8,7 @@ import { Schedule } from "@/app/components/schedule";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
+import {Countdown} from "./components/Countdown";
 import styles from "./top-page.module.css";
 
 const latestNews = getNews()
@@ -116,6 +117,12 @@ export default function Toppage() {
             随時更新していきますので、ぜひチェックしてください！
             <br />
           </p>
+        </div>
+
+        {/* Countdown */}
+        <div className={styles.countdown}>
+          <h1 className={styles.countdownTitle}>Countdown</h1>
+          <Countdown targetDate="2026-09-07T00:00:00" />
         </div>
 
         {/* 芸能祭 */}
