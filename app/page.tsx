@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Internal } from "@/app/components/Internal";
 import { Schedule } from "@/app/components/schedule";
 
+import Countdown from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
-import Countdown from "./components/Countdown";
 import styles from "./top-page.module.css";
 
 const latestNews = getNews()
