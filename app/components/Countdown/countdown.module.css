@@ -2,16 +2,15 @@
   display: flex;
   gap: 14px;
   flex-direction: row;
-  font-family: "Kosugi Maru", sans-serif;
+  font-family: "Gothic";
 }
-.bubble {
-  background: #c8f7ff;
-  padding: 14px 20px;
-  border-radius: 50%;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 180, 255, 0.3);
-  border: 2px solid #7be2ff;
-}
+.box {
+    background: #fff;
+    border: 2px solid #f0a6ff;
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: center;
+  }
 strong {
   font-size: 1.6rem;
   color: #0077aa;

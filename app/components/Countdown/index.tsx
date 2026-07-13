@@ -41,11 +41,23 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
   }, [targetDate]);
 
   return (
-    <div className="flex gap-4 text-center text-2xl font-bold">
-      <div>{days}日</div>
-      <div>{hours}時間</div>
-      <div>{minutes}分</div>
-      <div>{seconds}秒</div>
-    </div>
+    <div className="countdown">
+     <div className="box">
+       <strong>{days}</strong>
+       <span>日</span>
+     </div>
+     <div className="box">
+       <strong>{hours}</strong>
+       <span>時間</span>
+     </div>
+     <div className="box">
+       <strong>{minutes}</strong>
+       <span>分</span>
+     </div>
+     <div className="box">
+       <strong>{seconds}</strong>
+       <span>秒</span>
+     </div>
+   </div>
   );
 }
