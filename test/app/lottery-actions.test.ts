@@ -8,6 +8,7 @@ import { addLotteryEntries } from "@/db/addLotteryEntries";
 import { deleteLotteryEntries } from "@/db/deleteLotteryEntries";
 import { ensurePreviewUser } from "@/db/ensurePreviewUser";
 import { db } from "@/lib/db";
+import { getLottery, type Lottery } from "@/lib/lotteries";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getCurrentUser } from "@/lib/session";
 
@@ -50,6 +51,30 @@ function asUser(username: string) {
   vi.mocked(getCurrentUser).mockResolvedValue({ username, roles: [] });
 }
 
+function mustGetLottery(lotteryId: string): Lottery {
+  const lottery = getLottery(lotteryId);
+  if (lottery === null) throw new Error(`missing lottery: ${lotteryId}`);
+  return lottery;
+}
+
+// A moment when the lottery accepts submissions, derived from its OWN
+// configured window — the opensAt/closesAt dates are operational config that
+// changes as the event approaches, and editing them must never break this
+// suite (the action checks availability against the clock).
+function openInstant(lottery: Lottery): Date {
+  if (lottery.closesAt !== null) {
+    return new Date(lottery.closesAt.getTime() - 60_000);
+  }
+  if (lottery.opensAt !== null) {
+    return new Date(lottery.opensAt.getTime() + 60_000);
+  }
+  return new Date("2026-07-20T12:00:00+09:00");
+}
+
+function atOpenTime(lotteryId: string) {
+  vi.setSystemTime(openInstant(mustGetLottery(lotteryId)));
+}
+
 function expectNoWrites() {
   expect(db.transaction).not.toHaveBeenCalled();
   expect(deleteLotteryEntries).not.toHaveBeenCalled();
@@ -57,10 +82,11 @@ function expectNoWrites() {
 }
 
 beforeEach(() => {
-  // Pin "now" inside the application window: the action checks
-  // getLotteryAvailability against the real clock, and the lotteries close
-  // 2026-08-31T00:00+09:00 — without this the suite would break on that day.
-  vi.useFakeTimers({ now: new Date("2026-07-20T12:00:00+09:00") });
+  // Default clock: inside kaitaku's window (most tests submit to kaitaku).
+  // Tests that submit to sousaku call atOpenTime("sousaku-performance").
+  vi.useFakeTimers({
+    now: openInstant(mustGetLottery("kaitaku-performance")),
+  });
   // clearMocks wipes call history AND implementations, so re-apply the
   // default mock implementations every test.
   vi.mocked(getCurrentUser).mockResolvedValue(null);
@@ -175,6 +201,7 @@ describe("submitLotteryEntriesAction", () => {
 
   it("lets a staff account submit as 本人 on the sousaku lottery", async () => {
     asUser("k0959176");
+    atOpenTime("sousaku-performance");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
@@ -232,11 +259,14 @@ describe("submitLotteryEntriesAction", () => {
     expectNoWrites();
   });
 
-  it("accepts up to the last JST instant of Aug 30 and rejects from midnight", async () => {
+  it("accepts up to the deadline's last instant and rejects from the bound", async () => {
     asUser("3A05");
+    const { closesAt } = mustGetLottery("kaitaku-performance");
+    expect(closesAt).not.toBeNull();
+    if (closesAt === null) return;
 
-    vi.setSystemTime(new Date("2026-08-30T23:59:59.999+09:00"));
-    const lastMinute = await submitLotteryEntriesAction(
+    vi.setSystemTime(new Date(closesAt.getTime() - 1));
+    const lastInstant = await submitLotteryEntriesAction(
       prev,
       fd({
         lotteryId: "kaitaku-performance",
@@ -244,9 +274,9 @@ describe("submitLotteryEntriesAction", () => {
         "choice-preferred-slot-1": "performance-1",
       }),
     );
-    expect(lastMinute.success).toBe(true);
+    expect(lastInstant.success).toBe(true);
 
-    vi.setSystemTime(new Date("2026-08-31T00:00:00+09:00"));
+    vi.setSystemTime(closesAt);
     const afterClose = await submitLotteryEntriesAction(
       prev,
       fd({
@@ -261,6 +291,7 @@ describe("submitLotteryEntriesAction", () => {
 
   it("rejects a repeated act within one slot, without writing", async () => {
     asUser("3A05");
+    atOpenTime("sousaku-performance");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
@@ -294,6 +325,7 @@ describe("submitLotteryEntriesAction", () => {
 
   it("replaces the saved entries atomically on a valid submission", async () => {
     asUser("3A05");
+    atOpenTime("sousaku-performance");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
@@ -351,6 +383,7 @@ describe("submitLotteryEntriesAction", () => {
 
   it("compacts rank gaps before saving (1st blank, 2nd + 3rd filled)", async () => {
     asUser("3A05");
+    atOpenTime("sousaku-performance");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
@@ -444,6 +477,7 @@ describe("submitLotteryEntriesAction", () => {
 
   it("lets a student and a parent submit separately on the sousaku lottery", async () => {
     asUser("1A01");
+    atOpenTime("sousaku-performance");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
