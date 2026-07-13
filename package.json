@@ -51,6 +51,6 @@
     "tailwindcss": "^4",
     "typescript": "^6",
     "unpdf": "^1.6.2",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   }
 }
