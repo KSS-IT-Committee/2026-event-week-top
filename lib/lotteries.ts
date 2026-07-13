@@ -126,7 +126,8 @@ export const LOTTERIES: readonly Lottery[] = [
     acts: KAITAKU_PERFORMANCES,
     slots: [{ id: "preferred-slot", label: "観覧を希望する公演" }],
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
-    closesAt: new Date("2026-08-25T23:59:59+09:00"),
+    // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
+    closesAt: new Date("2026-08-26T00:00:00+09:00"),
   },
   {
     id: "sousaku-performance",
@@ -150,7 +151,8 @@ export const LOTTERIES: readonly Lottery[] = [
       { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
     ],
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
-    closesAt: new Date("2026-08-25T23:59:59+09:00"),
+    // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
+    closesAt: new Date("2026-08-26T00:00:00+09:00"),
   },
 ];
 
