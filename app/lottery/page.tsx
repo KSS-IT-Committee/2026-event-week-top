@@ -42,7 +42,7 @@ async function LotteryIndex() {
       <section className={styles.card}>
         <h1 className={styles.title}>公演観覧抽選</h1>
         <p className={styles.note}>
-          開拓部門・創作部門のクラス劇は、公演ごとに観覧希望を集めて抽選を行います。公演ごとに観たいクラスを第1〜第3希望まで選んで申し込んでください。保護者の方はお子様のアカウントでログインして申し込めます。
+          開拓部門・創作部門のクラス劇は、観覧希望を集めて抽選を行います。観覧を希望する公演（開拓部門）や観たいクラス（創作部門）を第1〜第3希望まで選んで申し込んでください。保護者の方はお子様のアカウントでログインして申し込めます。
         </p>
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => {
