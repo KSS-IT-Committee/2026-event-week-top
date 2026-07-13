@@ -128,7 +128,7 @@ export const LOTTERIES: readonly Lottery[] = [
     opensAt: null,
     // 令和8年8月30日（日）まで (per the parent letter): exclusive bound at the
     // JST midnight that ends Aug 30.
-    closesAt: new Date("2026-08-31T00:00:00+09:00"),
+    closesAt: new Date("2026-06-01T00:00:00+09:00"),
   },
   {
     id: "sousaku-performance",
