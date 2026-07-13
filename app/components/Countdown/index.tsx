@@ -44,18 +44,17 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
   return (
     <div className={styles.countdown}>
       <div className={styles.item}>
-  <span className={styles.number}>{days}</span>日
-</div>
-<div className={styles.item}>
-  <span className={styles.number}>{hours}</span>時間
-</div>
-<div className={styles.item}>
-  <span className={styles.number}>{minutes}</span>分
-</div>
-<div className={styles.item}>
-  <span className={styles.number}>{seconds}</span>秒
-</div>
-
+        <span className={styles.number}>{days}</span>日
+      </div>
+      <div className={styles.item}>
+        <span className={styles.number}>{hours}</span>時間
+      </div>
+      <div className={styles.item}>
+        <span className={styles.number}>{minutes}</span>分
+      </div>
+      <div className={styles.item}>
+        <span className={styles.number}>{seconds}</span>秒
+      </div>
     </div>
   );
 }
