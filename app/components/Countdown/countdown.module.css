@@ -5,12 +5,12 @@
   font-family: "Gothic";
 }
 .box {
-    background: #fff;
-    border: 2px solid #f0a6ff;
-    border-radius: 10px;
-    padding: 12px 18px;
-    text-align: center;
-  }
+  background: #fff;
+  border: 2px solid #f0a6ff;
+  border-radius: 10px;
+  padding: 12px 18px;
+  text-align: center;
+}
 strong {
   font-size: 1.6rem;
   color: #0077aa;

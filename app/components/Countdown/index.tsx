@@ -42,22 +42,22 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
 
   return (
     <div className="countdown">
-     <div className="box">
-       <strong>{days}</strong>
-       <span>日</span>
-     </div>
-     <div className="box">
-       <strong>{hours}</strong>
-       <span>時間</span>
-     </div>
-     <div className="box">
-       <strong>{minutes}</strong>
-       <span>分</span>
-     </div>
-     <div className="box">
-       <strong>{seconds}</strong>
-       <span>秒</span>
-     </div>
-   </div>
+      <div className="box">
+        <strong>{days}</strong>
+        <span>日</span>
+      </div>
+      <div className="box">
+        <strong>{hours}</strong>
+        <span>時間</span>
+      </div>
+      <div className="box">
+        <strong>{minutes}</strong>
+        <span>分</span>
+      </div>
+      <div className="box">
+        <strong>{seconds}</strong>
+        <span>秒</span>
+      </div>
+    </div>
   );
 }
