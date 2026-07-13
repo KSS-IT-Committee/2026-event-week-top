@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 export default function Countdown({ targetDate }: { targetDate: string }) {
   const [time, setTime] = useState("");
   const [weeks, setWeeks] = useState(0);
-  const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
@@ -30,7 +29,6 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
       const minutesVal = Math.floor(secAfterHours / 60);
       const secondsVal = secAfterHours % 60;
       setWeeks(weeks);
-      setDays(days);
       setHours(hours);
       setMinutes(minutesVal);
       setSeconds(secondsVal);
