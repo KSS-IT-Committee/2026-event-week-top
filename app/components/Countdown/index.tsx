@@ -46,28 +46,6 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
   return (
     <div className="text-center text-2xl font-bold">
       <div className="mb-4">{time}</div>
-      <div className="countdown">
-        <div className="box">
-          <strong>{weeks}</strong>
-          <span>週</span>
-        </div>
-        <div className="box">
-          <strong>{days}</strong>
-          <span>日</span>
-        </div>
-        <div className="box">
-          <strong>{hours}</strong>
-          <span>時間</span>
-        </div>
-        <div className="box">
-          <strong>{minutes}</strong>
-          <span>分</span>
-        </div>
-        <div className="box">
-          <strong>{seconds}</strong>
-          <span>秒</span>
-        </div>
-      </div>
     </div>
   );
 }
