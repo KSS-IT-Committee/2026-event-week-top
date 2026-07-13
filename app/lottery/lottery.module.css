@@ -152,7 +152,10 @@
 
 .choiceGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, …): a bare 1fr cannot shrink below the selects' intrinsic
+     width, which the widest option label dictates — kaitaku's long
+     「第一公演（8:45～9:15）」 options would push the grid out of the card. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -174,6 +177,10 @@
   font-size: 1rem;
   background: var(--background);
   color: var(--foreground);
+  /* Fill the grid track and shrink with it (see .choiceGrid); the browser
+     clips a too-long selected label instead of widening the control. */
+  width: 100%;
+  min-width: 0;
 }
 
 .select:focus-visible {
