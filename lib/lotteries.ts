@@ -125,10 +125,8 @@ export const LOTTERIES: readonly Lottery[] = [
     canStaffApply: false,
     acts: KAITAKU_PERFORMANCES,
     slots: [{ id: "preferred-slot", label: "観覧を希望する公演" }],
-    opensAt: null,
-    // 令和8年8月30日（日）まで (per the parent letter): exclusive bound at the
-    // JST midnight that ends Aug 30.
-    closesAt: new Date("2026-06-01T00:00:00+09:00"),
+    opensAt: new Date("2026-07-17T00:00:00+09:00"),
+    closesAt: new Date("2026-08-25T23:59:59+09:00"),
   },
   {
     id: "sousaku-performance",
@@ -151,9 +149,8 @@ export const LOTTERIES: readonly Lottery[] = [
       { id: "slot-3", label: "第三公演", time: "12:30～13:45" },
       { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
     ],
-    opensAt: null,
-    // Same deadline as kaitaku — the parent letter announces one date for both.
-    closesAt: new Date("2026-08-31T00:00:00+09:00"),
+    opensAt: new Date("2026-07-17T00:00:00+09:00"),
+    closesAt: new Date("2026-08-25T23:59:59+09:00"),
   },
 ];
 
