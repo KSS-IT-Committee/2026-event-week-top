@@ -26,6 +26,9 @@ const sousakutenNews = getNews()
 const koyasaiNews = getNews()
   .filter((data) => data.tag === "ceremony")
   .slice(0, 3);
+const ITcommitteeNews = getNews()
+  .filter((data) => data.tag === "itcommittee")
+  .slice(0, 3);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
@@ -304,19 +307,34 @@ export default function Toppage() {
             )}
           </div>
         </div>
+        {/* IT委員会ニュース */}
+        <div id="itcommittee" className={styles.event}>
+          <div className={styles.content}>
+            <p>《IT委員会からのお知らせ》</p>
+            {ITcommitteeNews.length === 0 ? (
+              <p>お知らせはまだありません。</p>
+            ) : (
+              <ul className={styles.eventNewsList}>
+                {ITcommitteeNews.map((item) => (
+                  <NewsItem key={item.id} item={item} />
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+        <FloatingMenu
+          items={[
+            { label: "芸能祭", href: "#performance" },
+            { label: "体育祭", href: "#sports" },
+            { label: "創作展", href: "#create" },
+            { label: "後夜祭", href: "#ceremony" },
+            // { label: "観覧抽選", href: "/lottery", isInternal: true },
+            { label: "News", href: "/news/list" },
+            { label: "ページ改善の提案", href: "/requests" },
+            { label: "Changelog", href: "/changelog" },
+          ]}
+        />
       </div>
-      <FloatingMenu
-        items={[
-          { label: "芸能祭", href: "#performance" },
-          { label: "体育祭", href: "#sports" },
-          { label: "創作展", href: "#create" },
-          { label: "後夜祭", href: "#ceremony" },
-          // { label: "観覧抽選", href: "/lottery", isInternal: true },
-          { label: "News", href: "/news/list" },
-          { label: "ページ改善の提案", href: "/requests" },
-          { label: "Changelog", href: "/changelog" },
-        ]}
-      />
     </>
   );
 }
