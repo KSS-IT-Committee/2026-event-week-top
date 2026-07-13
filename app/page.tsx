@@ -118,13 +118,11 @@ export default function Toppage() {
             <br />
           </p>
           {/* Countdown */}
-           <div className={styles.countdown}>
-             <h1 className={styles.countdownTitle}>行事週間まであと</h1>
-             <Countdown targetDate="2026-09-07T00:00:00" />
-           </div>
+          <div className={styles.countdown}>
+            <h1 className={styles.countdownTitle}>行事週間まであと</h1>
+            <Countdown targetDate="2026-09-07T00:00:00" />
+          </div>
         </div>
-
-        
 
         {/* 芸能祭 */}
         <div id="performance" className={styles.event}>
