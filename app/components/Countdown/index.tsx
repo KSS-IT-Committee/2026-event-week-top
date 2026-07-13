@@ -44,6 +44,7 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
 
   return (
     <div className={styles.countdown}>
+      <div className={styles.title}>行事週間まであと</div>
       <div className={styles.item}>
         <span className={styles.number}>{days}</span>日
       </div>
