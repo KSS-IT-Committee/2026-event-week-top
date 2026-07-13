@@ -5,7 +5,6 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
   const [time, setTime] = useState("");
   const [weeks, setWeeks] = useState(0);
   const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
@@ -30,7 +29,6 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
       const secondsVal = secAfterHours % 60;
       setWeeks(weeks);
       setHours(hours);
-      setMinutes(minutesVal);
       setSeconds(secondsVal);
       setTime(
         `${weeks}週間 ${days}日 ${hours}時間 ${minutesVal}分 ${secondsVal}秒`,
