@@ -28,6 +28,18 @@
   pointer-events: none;
 }
 
+/* Translucent so page content near the bottom edge stays readable behind
+   the menu; the backdrop blur keeps the labels legible over it. */
+.menu,
+.hamburger {
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform-origin: bottom right;
+}
+
 .menu {
   display: flex;
   flex-direction: column;
@@ -37,14 +49,12 @@
   max-width: min(320px, calc(100vw - 2rem));
   max-height: min(70vh, 480px);
   overflow-y: auto;
-  background: #fff;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transform-origin: bottom right;
 }
 
+/* Colors are self-contained (hardcoded light/dark) so this file can be
+   copied byte-identical across the app repos regardless of each app's
+   CSS variable vocabulary — same convention as AccountNav.module.css. */
 .link {
   color: #333;
   text-decoration: none;
@@ -63,34 +73,59 @@
 
 .hamburger {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 5px;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  background: #fff;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  gap: 0.5rem;
+  /* The wrapper is a zero-size anchor, so an absolutely-positioned button
+     would otherwise shrink to zero width and wrap the label vertically. */
+  width: max-content;
+  min-height: 48px;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  border-radius: 9999px;
   cursor: pointer;
-  transform-origin: bottom right;
 }
 
 .hamburger:hover {
-  background: rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
 }
 
-.hamburger span {
+.bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.bars span {
   display: block;
-  width: 22px;
+  width: 18px;
   height: 2px;
-  background: #333;
+  background: currentColor;
   border-radius: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu,
+  .hamburger {
+    background: rgba(17, 17, 17, 0.8);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .link,
+  .hamburger {
+    color: #ddd;
+  }
+
+  .link:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .hamburger:hover {
+    background: rgba(34, 34, 34, 0.95);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -103,9 +138,10 @@
 /*
  * Forced Colors Mode (Edge "Page colours" / Windows High Contrast).
  * The browser drops box-shadow and rewrites background to the system Canvas
- * color, so the menu and hamburger would blend into the page. Add explicit
+ * color, so the menu and button would blend into the page. Add explicit
  * system-color borders/fills so their boundaries stay visible with guaranteed
- * contrast.
+ * contrast. The bars use currentColor and follow the forced text color on
+ * their own.
  */
 @media (forced-colors: active) {
   .menu {
@@ -118,8 +154,8 @@
   }
 
   .link {
-    /* Pin the link text to a system color; the author #333 would otherwise
-       stay dark and vanish on a dark forced-colors Canvas. */
+    /* Pin the link text to a system color; the author foreground would
+       otherwise stay dark and vanish on a dark forced-colors Canvas. */
     color: LinkText;
   }
 
@@ -135,14 +171,11 @@
   }
 
   .hamburger {
+    color: ButtonText;
     background: ButtonFace;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     border: 1px solid ButtonText;
-  }
-
-  .hamburger span {
-    background: ButtonText;
   }
 }
 

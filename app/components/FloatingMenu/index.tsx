@@ -21,7 +21,6 @@ export type FloatingMenuItem = {
 
 type FloatingMenuProps = {
   items: FloatingMenuItem[];
-  collapseDelayMs?: number;
 };
 
 function FloatingMenuLink({ item }: { item: FloatingMenuItem }) {
@@ -42,9 +41,9 @@ function FloatingMenuLink({ item }: { item: FloatingMenuItem }) {
  * Every call site therefore wants at least one ungated entry, or a logged-out
  * visitor opens an empty menu.
  */
-export function FloatingMenu({ items, collapseDelayMs }: FloatingMenuProps) {
+export function FloatingMenu({ items }: FloatingMenuProps) {
   return (
-    <FloatingMenuShell collapseDelayMs={collapseDelayMs}>
+    <FloatingMenuShell>
       {items.map((item) =>
         item.isInternal ? (
           <Internal key={item.href} role={item.role}>

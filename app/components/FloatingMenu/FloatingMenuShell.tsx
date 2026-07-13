@@ -1,56 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import styles from "./floating.module.css";
 
-const DEFAULT_COLLAPSE_DELAY_MS = 2000;
-
 type FloatingMenuShellProps = {
   children: React.ReactNode;
-  collapseDelayMs?: number;
 };
 
 /**
- * The interactive chrome of <FloatingMenu>: collapse timer, hover/focus
- * handling and the hamburger. The links arrive as `children`, already rendered
- * on the server, because internal-only entries are gated by <Internal> — an
+ * The interactive chrome of <FloatingMenu>: open/close state, hover handling
+ * and the menu button. The links arrive as `children`, already rendered on
+ * the server, because internal-only entries are gated by <Internal> — an
  * async Server Component that cannot run in the browser.
  *
- * Since the links are rendered on the server, `isOpen` can no longer be stamped
- * onto each one as `tabIndex`. `inert` does that job from an ancestor instead:
- * it makes the whole collapsed subtree unfocusable, unclickable and hidden from
- * assistive tech, so it also stands in for `aria-hidden` on the same element.
+ * Click/tap is the one open path that must always work. Hover open/close is
+ * limited to `pointerType === "mouse"`: a tap's synthetic mouseenter would
+ * otherwise open the menu mid-tap, swap the button to pointer-events: none,
+ * and let the tail of the tap land on the nav underneath — the "menu needs
+ * two taps on mobile" bug. For the same reason there is no timer-based
+ * auto-collapse; a tap-opened menu stays open until an outside press, a link
+ * click, Escape, or focus leaving it.
+ *
+ * Since the links are rendered on the server, `isOpen` can no longer be
+ * stamped onto each one as `tabIndex`. `inert` does that job from an ancestor
+ * instead: it makes the whole collapsed subtree unfocusable, unclickable and
+ * hidden from assistive tech, so it also stands in for `aria-hidden` on the
+ * same element.
  */
-export function FloatingMenuShell({
-  children,
-  collapseDelayMs = DEFAULT_COLLAPSE_DELAY_MS,
-}: FloatingMenuShellProps) {
+export function FloatingMenuShell({ children }: FloatingMenuShellProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const scheduleCollapse = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setIsOpen(false), collapseDelayMs);
-  }, [collapseDelayMs]);
-
-  const cancelCollapse = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
-
-  const collapseNow = useCallback(() => {
-    cancelCollapse();
-    setIsOpen(false);
-  }, [cancelCollapse]);
-
-  useEffect(() => {
-    scheduleCollapse();
-    return () => cancelCollapse();
-  }, [scheduleCollapse, cancelCollapse]);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Collapse when a pointer press lands outside the menu.
   useEffect(() => {
@@ -58,71 +39,76 @@ export function FloatingMenuShell({
 
     const handlePointerDown = (event: PointerEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
-        collapseNow();
+        setIsOpen(false);
       }
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [isOpen, collapseNow]);
-
-  // On devices with a mouse, collapse when the pointer leaves the viewport.
-  useEffect(() => {
-    if (!isOpen) return;
-    if (!window.matchMedia("(hover: hover)").matches) return;
-
-    const handleMouseOut = (event: MouseEvent) => {
-      // relatedTarget is null when the pointer leaves the browser window.
-      if (event.relatedTarget === null) {
-        collapseNow();
-      }
-    };
-
-    document.addEventListener("mouseout", handleMouseOut);
-    return () => document.removeEventListener("mouseout", handleMouseOut);
-  }, [isOpen, collapseNow]);
-
-  const handleOpen = () => {
-    setIsOpen(true);
-    scheduleCollapse();
-  };
+  }, [isOpen]);
 
   return (
-    <div ref={wrapperRef} className={styles.wrapper}>
-      <nav
-        id="floating-menu-nav"
-        inert={!isOpen}
-        className={`${styles.menu} ${isOpen ? styles.visible : styles.hidden}`}
-        aria-label="ページ内ナビゲーション"
-        onMouseEnter={cancelCollapse}
-        onMouseLeave={collapseNow}
-        onFocus={cancelCollapse}
-        onBlur={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-            collapseNow();
-          }
-        }}
-      >
-        {children}
-      </nav>
-
+    <div
+      ref={wrapperRef}
+      className={styles.wrapper}
+      // Enter/leave on the wrapper covers the button and the nav as one
+      // hover region, so the menu can't get stuck open when the pointer
+      // skims the button without ever reaching the nav.
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") setIsOpen(true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse") setIsOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && isOpen) {
+          setIsOpen(false);
+          buttonRef.current?.focus();
+        }
+      }}
+    >
+      {/* Button first in DOM so that Tab after opening lands on the first
+          link; both siblings are absolutely positioned, so order does not
+          affect layout. */}
       <button
+        ref={buttonRef}
         aria-expanded={isOpen}
         aria-controls="floating-menu-nav"
         type="button"
         className={`${styles.hamburger} ${
           isOpen ? styles.hidden : styles.visible
         }`}
-        aria-label="メニューを開く"
         tabIndex={isOpen ? -1 : 0}
-        onClick={handleOpen}
-        onMouseEnter={handleOpen}
-        onFocus={handleOpen}
+        onClick={() => setIsOpen(true)}
       >
-        <span />
-        <span />
-        <span />
+        <span className={styles.bars} aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
+        メニュー
       </button>
+
+      <nav
+        id="floating-menu-nav"
+        inert={!isOpen}
+        className={`${styles.menu} ${isOpen ? styles.visible : styles.hidden}`}
+        aria-label="サイト内ナビゲーション"
+        // The menu outlives page navigations (it is rendered from the
+        // layout), so following a link must close it explicitly.
+        onClick={(event) => {
+          if ((event.target as HTMLElement).closest("a")) {
+            setIsOpen(false);
+          }
+        }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+            setIsOpen(false);
+          }
+        }}
+      >
+        {children}
+      </nav>
     </div>
   );
 }
