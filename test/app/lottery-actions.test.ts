@@ -241,7 +241,7 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "3A",
+        "choice-preferred-slot-1": "performance-1",
       }),
     );
     expect(lastMinute.success).toBe(true);
@@ -252,7 +252,7 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "3A",
+        "choice-preferred-slot-1": "performance-1",
       }),
     );
     expect(afterClose.success).toBe(false);
@@ -264,10 +264,10 @@ describe("submitLotteryEntriesAction", () => {
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
-        lotteryId: "kaitaku-performance",
+        lotteryId: "sousaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "3A",
-        "choice-slot-1-2": "3A",
+        "choice-slot-1-1": "5A",
+        "choice-slot-1-2": "5A",
       }),
     );
 
@@ -276,19 +276,19 @@ describe("submitLotteryEntriesAction", () => {
     expectNoWrites();
   });
 
-  it("rejects an act the lottery does not offer, without writing", async () => {
+  it("rejects a choice the lottery does not offer, without writing", async () => {
     asUser("3A05");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "5A",
+        "choice-preferred-slot-1": "3A",
       }),
     );
 
     expect(state.success).toBe(false);
-    expect(state.error).toContain("不正なクラス");
+    expect(state.error).toContain("不正な選択肢");
     expectNoWrites();
   });
 
@@ -297,11 +297,11 @@ describe("submitLotteryEntriesAction", () => {
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
-        lotteryId: "kaitaku-performance",
+        lotteryId: "sousaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "3A",
-        "choice-slot-1-2": "3B",
-        "choice-slot-5-1": "4D",
+        "choice-slot-1-1": "5A",
+        "choice-slot-1-2": "5B",
+        "choice-slot-3-1": "6D",
       }),
     );
 
@@ -310,7 +310,7 @@ describe("submitLotteryEntriesAction", () => {
     expect(deleteLotteryEntries).toHaveBeenCalledTimes(1);
     expect(deleteLotteryEntries).toHaveBeenCalledWith(
       "3A05",
-      "kaitaku-performance",
+      "sousaku-performance",
       "parent",
       {},
     );
@@ -318,20 +318,20 @@ describe("submitLotteryEntriesAction", () => {
     expect(addLotteryEntries).toHaveBeenCalledWith(
       [
         {
-          lotteryId: "kaitaku-performance",
+          lotteryId: "sousaku-performance",
           slotId: "slot-1",
           username: "3A05",
           applicantType: "parent",
-          firstChoice: "3A",
-          secondChoice: "3B",
+          firstChoice: "5A",
+          secondChoice: "5B",
           thirdChoice: null,
         },
         {
-          lotteryId: "kaitaku-performance",
-          slotId: "slot-5",
+          lotteryId: "sousaku-performance",
+          slotId: "slot-3",
           username: "3A05",
           applicantType: "parent",
-          firstChoice: "4D",
+          firstChoice: "6D",
           secondChoice: null,
           thirdChoice: null,
         },
@@ -354,10 +354,10 @@ describe("submitLotteryEntriesAction", () => {
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
-        lotteryId: "kaitaku-performance",
+        lotteryId: "sousaku-performance",
         applicantType: "parent",
-        "choice-slot-2-2": "3C",
-        "choice-slot-2-3": "4A",
+        "choice-slot-2-2": "5C",
+        "choice-slot-2-3": "6A",
       }),
     );
 
@@ -365,12 +365,41 @@ describe("submitLotteryEntriesAction", () => {
     expect(addLotteryEntries).toHaveBeenCalledWith(
       [
         {
-          lotteryId: "kaitaku-performance",
+          lotteryId: "sousaku-performance",
           slotId: "slot-2",
           username: "3A05",
           applicantType: "parent",
-          firstChoice: "3C",
-          secondChoice: "4A",
+          firstChoice: "5C",
+          secondChoice: "6A",
+          thirdChoice: null,
+        },
+      ],
+      {},
+    );
+  });
+
+  it("saves a kaitaku parent's single ranked-performance entry", async () => {
+    asUser("3A05");
+    const state = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "kaitaku-performance",
+        applicantType: "parent",
+        "choice-preferred-slot-1": "performance-3",
+        "choice-preferred-slot-2": "performance-6",
+      }),
+    );
+
+    expect(state).toEqual({ error: null, success: true, savedSlotCount: 1 });
+    expect(addLotteryEntries).toHaveBeenCalledWith(
+      [
+        {
+          lotteryId: "kaitaku-performance",
+          slotId: "preferred-slot",
+          username: "3A05",
+          applicantType: "parent",
+          firstChoice: "performance-3",
+          secondChoice: "performance-6",
           thirdChoice: null,
         },
       ],
@@ -385,13 +414,18 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": " 3A ",
+        "choice-preferred-slot-1": " performance-1 ",
       }),
     );
 
     expect(state.success).toBe(true);
     expect(addLotteryEntries).toHaveBeenCalledWith(
-      [expect.objectContaining({ slotId: "slot-1", firstChoice: "3A" })],
+      [
+        expect.objectContaining({
+          slotId: "preferred-slot",
+          firstChoice: "performance-1",
+        }),
+      ],
       {},
     );
   });
@@ -445,7 +479,7 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "3A",
+        "choice-preferred-slot-1": "performance-1",
       }),
     );
 

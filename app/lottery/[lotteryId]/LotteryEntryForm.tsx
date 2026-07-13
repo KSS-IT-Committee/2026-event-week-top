@@ -104,7 +104,9 @@ export function LotteryEntryForm({
           <fieldset key={slot.id} className={styles.slot}>
             <legend className={styles.slotLegend}>
               <span className={styles.slotLabel}>{slot.label}</span>
-              <span className={styles.slotTime}>{slot.time}</span>
+              {slot.time !== undefined && (
+                <span className={styles.slotTime}>{slot.time}</span>
+              )}
             </legend>
             <div className={styles.choiceGrid}>
               {RANK_LABELS.map((rankLabel, rankIndex) => {

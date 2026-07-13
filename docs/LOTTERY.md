@@ -1,15 +1,23 @@
 # Viewing Lottery (公演観覧抽選)
 
-The `/lottery` pages collect ranked viewing preferences for the class plays
-of the 開拓部門 (grades 3–4) and 創作部門 (grades 5–6). Per performance slot,
-an applicant picks up to three classes (第1〜第3希望). This document explains
-the moving parts and, most importantly, **how to add another lottery later**.
+The `/lottery` pages collect ranked viewing preferences (第1〜第3希望) for
+the class plays of the 開拓部門 (grades 3–4) and 創作部門 (grades 5–6). The
+two lotteries ask different questions: for **創作部門** an applicant ranks up
+to three _classes_ per performance slot; for **開拓部門** a parent ranks up
+to three _performances (time slots)_ in one single question — which time
+they want to attend. This document explains the moving parts and, most
+importantly, **how to add another lottery later**.
 
 ## How it works
 
 - **Definitions are code, not rows.** Every lottery (its slots, acts,
   eligibility, application window) is an entry in `LOTTERIES` in
   `lib/lotteries.ts`. The database only stores the opaque ids defined there.
+- **`slots` are the questions; `acts` are what gets ranked.** 創作部門 has 4
+  slots (one per performance) whose acts are the grade 5–6 classes. 開拓部門
+  has a single slot (`preferred-slot`, 「観覧を希望する公演」) whose acts are
+  the 8 timed performances themselves. Any future lottery picks whichever
+  shape fits — the storage and validation are identical.
 - **One table stores every lottery's entries.** `lottery_entries`
   (`db/schema.ts`, canonical copy in `2026-db`) holds one row per
   `(lottery_id, slot_id, username, applicant_type)` with `first_choice` /

@@ -50,16 +50,19 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.opensAt).toBeNull();
   });
 
-  it("matches the announced kaitaku timetable (8 performances)", () => {
+  it("asks kaitaku parents one question: rank the 8 announced performances", () => {
     expect(kaitaku.slots).toEqual([
-      { id: "slot-1", label: "第一公演", time: "8:45～9:15" },
-      { id: "slot-2", label: "第二公演", time: "9:30～10:00" },
-      { id: "slot-3", label: "第三公演", time: "10:15～10:45" },
-      { id: "slot-4", label: "第四公演", time: "11:00～11:30" },
-      { id: "slot-5", label: "第五公演", time: "12:30～13:00" },
-      { id: "slot-6", label: "第六公演", time: "13:15～13:45" },
-      { id: "slot-7", label: "第七公演", time: "14:00～14:30" },
-      { id: "slot-8", label: "第八公演", time: "14:45～15:15" },
+      { id: "preferred-slot", label: "観覧を希望する公演" },
+    ]);
+    expect(kaitaku.acts).toEqual([
+      { id: "performance-1", label: "第一公演（8:45～9:15）" },
+      { id: "performance-2", label: "第二公演（9:30～10:00）" },
+      { id: "performance-3", label: "第三公演（10:15～10:45）" },
+      { id: "performance-4", label: "第四公演（11:00～11:30）" },
+      { id: "performance-5", label: "第五公演（12:30～13:00）" },
+      { id: "performance-6", label: "第六公演（13:15～13:45）" },
+      { id: "performance-7", label: "第七公演（14:00～14:30）" },
+      { id: "performance-8", label: "第八公演（14:45～15:15）" },
     ]);
   });
 
@@ -70,20 +73,6 @@ describe("LOTTERIES registry", () => {
       { id: "slot-3", label: "第三公演", time: "12:30～13:45" },
       { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
     ]);
-  });
-
-  it("offers the kaitaku classes (grades 3-4) as kaitaku acts", () => {
-    expect(kaitaku.acts.map((act) => act.id)).toEqual([
-      "3A",
-      "3B",
-      "3C",
-      "3D",
-      "4A",
-      "4B",
-      "4C",
-      "4D",
-    ]);
-    expect(kaitaku.acts[0].label).toBe("3年A組");
   });
 
   it("offers the sousaku classes (grades 5-6) as sousaku acts", () => {
@@ -97,6 +86,7 @@ describe("LOTTERIES registry", () => {
       "6C",
       "6D",
     ]);
+    expect(sousaku.acts[0].label).toBe("5年A組");
   });
 
   it("restricts kaitaku to parents of grade 3-4 classes, no staff", () => {
@@ -245,33 +235,53 @@ describe("describeEligibleGrades", () => {
 
 describe("parseLotteryEntries", () => {
   it("keeps ranked choices for a fully filled slot", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-1", choices: ["3A", "3B", "4C"] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-1", choices: ["5A", "5B", "6C"] },
     ]);
     expect(result).toEqual({
       ok: true,
       entries: [
         {
           slotId: "slot-1",
-          firstChoice: "3A",
-          secondChoice: "3B",
-          thirdChoice: "4C",
+          firstChoice: "5A",
+          secondChoice: "5B",
+          thirdChoice: "6C",
+        },
+      ],
+    });
+  });
+
+  it("parses kaitaku's single question as ranked performances", () => {
+    const result = parseLotteryEntries(kaitaku, [
+      {
+        slotId: "preferred-slot",
+        choices: ["performance-3", "performance-6", ""],
+      },
+    ]);
+    expect(result).toEqual({
+      ok: true,
+      entries: [
+        {
+          slotId: "preferred-slot",
+          firstChoice: "performance-3",
+          secondChoice: "performance-6",
+          thirdChoice: null,
         },
       ],
     });
   });
 
   it("compacts gaps upward (a 1st + 3rd choice becomes 1st + 2nd)", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-1", choices: ["3A", "", "3B"] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-1", choices: ["5A", "", "5B"] },
     ]);
     expect(result).toEqual({
       ok: true,
       entries: [
         {
           slotId: "slot-1",
-          firstChoice: "3A",
-          secondChoice: "3B",
+          firstChoice: "5A",
+          secondChoice: "5B",
           thirdChoice: null,
         },
       ],
@@ -279,15 +289,15 @@ describe("parseLotteryEntries", () => {
   });
 
   it("promotes a lone 2nd-rank choice to the 1st choice", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-2", choices: ["", "4A", ""] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-2", choices: ["", "6A", ""] },
     ]);
     expect(result).toEqual({
       ok: true,
       entries: [
         {
           slotId: "slot-2",
-          firstChoice: "4A",
+          firstChoice: "6A",
           secondChoice: null,
           thirdChoice: null,
         },
@@ -296,10 +306,10 @@ describe("parseLotteryEntries", () => {
   });
 
   it("skips slots with no choices and keeps slot submission order", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-1", choices: ["3A", "", ""] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-1", choices: ["5A", "", ""] },
       { slotId: "slot-2", choices: ["", "", ""] },
-      { slotId: "slot-3", choices: ["4B", "", ""] },
+      { slotId: "slot-3", choices: ["6B", "", ""] },
     ]);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -310,15 +320,15 @@ describe("parseLotteryEntries", () => {
   });
 
   it("returns no entries for an all-blank submission", () => {
-    const result = parseLotteryEntries(kaitaku, [
+    const result = parseLotteryEntries(sousaku, [
       { slotId: "slot-1", choices: ["", "", ""] },
     ]);
     expect(result).toEqual({ ok: true, entries: [] });
   });
 
   it("rejects an unknown slot id", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-99", choices: ["3A", "", ""] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-99", choices: ["5A", "", ""] },
     ]);
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -326,16 +336,16 @@ describe("parseLotteryEntries", () => {
   });
 
   it("rejects a slot submitted twice", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-1", choices: ["3A", "", ""] },
-      { slotId: "slot-1", choices: ["3B", "", ""] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-1", choices: ["5A", "", ""] },
+      { slotId: "slot-1", choices: ["5B", "", ""] },
     ]);
     expect(result.ok).toBe(false);
   });
 
   it("rejects more ranks than MAX_CHOICES_PER_SLOT", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-1", choices: ["3A", "3B", "3C", "3D"] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-1", choices: ["5A", "5B", "5C", "5D"] },
     ]);
     expect(result.ok).toBe(false);
     if (result.ok) return;
@@ -349,16 +359,26 @@ describe("parseLotteryEntries", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain("第二公演");
-    expect(result.error).toContain("不正なクラス");
+    expect(result.error).toContain("不正な選択肢");
+  });
+
+  it("rejects a class code where kaitaku expects a performance", () => {
+    const result = parseLotteryEntries(kaitaku, [
+      { slotId: "preferred-slot", choices: ["3A", "", ""] },
+    ]);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("観覧を希望する公演");
+    expect(result.error).toContain("不正な選択肢");
   });
 
   it("rejects the same act at two ranks of one slot, naming the slot", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "slot-1", choices: ["3A", "3A", ""] },
+    const result = parseLotteryEntries(sousaku, [
+      { slotId: "slot-1", choices: ["5A", "5A", ""] },
     ]);
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain("第一公演");
-    expect(result.error).toContain("同じクラス");
+    expect(result.error).toContain("同じ選択肢");
   });
 });

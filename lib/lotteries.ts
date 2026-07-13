@@ -27,7 +27,9 @@ export const MAX_CHOICES_PER_SLOT = 3;
 export type LotterySlot = {
   id: string;
   label: string;
-  time: string;
+  // Time range shown next to the label (e.g. 「8:45～9:15」). Omit when the
+  // slot is a question rather than one timed performance (see kaitaku).
+  time?: string;
 };
 
 export type LotteryAct = {
@@ -53,7 +55,13 @@ export type Lottery = {
   // eligibleClasses never admits them; they apply as themselves via the
   // "student" applicant type (labeled 本人), never as "parent".
   canStaffApply: boolean;
+  // What an applicant ranks (up to MAX_CHOICES_PER_SLOT) within each slot.
+  // For sousaku these are the class plays; for kaitaku they are the timed
+  // performances themselves. The ids are opaque to the DB either way.
   acts: readonly LotteryAct[];
+  // The independent questions asked — one entry row per slot an applicant
+  // fills. Sousaku asks per performance; kaitaku asks a single question
+  // (which performance to attend), so it has exactly one slot.
   slots: readonly LotterySlot[];
   // Application window. null = no bound on that side. Always construct with
   // an explicit offset — new Date("2026-09-05T17:00:00+09:00") — because the
@@ -87,12 +95,26 @@ function actForClass(className: ClassName): LotteryAct {
 const KAITAKU_CLASSES = classesInGrades(["3", "4"]);
 const SOUSAKU_CLASSES = classesInGrades(["5", "6"]);
 
+// 開拓部門: a parent ranks WHICH performance (time slot) to attend, not
+// which class — so the ranked choices are the performances themselves,
+// asked as one single-slot question.
+const KAITAKU_PERFORMANCES: LotteryAct[] = [
+  { id: "performance-1", label: "第一公演（8:45～9:15）" },
+  { id: "performance-2", label: "第二公演（9:30～10:00）" },
+  { id: "performance-3", label: "第三公演（10:15～10:45）" },
+  { id: "performance-4", label: "第四公演（11:00～11:30）" },
+  { id: "performance-5", label: "第五公演（12:30～13:00）" },
+  { id: "performance-6", label: "第六公演（13:15～13:45）" },
+  { id: "performance-7", label: "第七公演（14:00～14:30）" },
+  { id: "performance-8", label: "第八公演（14:45～15:15）" },
+];
+
 export const LOTTERIES: readonly Lottery[] = [
   {
     id: "kaitaku-performance",
     title: "開拓部門公演 観覧抽選",
     description:
-      "開拓部門（3・4年生）のクラス劇の観覧抽選です。開拓部門の生徒の保護者の方が対象で、公演ごとに観たいクラスを第1〜第3希望まで選べます。",
+      "開拓部門（3・4年生）のクラス劇の観覧抽選です。開拓部門の生徒の保護者の方が対象で、観覧を希望する公演（時間帯）を第1〜第3希望まで選べます。",
     notes: [
       "公演時間は30分、幕間は15分です。",
       "お昼休憩は60分です。第四公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
@@ -101,17 +123,8 @@ export const LOTTERIES: readonly Lottery[] = [
     applicantTypes: ["parent"],
     eligibleClasses: KAITAKU_CLASSES,
     canStaffApply: false,
-    acts: KAITAKU_CLASSES.map(actForClass),
-    slots: [
-      { id: "slot-1", label: "第一公演", time: "8:45～9:15" },
-      { id: "slot-2", label: "第二公演", time: "9:30～10:00" },
-      { id: "slot-3", label: "第三公演", time: "10:15～10:45" },
-      { id: "slot-4", label: "第四公演", time: "11:00～11:30" },
-      { id: "slot-5", label: "第五公演", time: "12:30～13:00" },
-      { id: "slot-6", label: "第六公演", time: "13:15～13:45" },
-      { id: "slot-7", label: "第七公演", time: "14:00～14:30" },
-      { id: "slot-8", label: "第八公演", time: "14:45～15:15" },
-    ],
+    acts: KAITAKU_PERFORMANCES,
+    slots: [{ id: "preferred-slot", label: "観覧を希望する公演" }],
     opensAt: null,
     // 令和8年8月30日（日）まで (per the parent letter): exclusive bound at the
     // JST midnight that ends Aug 30.
@@ -283,14 +296,14 @@ export function parseLotteryEntries(
       if (!actIds.has(choice)) {
         return {
           ok: false,
-          error: `「${slot.label}」の希望に不正なクラスが含まれています。`,
+          error: `「${slot.label}」の希望に不正な選択肢が含まれています。`,
         };
       }
     }
     if (new Set(choices).size !== choices.length) {
       return {
         ok: false,
-        error: `「${slot.label}」で同じクラスを複数回選ぶことはできません。`,
+        error: `「${slot.label}」で同じ選択肢を複数回選ぶことはできません。`,
       };
     }
 
