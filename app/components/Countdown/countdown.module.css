@@ -11,11 +11,11 @@
   padding: 12px 18px;
   text-align: center;
 }
-strong {
+.item {
   font-size: 1.6rem;
   color: #0077aa;
 }
-span {
+.number {
   font-size: 0.8rem;
   color: #005577;
 }

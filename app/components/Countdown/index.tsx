@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-
 import styles from "./countdown.module.css";
 
 export default function Countdown({ targetDate }: { targetDate: string }) {
@@ -44,22 +43,19 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
 
   return (
     <div className={styles.countdown}>
-      <div className={styles.box}>
-        <strong>{days}</strong>
-        <span>日</span>
-      </div>
-      <div className={styles.box}>
-        <strong>{hours}</strong>
-        <span>時間</span>
-      </div>
-      <div className={styles.box}>
-        <strong>{minutes}</strong>
-        <span>分</span>
-      </div>
-      <div className="box">
-        <strong>{seconds}</strong>
-        <span>秒</span>
-      </div>
+      <div className={styles.item}>
+  <span className={styles.number}>{days}</span>日
+</div>
+<div className={styles.item}>
+  <span className={styles.number}>{hours}</span>時間
+</div>
+<div className={styles.item}>
+  <span className={styles.number}>{minutes}</span>分
+</div>
+<div className={styles.item}>
+  <span className={styles.number}>{seconds}</span>秒
+</div>
+
     </div>
   );
 }
