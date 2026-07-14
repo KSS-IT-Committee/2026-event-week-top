@@ -1,8 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import styles from "./not-found.module.css";
 
 export default function Unauthorized() {
+  // Carry the blocked page as ?next= so login returns the user here instead
+  // of the top page (same return-trip AccountNavLink gives its login link).
+  const pathname = usePathname();
+
   return (
     <>
       <div className={styles.wrapper}>
@@ -12,7 +19,10 @@ export default function Unauthorized() {
           このページを表示するにはログインしてください
         </p>
         <div className={styles.divider} />
-        <Link href="/login" className={styles.homeLink}>
+        <Link
+          href={`/login?next=${encodeURIComponent(pathname)}`}
+          className={styles.homeLink}
+        >
           ログインページへ
         </Link>
       </div>

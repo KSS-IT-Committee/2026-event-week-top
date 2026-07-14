@@ -194,8 +194,20 @@ async function collectChunks() {
     const { data, content } = matter(raw);
     const source = file.replace(/\.md$/, "");
     const title = typeof data.title === "string" ? data.title : source;
+    // Optional `context:` frontmatter — a document-level note copied onto EVERY
+    // chunk so retrieval (which splits the doc) can't strip it. It is shown to
+    // the chat model alongside each chunk but deliberately NOT embedded, so it
+    // doesn't distort similarity (see lib/knowledge.ts and lib/chat.ts).
+    const context = typeof data.context === "string" ? data.context : undefined;
     chunkBody(content).forEach((text, i) => {
-      chunks.push({ kind: "text", id: `${source}#${i}`, source, title, text });
+      chunks.push({
+        kind: "text",
+        id: `${source}#${i}`,
+        source,
+        title,
+        text,
+        ...(context ? { context } : {}),
+      });
     });
   }
   return chunks;

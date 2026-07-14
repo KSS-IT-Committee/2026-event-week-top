@@ -14,11 +14,15 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "pretest": "npm run changelog && npm run posts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@google/genai": "^2.8.0",
-    "@next/third-parties": "^16.2.9",
+    "@google/genai": "^2.10.0",
+    "@next/third-parties": "^16.2.10",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "gray-matter": "^4.0.3",
@@ -31,9 +35,10 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^25",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.9",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
@@ -42,9 +47,10 @@
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "eslint-plugin-unused-imports": "^4.0.0",
     "pdf-lib": "^1.17.1",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.4",
     "tailwindcss": "^4",
     "typescript": "^6",
-    "unpdf": "^1.6.2"
+    "unpdf": "^1.6.2",
+    "vitest": "^4.1.10"
   }
 }

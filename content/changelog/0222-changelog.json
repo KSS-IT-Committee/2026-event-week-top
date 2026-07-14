@@ -1,0 +1,5 @@
+{
+  "title": "Bump actions/checkout from 5 to 7",
+  "description": "Actionのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}

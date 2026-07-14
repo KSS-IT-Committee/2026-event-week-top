@@ -27,6 +27,9 @@ type StoredChunk = {
   source: string;
   title: string;
   text: string;
+  // Optional document-level note (e.g. "this is last year's reference") copied
+  // onto every chunk so chunking can't strip it. Shown to the model, not embedded.
+  context?: string;
   embedding: number[];
 };
 
@@ -42,6 +45,7 @@ export type KnowledgeChunk = {
   source: string;
   title: string;
   text: string;
+  context?: string;
   score: number;
 };
 
@@ -95,6 +99,7 @@ export async function retrieveKnowledge(
       source: chunk.source,
       title: chunk.title,
       text: chunk.text,
+      context: chunk.context,
       score,
     }));
 }
