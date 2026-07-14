@@ -48,6 +48,9 @@
   color: rgb(0, 0, 0);
   margin-bottom: 25px;
 }
+.markdown a {
+  text-decoration: underline;
+}
 .backButton {
   position: fixed;
   bottom: 20px;
