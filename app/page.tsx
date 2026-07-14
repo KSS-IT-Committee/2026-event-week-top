@@ -124,8 +124,8 @@ export default function Toppage() {
           <div className={styles.countdown}>
             <Countdown
               title="行事週間まであと"
-              targetDate="2026-09-07T00:00:00"
-            />
+              startedTitle="行事週間スタート!!"
+              targetDate="2026-09-06T00:00:00"      />
           </div>
         </div>
 
