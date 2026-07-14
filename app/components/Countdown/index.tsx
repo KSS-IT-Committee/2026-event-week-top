@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import styles from "./countdown.module.css";
 
-export default function Countdown({ targetDate }: { targetDate: string }) {
+export default function Countdown({ title, targetDate }: { title: string; targetDate: string }) {
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
@@ -44,7 +44,7 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
 
   return (
     <div className={styles.countdown}>
-      <div className={styles.title}>行事週間まであと</div>
+      <div className={styles.title}>{title}</div>
       <div className={styles.item}>
         <span className={styles.number}>{days}</span>日
       </div>
