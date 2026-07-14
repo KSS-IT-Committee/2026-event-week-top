@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 
 import styles from "./countdown.module.css";
 
-export default function Countdown({ title, targetDate }: { title: string; targetDate: string }) {
+export default function Countdown({
+  title,
+  targetDate,
+}: {
+  title: string;
+  targetDate: string;
+}) {
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
