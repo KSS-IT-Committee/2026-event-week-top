@@ -14,6 +14,7 @@ import {
   getLottery,
   getLotteryAvailability,
   type Lottery,
+  MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
 } from "@/lib/lotteries";
 import { getCurrentUser } from "@/lib/session";
 
@@ -93,6 +94,9 @@ async function LotteryDetail({
   const defaultChoices = Object.fromEntries(
     savedEntries.map((entry) => [entry.slotId, entry.choices]),
   );
+  const defaultPartySizes = Object.fromEntries(
+    savedEntries.map((entry) => [entry.slotId, entry.partySize]),
+  );
 
   return (
     <div className={styles.main}>
@@ -146,6 +150,8 @@ async function LotteryDetail({
             slots={lottery.slots}
             acts={lottery.acts}
             defaultChoices={defaultChoices}
+            defaultPartySizes={defaultPartySizes}
+            maxPartySize={MAX_PARTY_SIZE_BY_APPLICANT_TYPE[applicantType]}
             isOpen={availability === "open"}
           />
         ) : (
