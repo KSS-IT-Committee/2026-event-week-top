@@ -195,6 +195,7 @@
   border: 1px solid color-mix(in oklch, var(--foreground) 15%, transparent);
   border-radius: 10px;
   padding: 12px 16px 16px;
+  margin-bottom: 24px;
 }
 
 .peopleGuideTitle {
