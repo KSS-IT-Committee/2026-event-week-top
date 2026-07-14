@@ -110,6 +110,11 @@ export const lotteryEntries = pgTable(
     firstChoice: varchar("first_choice", { length: 64 }).notNull(),
     secondChoice: varchar("second_choice", { length: 64 }),
     thirdChoice: varchar("third_choice", { length: 64 }),
+    // 観覧人数 — seats this entry claims if drawn (保護者 entries may bring
+    // up to 2 people; 本人 entries are always 1). The exact per-applicant
+    // maximum is app policy (lib/lotteries.ts); the DB only sanity-checks
+    // positivity.
+    partySize: integer("party_size").notNull().default(1),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -124,6 +129,7 @@ export const lotteryEntries = pgTable(
       table.applicantType,
     ),
     index("lottery_entries_username_idx").on(table.username),
+    check("party_size_positive", sql`${table.partySize} >= 1`),
     // Ranks fill top-down: no third choice without a second.
     check(
       "choice_ranks_fill_top_down",

@@ -29,6 +29,10 @@ type LotteryEntryFormProps = {
   acts: readonly LotteryAct[];
   // slotId -> saved choices in rank order (compacted, no blanks).
   defaultChoices: Record<string, string[]>;
+  // slotId -> saved 観覧人数.
+  defaultPartySizes: Record<string, number>;
+  // Most people this applicant type may bring (1 hides the selector).
+  maxPartySize: number;
   isOpen: boolean;
 };
 
@@ -38,6 +42,8 @@ export function LotteryEntryForm({
   slots,
   acts,
   defaultChoices,
+  defaultPartySizes,
+  maxPartySize,
   isOpen,
 }: LotteryEntryFormProps) {
   const [state, formAction, isPending] = useActionState(
@@ -60,6 +66,14 @@ export function LotteryEntryForm({
       return initial;
     },
   );
+  // 観覧人数 per slot, as select values ("1"/"2").
+  const [partyBySlot, setPartyBySlot] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const slot of slots) {
+      initial[slot.id] = String(defaultPartySizes[slot.id] ?? 1);
+    }
+    return initial;
+  });
 
   // React 19 auto-resets a form's DOM fields after a <form action> dispatch.
   // A reset fires no change events, so these controlled selects would show
@@ -151,6 +165,39 @@ export function LotteryEntryForm({
                 );
               })}
             </div>
+            {maxPartySize > 1 && (
+              <div className={styles.partyField}>
+                <label
+                  className={styles.choiceLabel}
+                  htmlFor={`party-${slot.id}`}
+                >
+                  観覧人数
+                </label>
+                <select
+                  id={`party-${slot.id}`}
+                  className={styles.select}
+                  name={`party-${slot.id}`}
+                  value={partyBySlot[slot.id]}
+                  onChange={(event) =>
+                    setPartyBySlot((previous) => ({
+                      ...previous,
+                      [slot.id]: event.target.value,
+                    }))
+                  }
+                  // Enabled whenever the window is open (not gated on the
+                  // choices): a disabled control is omitted from FormData,
+                  // which would strand no-JS users on the 人数 validation.
+                  // The server ignores 人数 for slots with no choices.
+                  disabled={!isOpen}
+                >
+                  {Array.from({ length: maxPartySize }, (_, index) => (
+                    <option key={index + 1} value={String(index + 1)}>
+                      {index + 1}名
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </fieldset>
         );
       })}
@@ -162,7 +209,7 @@ export function LotteryEntryForm({
       {state.success && (
         <p className={styles.success} role="status">
           {state.savedSlotCount > 0
-            ? `希望を保存しました（${state.savedSlotCount}公演分）。`
+            ? `希望を保存しました（${state.savedSlotCount}件）。`
             : "希望をすべて取り消しました。"}
         </p>
       )}

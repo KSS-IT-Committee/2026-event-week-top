@@ -58,10 +58,6 @@ async function LotteryIndex() {
                     .map((type) => APPLICANT_TYPE_LABELS[type])
                     .join("・")}
                   ）{lottery.canStaffApply && "と教職員"}
-                  {/* Only meaningful when the slots are the performances
-                      (kaitaku's single slot is one question, not one 公演). */}
-                  {lottery.slots.length > 1 &&
-                    `／全${lottery.slots.length}公演`}
                 </p>
                 {deadline !== null && (
                   <p className={styles.lotteryMeta}>申込期限: {deadline}</p>

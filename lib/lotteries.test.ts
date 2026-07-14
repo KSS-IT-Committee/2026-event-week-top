@@ -11,6 +11,7 @@ import {
   LOTTERIES,
   type Lottery,
   MAX_CHOICES_PER_SLOT,
+  MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
   parseLotteryEntries,
 } from "@/lib/lotteries";
 
@@ -50,9 +51,10 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.closesAt).toBeInstanceOf(Date);
   });
 
-  it("asks kaitaku parents one question: rank the 8 announced performances", () => {
+  it("asks kaitaku parents one question per festival day: rank the 8 performances", () => {
     expect(kaitaku.slots).toEqual([
-      { id: "preferred-slot", label: "観覧を希望する公演" },
+      { id: "sep12", label: "9月12日（土）の公演" },
+      { id: "sep13", label: "9月13日（日）の公演" },
     ]);
     expect(kaitaku.acts).toEqual([
       { id: "performance-1", label: "第一公演（8:45～9:15）" },
@@ -66,13 +68,56 @@ describe("LOTTERIES registry", () => {
     ]);
   });
 
-  it("matches the announced sousaku timetable (4 performances)", () => {
+  it("repeats the announced sousaku timetable on both festival days", () => {
     expect(sousaku.slots).toEqual([
-      { id: "slot-1", label: "第一公演", time: "8:45～10:00" },
-      { id: "slot-2", label: "第二公演", time: "10:20～11:35" },
-      { id: "slot-3", label: "第三公演", time: "12:30～13:45" },
-      { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
+      {
+        id: "sep12-slot-1",
+        label: "9月12日（土）第一公演",
+        time: "8:45～10:00",
+      },
+      {
+        id: "sep12-slot-2",
+        label: "9月12日（土）第二公演",
+        time: "10:20～11:35",
+      },
+      {
+        id: "sep12-slot-3",
+        label: "9月12日（土）第三公演",
+        time: "12:30～13:45",
+      },
+      {
+        id: "sep12-slot-4",
+        label: "9月12日（土）第四公演",
+        time: "14:05～15:20",
+      },
+      {
+        id: "sep13-slot-1",
+        label: "9月13日（日）第一公演",
+        time: "8:45～10:00",
+      },
+      {
+        id: "sep13-slot-2",
+        label: "9月13日（日）第二公演",
+        time: "10:20～11:35",
+      },
+      {
+        id: "sep13-slot-3",
+        label: "9月13日（日）第三公演",
+        time: "12:30～13:45",
+      },
+      {
+        id: "sep13-slot-4",
+        label: "9月13日（日）第四公演",
+        time: "14:05～15:20",
+      },
     ]);
+  });
+
+  it("lets parents bring up to two people, 本人 entries exactly one", () => {
+    expect(MAX_PARTY_SIZE_BY_APPLICANT_TYPE).toEqual({
+      student: 1,
+      parent: 2,
+    });
   });
 
   it("offers the sousaku classes (grades 5-6) as sousaku acts", () => {
@@ -240,151 +285,228 @@ describe("describeEligibleGrades", () => {
 });
 
 describe("parseLotteryEntries", () => {
-  it("keeps ranked choices for a fully filled slot", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "5B", "6C"] },
-    ]);
+  it("keeps ranked choices and 観覧人数 for a fully filled slot", () => {
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "5B", "6C"], partySize: "2" }],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "slot-1",
+          slotId: "sep12-slot-1",
           firstChoice: "5A",
           secondChoice: "5B",
           thirdChoice: "6C",
+          partySize: 2,
         },
       ],
     });
   });
 
-  it("parses kaitaku's single question as ranked performances", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      {
-        slotId: "preferred-slot",
-        choices: ["performance-3", "performance-6", ""],
-      },
-    ]);
+  it("parses kaitaku's per-day questions as ranked performances", () => {
+    const result = parseLotteryEntries(
+      kaitaku,
+      [
+        {
+          slotId: "sep12",
+          choices: ["performance-3", "performance-6", ""],
+          partySize: "2",
+        },
+        {
+          slotId: "sep13",
+          choices: ["performance-1", "", ""],
+          partySize: "1",
+        },
+      ],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "preferred-slot",
+          slotId: "sep12",
           firstChoice: "performance-3",
           secondChoice: "performance-6",
           thirdChoice: null,
+          partySize: 2,
+        },
+        {
+          slotId: "sep13",
+          firstChoice: "performance-1",
+          secondChoice: null,
+          thirdChoice: null,
+          partySize: 1,
         },
       ],
     });
   });
 
   it("compacts gaps upward (a 1st + 3rd choice becomes 1st + 2nd)", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "", "5B"] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "", "5B"], partySize: "1" }],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "slot-1",
+          slotId: "sep12-slot-1",
           firstChoice: "5A",
           secondChoice: "5B",
           thirdChoice: null,
+          partySize: 1,
         },
       ],
     });
   });
 
   it("promotes a lone 2nd-rank choice to the 1st choice", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-2", choices: ["", "6A", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep13-slot-2", choices: ["", "6A", ""], partySize: "1" }],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "slot-2",
+          slotId: "sep13-slot-2",
           firstChoice: "6A",
           secondChoice: null,
           thirdChoice: null,
+          partySize: 1,
         },
       ],
     });
   });
 
   it("skips slots with no choices and keeps slot submission order", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "", ""] },
-      { slotId: "slot-2", choices: ["", "", ""] },
-      { slotId: "slot-3", choices: ["6B", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [
+        { slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize: "1" },
+        { slotId: "sep12-slot-2", choices: ["", "", ""], partySize: "1" },
+        { slotId: "sep13-slot-3", choices: ["6B", "", ""], partySize: "1" },
+      ],
+      2,
+    );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.entries.map((entry) => entry.slotId)).toEqual([
-      "slot-1",
-      "slot-3",
+      "sep12-slot-1",
+      "sep13-slot-3",
     ]);
   });
 
-  it("returns no entries for an all-blank submission", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["", "", ""] },
-    ]);
+  it("returns no entries for an all-blank submission, ignoring 人数", () => {
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["", "", ""], partySize: "" }],
+      2,
+    );
     expect(result).toEqual({ ok: true, entries: [] });
   });
 
   it("rejects an unknown slot id", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-99", choices: ["5A", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "slot-99", choices: ["5A", "", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain("不正な公演");
   });
 
   it("rejects a slot submitted twice", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "", ""] },
-      { slotId: "slot-1", choices: ["5B", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [
+        { slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize: "1" },
+        { slotId: "sep12-slot-1", choices: ["5B", "", ""], partySize: "1" },
+      ],
+      2,
+    );
     expect(result.ok).toBe(false);
   });
 
   it("rejects more ranks than MAX_CHOICES_PER_SLOT", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "5B", "5C", "5D"] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [
+        {
+          slotId: "sep12-slot-1",
+          choices: ["5A", "5B", "5C", "5D"],
+          partySize: "1",
+        },
+      ],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain(`${MAX_CHOICES_PER_SLOT}件まで`);
   });
 
   it("rejects an act the lottery does not offer, naming the slot", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-2", choices: ["3A", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-2", choices: ["3A", "", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.error).toContain("第二公演");
+    expect(result.error).toContain("9月12日（土）第二公演");
     expect(result.error).toContain("不正な選択肢");
   });
 
   it("rejects a class code where kaitaku expects a performance", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "preferred-slot", choices: ["3A", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      kaitaku,
+      [{ slotId: "sep12", choices: ["3A", "", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.error).toContain("観覧を希望する公演");
+    expect(result.error).toContain("9月12日（土）の公演");
     expect(result.error).toContain("不正な選択肢");
   });
 
   it("rejects the same act at two ranks of one slot, naming the slot", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "5A", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "5A", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain("第一公演");
     expect(result.error).toContain("同じ選択肢");
+  });
+
+  it("rejects an out-of-range or non-numeric 観覧人数", () => {
+    for (const partySize of ["0", "3", "1.5", "abc", ""]) {
+      const result = parseLotteryEntries(
+        sousaku,
+        [{ slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize }],
+        2,
+      );
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.error).toContain("観覧人数");
+    }
+  });
+
+  it("caps 観覧人数 at the caller's maximum (本人 = 1)", () => {
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize: "2" }],
+      1,
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("観覧人数");
   });
 });

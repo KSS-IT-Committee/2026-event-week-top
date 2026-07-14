@@ -95,9 +95,15 @@ function actForClass(className: ClassName): LotteryAct {
 const KAITAKU_CLASSES = classesInGrades(["3", "4"]);
 const SOUSAKU_CLASSES = classesInGrades(["5", "6"]);
 
-// 開拓部門: a parent ranks WHICH performance (time slot) to attend, not
-// which class — so the ranked choices are the performances themselves,
-// asked as one single-slot question.
+// 創作展 runs two days; both divisions repeat the same program each day.
+const FESTIVAL_DAYS = [
+  { id: "sep12", label: "9月12日（土）" },
+  { id: "sep13", label: "9月13日（日）" },
+] as const;
+
+// 開拓部門: a parent ranks WHICH performance (time slot) to attend on a
+// given day, not which class — so the ranked choices are the performances
+// themselves, asked once per festival day (one slot per day).
 const KAITAKU_PERFORMANCES: LotteryAct[] = [
   { id: "performance-1", label: "第一公演（8:45～9:15）" },
   { id: "performance-2", label: "第二公演（9:30～10:00）" },
@@ -109,22 +115,33 @@ const KAITAKU_PERFORMANCES: LotteryAct[] = [
   { id: "performance-8", label: "第八公演（14:45～15:15）" },
 ];
 
+const SOUSAKU_PERFORMANCE_TIMES = [
+  { label: "第一公演", time: "8:45～10:00" },
+  { label: "第二公演", time: "10:20～11:35" },
+  { label: "第三公演", time: "12:30～13:45" },
+  { label: "第四公演", time: "14:05～15:20" },
+] as const;
+
 export const LOTTERIES: readonly Lottery[] = [
   {
     id: "kaitaku-performance",
     title: "開拓部門公演 観覧抽選",
     description:
-      "開拓部門（3・4年生）のクラス劇の観覧抽選です。開拓部門の生徒の保護者の方が対象で、観覧を希望する公演（時間帯）を第1〜第3希望まで選べます。",
+      "開拓部門（3・4年生）のクラス劇の観覧抽選です。開拓部門の生徒の保護者の方が対象で、9月12日（土）・13日（日）のそれぞれについて、観覧を希望する公演（時間帯）を第1〜第3希望まで選べます。",
     notes: [
       "公演時間は30分、幕間は15分です。",
       "お昼休憩は60分です。第四公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
       "保護者の方はお子様のアカウントでログインして申し込んでください。保護者の方の希望はお子様のアカウント1つにつき1件です。",
+      "観覧人数は1日につき2名まで選べます。",
     ],
     applicantTypes: ["parent"],
     eligibleClasses: KAITAKU_CLASSES,
     canStaffApply: false,
     acts: KAITAKU_PERFORMANCES,
-    slots: [{ id: "preferred-slot", label: "観覧を希望する公演" }],
+    slots: FESTIVAL_DAYS.map((day) => ({
+      id: day.id,
+      label: `${day.label}の公演`,
+    })),
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
@@ -133,23 +150,25 @@ export const LOTTERIES: readonly Lottery[] = [
     id: "sousaku-performance",
     title: "創作部門公演 観覧抽選",
     description:
-      "創作部門（5・6年生）のクラス劇の観覧抽選です。全学年の生徒・保護者の方と教職員の方が対象で、公演ごとに観たいクラスを第1〜第3希望まで選べます。",
+      "創作部門（5・6年生）のクラス劇の観覧抽選です。全学年の生徒・保護者の方と教職員の方が対象で、9月12日（土）・13日（日）の公演ごとに観たいクラスを第1〜第3希望まで選べます。",
     notes: [
       "公演時間は75分、幕間は20分です。",
       "お昼休憩は55分です。第二公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
       "生徒本人と保護者の方は、同じアカウントからそれぞれ別に申し込めます。保護者の方の希望はお子様のアカウント1つにつき1件です。",
       "教職員の方はご自身のアカウントでログインして申し込んでください。",
+      "保護者の方の観覧人数は1公演につき2名まで選べます（生徒本人・教職員の方は1名です）。",
     ],
     applicantTypes: ["student", "parent"],
     eligibleClasses: [...CLASSNAMES],
     canStaffApply: true,
     acts: SOUSAKU_CLASSES.map(actForClass),
-    slots: [
-      { id: "slot-1", label: "第一公演", time: "8:45～10:00" },
-      { id: "slot-2", label: "第二公演", time: "10:20～11:35" },
-      { id: "slot-3", label: "第三公演", time: "12:30～13:45" },
-      { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
-    ],
+    slots: FESTIVAL_DAYS.flatMap((day) =>
+      SOUSAKU_PERFORMANCE_TIMES.map((performance, index) => ({
+        id: `${day.id}-slot-${index + 1}`,
+        label: `${day.label}${performance.label}`,
+        time: performance.time,
+      })),
+    ),
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
@@ -161,6 +180,18 @@ export const LOTTERIES: readonly Lottery[] = [
 export const APPLICANT_TYPE_LABELS: Record<LotteryApplicantType, string> = {
   student: "本人",
   parent: "保護者",
+};
+
+// 観覧人数の上限（1件あたり） — parents may bring up to two people; a 本人
+// entry (student or staff) is always the account holder alone, so no
+// selector is shown for it. Policy lives here, not in the schema: the DB
+// only sanity-checks positivity.
+export const MAX_PARTY_SIZE_BY_APPLICANT_TYPE: Record<
+  LotteryApplicantType,
+  number
+> = {
+  student: 1,
+  parent: 2,
 };
 
 export function getLottery(lotteryId: string): Lottery | null {
@@ -246,6 +277,8 @@ export function getLotteryAvailability(
 export type SlotChoicesInput = {
   slotId: string;
   choices: readonly string[];
+  // Raw 観覧人数 form value; validated only when the slot has choices.
+  partySize: string;
 };
 
 // One slot's validated preferences, ready to insert.
@@ -254,6 +287,7 @@ export type LotteryEntryInput = {
   firstChoice: string;
   secondChoice: string | null;
   thirdChoice: string | null;
+  partySize: number;
 };
 
 export type ParseLotteryEntriesResult =
@@ -262,13 +296,16 @@ export type ParseLotteryEntriesResult =
 /**
  * Validate raw per-slot rank inputs against a lottery definition and shape
  * them for storage. Gaps compact upward (a 1st + 3rd choice becomes 1st +
- * 2nd), a slot with no choices yields no entry (= not applying for it), and
- * unknown slots/acts or a repeated act within a slot reject the whole
- * submission with a user-facing message.
+ * 2nd), a slot with no choices yields no entry (= not applying for it, its
+ * partySize is ignored), and unknown slots/acts, a repeated act within a
+ * slot, or an out-of-range 観覧人数 reject the whole submission with a
+ * user-facing message. maxPartySize comes from the caller's applicant type
+ * (MAX_PARTY_SIZE_BY_APPLICANT_TYPE).
  */
 export function parseLotteryEntries(
   lottery: Lottery,
   submissions: readonly SlotChoicesInput[],
+  maxPartySize: number,
 ): ParseLotteryEntriesResult {
   const actIds = new Set(lottery.acts.map((act) => act.id));
   const seenSlotIds = new Set<string>();
@@ -306,11 +343,24 @@ export function parseLotteryEntries(
       };
     }
 
+    const partySize = Number(submission.partySize);
+    if (
+      !Number.isInteger(partySize) ||
+      partySize < 1 ||
+      partySize > maxPartySize
+    ) {
+      return {
+        ok: false,
+        error: `「${slot.label}」の観覧人数の指定が正しくありません。`,
+      };
+    }
+
     entries.push({
       slotId: slot.id,
       firstChoice: choices[0],
       secondChoice: choices[1] ?? null,
       thirdChoice: choices[2] ?? null,
+      partySize,
     });
   }
 
