@@ -125,7 +125,8 @@ export default function Toppage() {
             <Countdown
               title="行事週間まであと"
               startedTitle="行事週間スタート!!"
-              targetDate="2026-09-06T00:00:00"      />
+              targetDate="2026-09-06T00:00:00"
+            />
           </div>
         </div>
 
