@@ -5,15 +5,18 @@ import styles from "./countdown.module.css";
 
 export default function Countdown({
   title,
+  startedTitle,
   targetDate,
 }: {
   title: string;
+  startedTitle: string;
   targetDate: string;
 }) {
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
+  const [isStarted, setIsStarted] = useState(false);
 
   useEffect(() => {
     const targetData = new Date(targetDate);
@@ -23,12 +26,10 @@ export default function Countdown({
       const diff = targetData.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setDays(0);
-        setHours(0);
-        setMinutes(0);
-        setSeconds(0);
-        return "行事週間スタート!!";
+        setIsStarted(true);
+        return;
       }
+      setIsStarted(false);
 
       const sec = Math.floor(diff / 1000);
       const daysVal = Math.floor(sec / 86400);
@@ -50,19 +51,23 @@ export default function Countdown({
 
   return (
     <div className={styles.countdown}>
-      <div className={styles.title}>{title}</div>
-      <div className={styles.item}>
-        <span className={styles.number}>{days}</span>日
-      </div>
-      <div className={styles.item}>
-        <span className={styles.number}>{hours}</span>時間
-      </div>
-      <div className={styles.item}>
-        <span className={styles.number}>{minutes}</span>分
-      </div>
-      <div className={styles.item}>
-        <span className={styles.number}>{seconds}</span>秒
-      </div>
+      <div className={styles.title}>{isStarted ? startedTitle : title}</div>
+      {!isStarted && (
+        <>
+          <div className={styles.item}>
+            <span className={styles.number}>{days}</span>日
+          </div>
+          <div className={styles.item}>
+            <span className={styles.number}>{hours}</span>時間
+          </div>
+          <div className={styles.item}>
+            <span className={styles.number}>{minutes}</span>分
+          </div>
+          <div className={styles.item}>
+            <span className={styles.number}>{seconds}</span>秒
+          </div>
+        </>
+      )}
     </div>
   );
 }
