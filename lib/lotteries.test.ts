@@ -154,6 +154,15 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.canStaffApply).toBe(true);
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
   });
+
+  it("explains the child's-class priority to sousaku parents only", () => {
+    const joined = (sousaku.parentNotes ?? []).join("");
+    expect(joined).toContain("第1希望");
+    expect(joined).toContain("創作部門");
+    // Kaitaku parents always watch their own child's class — nothing to
+    // explain there.
+    expect(kaitaku.parentNotes).toBeUndefined();
+  });
 });
 
 describe("getLottery", () => {

@@ -38,6 +38,12 @@
   margin-bottom: 24px;
 }
 
+/* Layered on .notesList for notices the reader must not miss (e.g. how a
+   child's own class is prioritized) — declared after it so the red wins. */
+.importantNotes {
+  color: #d4380d;
+}
+
 .lotteryList {
   display: flex;
   flex-direction: column;
@@ -272,6 +278,11 @@
   }
 
   .ineligible {
+    color: #ff7a5c;
+  }
+
+  .importantNotes {
+    /* #d4380d is below WCAG AA contrast on the dark card background. */
     color: #ff7a5c;
   }
 
