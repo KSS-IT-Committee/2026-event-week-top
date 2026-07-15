@@ -43,9 +43,9 @@ export type Lottery = {
   description: string;
   // Shown as bullet points on the application page (venue rules, breaks…).
   notes: readonly string[];
-  // Extra bullet points shown only on the 保護者 tab (e.g. how a child's
-  // own class is prioritized). Kaitaku deliberately has none: its parents
-  // always watch their own child's class, so only the time is asked.
+  // Extra bullet points shown in red on the 保護者 tab only — notices a
+  // parent must not miss (who may apply, how a child's own class is
+  // prioritized).
   parentNotes?: readonly string[];
   // Which kinds of applicant may enter, in display order. Parents apply via
   // their child's student account, so "parent" still authenticates as the
@@ -137,6 +137,9 @@ export const LOTTERIES: readonly Lottery[] = [
       "お昼休憩は60分です。第四公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
       "保護者の方はお子様のアカウントでログインして申し込んでください。保護者の方の希望はお子様のアカウント1つにつき1件です。",
       "観覧人数は1日につき2名まで選べます。",
+    ],
+    parentNotes: [
+      "この抽選に申し込めるのは、お子様が開拓部門（3・4年生）に在籍している保護者の方のみです。",
     ],
     applicantTypes: ["parent"],
     eligibleClasses: KAITAKU_CLASSES,

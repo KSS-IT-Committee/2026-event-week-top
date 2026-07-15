@@ -155,13 +155,14 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
   });
 
-  it("explains the child's-class priority to sousaku parents only", () => {
-    const joined = (sousaku.parentNotes ?? []).join("");
-    expect(joined).toContain("第1希望");
-    expect(joined).toContain("創作部門");
-    // Kaitaku parents always watch their own child's class — nothing to
-    // explain there.
-    expect(kaitaku.parentNotes).toBeUndefined();
+  it("carries the important parent-facing notes for both lotteries", () => {
+    // Sousaku explains the child's-class priority and its scope.
+    const sousakuNotes = (sousaku.parentNotes ?? []).join("");
+    expect(sousakuNotes).toContain("第1希望");
+    expect(sousakuNotes).toContain("創作部門");
+    // Kaitaku states that only its own division's parents may apply.
+    const kaitakuNotes = (kaitaku.parentNotes ?? []).join("");
+    expect(kaitakuNotes).toContain("開拓部門");
   });
 });
 
