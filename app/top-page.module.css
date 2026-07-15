@@ -408,6 +408,7 @@
     color: rgb(255, 255, 255) !important;
   }
   .introductionTitle,
+  .countdown,
   .sportName {
     color: rgb(140, 184, 252);
   }
