@@ -2,46 +2,33 @@ import "server-only";
 
 import { ROLENAMES } from "@/db/schema";
 import type { SessionUser } from "@/lib/session";
-import { classOf } from "@/lib/user-category";
 
 export type Role = (typeof ROLENAMES)[number];
 
 /**
- * Whether `user` clears the given role/class constraints. Role and class are
- * two independent axes: `role` is the shared Role enum (db/schema); `class` is
- * a class code such as "3B", matched via classOf() (e.g. "3B12" -> "3B"). The
- * user passes by matching ANY constraint supplied — role OR class — so
- * `<AuthGuard role="IT" classCode="3B">` admits IT members *or* class-3B
- * students; nest guards when you instead need ALL constraints to hold.
- *
- * Roles come off the session object (lib/session.ts fills them from the DB in
- * production and from the auth host on PR previews), so this check does no DB
- * access and is pure — it works on previews, whose local `users` table is empty.
- *
- * `classCode` is a plain string (not a per-app class union) so this file stays
- * byte-identical across the apps, whose class-list modules differ; unknown
- * codes simply never match. Callers pass at least one constraint — the
- * "no constraint, just be internal" case is handled by the guards themselves.
+ * The roles that mark a logged-in account as a school-internal user. Every
+ * roster account carries one of them via 2026-account-generator's users.sql
+ * (students get "Students", staff accounts get "Teachers"), so a guard that
+ * means "any logged-in school account" says `role={INTERNAL_ROLES}`
+ * explicitly instead of matching username shapes.
  */
-export function hasAccess(
+export const INTERNAL_ROLES: readonly Role[] = ["Students", "Teachers"];
+
+/**
+ * Whether `user` holds at least one of the given roles. This is the only
+ * authorization primitive — access is decided by the shared `users.roles`
+ * column, never by the shape of the username.
+ *
+ * Roles come off the session object (lib/session.ts fills them from the DB
+ * in production and from the auth host on PR previews), so this check is
+ * pure and does no DB access — it works on previews, whose local `users`
+ * table is empty. When ALL of several roles must hold, chain calls (or nest
+ * guards) instead of widening the list.
+ */
+export function hasAnyRole(
   user: SessionUser,
-  role: Role | Role[] | undefined,
-  classCode: string | string[] | undefined,
+  roles: Role | readonly Role[],
 ): boolean {
-  if (classCode !== undefined) {
-    const allowed = Array.isArray(classCode) ? classCode : [classCode];
-    const userClass = classOf(user.username);
-    if (userClass !== null && allowed.includes(userClass)) {
-      return true;
-    }
-  }
-
-  if (role !== undefined) {
-    const required = Array.isArray(role) ? role : [role];
-    if (required.some((r) => user.roles.includes(r))) {
-      return true;
-    }
-  }
-
-  return false;
+  const allowed: readonly Role[] = typeof roles === "string" ? [roles] : roles;
+  return allowed.some((role) => user.roles.includes(role));
 }

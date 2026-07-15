@@ -6,6 +6,7 @@ import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { getLotteryEntries } from "@/db/getLotteryEntries";
 import { isLotteryApplicantType, type LotteryApplicantType } from "@/db/schema";
+import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
   canApplyToLottery,
@@ -41,7 +42,7 @@ export default async function LotteryDetailPage({
   if (lottery === null) notFound();
 
   return (
-    <AuthGuard>
+    <AuthGuard role={INTERNAL_ROLES}>
       <LotteryDetail
         lottery={lottery}
         requestedType={typeof as === "string" ? as : undefined}
