@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import matter from "gray-matter";
 import { remark } from "remark";
+import gfm from "remark-gfm";
 import html from "remark-html";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,7 +50,9 @@ const posts = await Promise.all(
       );
     }
     const slug = file.replace(/\.md$/, "");
-    const contentHtml = String(await remark().use(html).process(content));
+    const contentHtml = String(
+      await remark().use(gfm).use(html).process(content),
+    );
     return {
       slug,
       id: typeof data.id === "string" ? data.id : slug,
