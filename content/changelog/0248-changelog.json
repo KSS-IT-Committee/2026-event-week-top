@@ -1,5 +1,5 @@
 {
-  "title": "removing user regex based filtering and using roles",
-  "description": "TODO",
+  "title": "内部実装の変更",
+  "description": "一部ページ内部の実装を変更しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
