@@ -1,9 +1,8 @@
+// Class-scoping helper. Username-derived data is only used to scope WHAT a
+// user sees (their own class's deductions, chat tools, lottery eligibility),
+// never to decide WHETHER they get in — authorization is role-based via
+// lib/access.ts (hasAnyRole / INTERNAL_ROLES) over the users.roles column.
 const STUDENT_RE = /^[1-6][A-D]\d{2}/; // 1A01 … 6D40 (prefix match: a trailing suffix like 4D11_sakuten still counts — keep unanchored)
-const TEACHER_RE = /^k\d{7}$/; // staff accounts: k + 7 digits, e.g. k0959176
-
-export function isInternal(username: string): boolean {
-  return STUDENT_RE.test(username) || TEACHER_RE.test(username);
-}
 
 /**
  * The class code a username belongs to (e.g. "1A01" -> "1A"), or null for a

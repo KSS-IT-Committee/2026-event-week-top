@@ -4,6 +4,7 @@ import { unauthorized } from "next/navigation";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
   describeApplicationDeadline,
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function LotteryIndexPage() {
   return (
-    <AuthGuard>
+    <AuthGuard role={INTERNAL_ROLES}>
       <LotteryIndex />
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </AuthGuard>

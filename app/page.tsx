@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Internal } from "@/app/components/Internal";
 import { Schedule } from "@/app/components/schedule";
+import { INTERNAL_ROLES } from "@/lib/access";
 
 import { FloatingMenu } from "./components/FloatingMenu";
 import { getNews } from "./news/newsData";
@@ -245,7 +246,7 @@ export default function Toppage() {
             <br />
           </div>
 
-          <Internal>
+          <Internal role={INTERNAL_ROLES}>
             <div className={styles.lead}>
               <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
             </div>

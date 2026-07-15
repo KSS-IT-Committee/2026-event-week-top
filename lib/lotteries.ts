@@ -77,10 +77,11 @@ export type Lottery = {
 // the base account's, so lottery eligibility requires the exact form.
 const BASE_STUDENT_RE = /^[1-6][A-D]\d{2}$/;
 
-// Staff accounts: exactly k + 7 digits. Mirrors TEACHER_RE in
-// lib/user-category.ts (unexported there, and that file is byte-identical
-// across the four apps, so it must not change). Anchored for the same
-// one-account-one-entry-set reason as BASE_STUDENT_RE.
+// Staff accounts: exactly k + 7 digits. Must stay in lockstep with the
+// staff shape 2026-account-generator/generate_sql.py derives the Teachers
+// role from (lib/user-category.ts no longer carries a staff regex — guards
+// are role-based). Anchored for the same one-account-one-entry-set reason
+// as BASE_STUDENT_RE.
 const STAFF_RE = /^k\d{7}$/;
 
 function classesInGrades(grades: readonly string[]): ClassName[] {
