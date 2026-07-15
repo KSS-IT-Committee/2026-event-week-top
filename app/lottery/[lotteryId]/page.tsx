@@ -20,6 +20,7 @@ import { getCurrentUser } from "@/lib/session";
 
 import styles from "../lottery.module.css";
 import { LotteryEntryForm } from "./LotteryEntryForm";
+import { PartySizeGuide } from "./PartySizeGuide";
 
 export const metadata: Metadata = {
   title: "公演観覧抽選 | 行事週間2026",
@@ -88,6 +89,7 @@ async function LotteryDetail({
   const canApply = canApplyToLottery(lottery, user.username, applicantType);
   const availability = getLotteryAvailability(lottery, new Date());
   const deadline = describeApplicationDeadline(lottery);
+  const maxPartySize = MAX_PARTY_SIZE_BY_APPLICANT_TYPE[applicantType];
   const savedEntries = canApply
     ? await getLotteryEntries(user.username, lottery.id, applicantType)
     : [];
@@ -109,6 +111,7 @@ async function LotteryDetail({
           ))}
           {deadline !== null && <li>申込期限は{deadline}です。</li>}
         </ul>
+        {maxPartySize > 1 && <PartySizeGuide />}
         {offeredTypes.length > 1 && (
           <nav className={styles.tabs} aria-label="申込者の区分">
             {offeredTypes.map((type) => (
@@ -151,7 +154,7 @@ async function LotteryDetail({
             acts={lottery.acts}
             defaultChoices={defaultChoices}
             defaultPartySizes={defaultPartySizes}
-            maxPartySize={MAX_PARTY_SIZE_BY_APPLICANT_TYPE[applicantType]}
+            maxPartySize={maxPartySize}
             isOpen={availability === "open"}
           />
         ) : (
