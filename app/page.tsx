@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Internal } from "@/app/components/Internal";
 import { Schedule } from "@/app/components/schedule";
 
-import Countdown from "./components/Countdown";
+import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";

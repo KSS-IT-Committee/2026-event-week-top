@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import styles from "./countdown.module.css";
 
-export default function Countdown({
+export function Countdown({
   title,
   startedTitle,
   targetDate,
