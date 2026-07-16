@@ -143,7 +143,7 @@ export const LOTTERIES: readonly Lottery[] = [
       id: day.id,
       label: `${day.label}の公演`,
     })),
-    opensAt: new Date("2026-07-17T00:00:00+09:00"),
+    opensAt: new Date("2026-07-16T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
   },
@@ -170,7 +170,7 @@ export const LOTTERIES: readonly Lottery[] = [
         time: performance.time,
       })),
     ),
-    opensAt: new Date("2026-07-17T00:00:00+09:00"),
+    opensAt: new Date("2026-07-16T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
   },
