@@ -58,6 +58,9 @@ moving parts and, most importantly, **how to add another lottery later**.
 1. Append a definition to `LOTTERIES` in `lib/lotteries.ts` — id, title,
    description, notes, `applicantTypes`, `eligibleClasses`, `canStaffApply`,
    `acts`, `slots`, window. **No schema change and no migration is needed.**
+   Optional `parentNotes` renders as red bullets on the 保護者 tab only —
+   notices a parent must not miss (kaitaku: who may apply; sousaku: the
+   child's-class priority and its scope).
 2. Pick ids that will stay stable (`lottery_id`, slot ids, act ids are what
    gets stored; renaming them orphans saved entries).
 3. Extend `lib/lotteries.test.ts` with the new definition's pins (slot/act

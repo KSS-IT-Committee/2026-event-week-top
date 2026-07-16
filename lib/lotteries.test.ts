@@ -154,6 +154,16 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.canStaffApply).toBe(true);
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
   });
+
+  it("carries the important parent-facing notes for both lotteries", () => {
+    // Sousaku explains the child's-class priority and its scope.
+    const sousakuNotes = (sousaku.parentNotes ?? []).join("");
+    expect(sousakuNotes).toContain("第1希望");
+    expect(sousakuNotes).toContain("創作部門");
+    // Kaitaku states that only its own division's parents may apply.
+    const kaitakuNotes = (kaitaku.parentNotes ?? []).join("");
+    expect(kaitakuNotes).toContain("開拓部門");
+  });
 });
 
 describe("getLottery", () => {

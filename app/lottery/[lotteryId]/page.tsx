@@ -135,6 +135,15 @@ async function LotteryDetail({
           {APPLICANT_TYPE_LABELS[applicantType]}としての申込（アカウント:{" "}
           {user.username}）
         </p>
+        {applicantType === "parent" &&
+          canApply &&
+          lottery.parentNotes !== undefined && (
+            <ul className={`${styles.notesList} ${styles.importantNotes}`}>
+              {lottery.parentNotes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          )}
         {availability === "upcoming" && (
           <p className={styles.closed}>申込受付はまだ始まっていません。</p>
         )}
