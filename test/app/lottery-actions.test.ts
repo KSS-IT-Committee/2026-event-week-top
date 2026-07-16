@@ -47,8 +47,21 @@ const fd = (o: Record<string, string>) => {
   return f;
 };
 
-function asUser(username: string) {
-  vi.mocked(getCurrentUser).mockResolvedValue({ username, roles: [] });
+// Session fixture. Eligibility is role-based, so grant the roles
+// 2026-account-generator's users.sql would: grade + class + Students for a
+// student username, Teachers for a k-account. Pass roles explicitly to
+// model accounts whose roles differ from their name's shape (aliases,
+// role-less committee accounts).
+function asUser(username: string, roles?: readonly string[]) {
+  const grantedRoles =
+    roles ??
+    (username.startsWith("k")
+      ? ["Teachers"]
+      : [`G${username[0]}`, `Class${username[1]}`, "Students"]);
+  vi.mocked(getCurrentUser).mockResolvedValue({
+    username,
+    roles: [...grantedRoles],
+  });
 }
 
 function mustGetLottery(lotteryId: string): Lottery {
@@ -226,8 +239,33 @@ describe("submitLotteryEntriesAction", () => {
     );
   });
 
-  it("rejects alias accounts (suffixed usernames), without writing", async () => {
-    asUser("3A05_sakuten");
+  it("accepts an alias account granted its base account's roles", async () => {
+    asUser("4D11_sakuten", ["Sousakuten", "G4", "ClassD", "Students"]);
+    const state = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "kaitaku-performance",
+        applicantType: "parent",
+        "choice-sep12-1": "performance-1",
+        "party-sep12": "1",
+      }),
+    );
+
+    expect(state).toEqual({ error: null, success: true, savedSlotCount: 1 });
+    expect(addLotteryEntries).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          username: "4D11_sakuten",
+          slotId: "sep12",
+          firstChoice: "performance-1",
+        }),
+      ],
+      {},
+    );
+  });
+
+  it("rejects a role-less account (e.g. an unprivileged alias), without writing", async () => {
+    asUser("3A05_sakuten", []);
     const state = await submitLotteryEntriesAction(
       prev,
       fd({ lotteryId: "kaitaku-performance", applicantType: "parent" }),
