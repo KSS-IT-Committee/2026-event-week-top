@@ -51,6 +51,21 @@
 .markdown a {
   text-decoration: underline;
 }
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 8px 10px;
+  text-align: left;
+}
+.markdown thead th {
+  background-color: rgba(0, 83, 200, 0.06);
+  font-weight: 700;
+}
 .backButton {
   position: fixed;
   bottom: 20px;
@@ -102,6 +117,13 @@
     border-top: 4px solid rgb(150, 187, 239);
     border-bottom: 4px solid rgb(150, 187, 239);
   }
+  .markdown table {
+    border-collapse: collapse;
+  }
+  .markdown th,
+  .markdown td {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
 }
 @media (max-width: 600px) {
   .header {
@@ -117,5 +139,13 @@
   .wrapper {
     margin: 20px auto;
     padding: 15px;
+  }
+  /* Reduce table font-size and cell padding on small screens */
+  .markdown table {
+    font-size: 0.95rem;
+  }
+  .markdown th,
+  .markdown td {
+    padding: 6px 8px;
   }
 }
