@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CLASSNAMES } from "@/db/schema";
 import {
   canApplyToLottery,
+  classFromRoles,
   describeApplicationDeadline,
   describeEligibleGrades,
   getLottery,
@@ -14,6 +15,14 @@ import {
   MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
   parseLotteryEntries,
 } from "@/lib/lotteries";
+
+// Role sets as 2026-account-generator's users.sql grants them: students get
+// grade + class + Students, staff get Teachers. Committee roles ride along
+// on some accounts and must not affect eligibility.
+function studentRoles(classCode: string): string[] {
+  return [`G${classCode[0]}`, `Class${classCode[1]}`, "Students"];
+}
+const TEACHER_ROLES = ["Teachers"];
 
 function mustGetLottery(lotteryId: string): Lottery {
   const lottery = getLottery(lotteryId);
@@ -176,57 +185,94 @@ describe("getLottery", () => {
   });
 });
 
-describe("isEligibleForLottery", () => {
-  it("accepts a kaitaku-class account for the kaitaku lottery", () => {
-    expect(isEligibleForLottery(kaitaku, "3A05")).toBe(true);
-    expect(isEligibleForLottery(kaitaku, "4D11")).toBe(true);
+describe("classFromRoles", () => {
+  it("derives the class from one grade role plus one class role", () => {
+    expect(classFromRoles(["G4", "ClassD", "Students"])).toBe("4D");
+    expect(classFromRoles(["G1", "ClassA", "Students"])).toBe("1A");
   });
 
-  it("rejects alias accounts (suffixed usernames) so one student cannot double-enter", () => {
-    expect(isEligibleForLottery(kaitaku, "4D11_sakuten")).toBe(false);
-    expect(isEligibleForLottery(sousaku, "1A01_test")).toBe(false);
+  it("ignores committee and other unrelated roles", () => {
+    expect(classFromRoles(["Sousakuten", "G4", "ClassD", "Students"])).toBe(
+      "4D",
+    );
+  });
+
+  it("returns null without exactly one grade and one class role", () => {
+    expect(classFromRoles([])).toBeNull();
+    expect(classFromRoles(["Students"])).toBeNull();
+    expect(classFromRoles(["G4", "Students"])).toBeNull();
+    expect(classFromRoles(["ClassD", "Students"])).toBeNull();
+    expect(classFromRoles(["G3", "G4", "ClassD", "Students"])).toBeNull();
+    expect(classFromRoles(["G4", "ClassC", "ClassD", "Students"])).toBeNull();
+  });
+});
+
+describe("isEligibleForLottery", () => {
+  it("accepts a kaitaku-class account for the kaitaku lottery", () => {
+    expect(isEligibleForLottery(kaitaku, studentRoles("3A"))).toBe(true);
+    expect(isEligibleForLottery(kaitaku, studentRoles("4D"))).toBe(true);
+  });
+
+  it("judges by roles alone, so an alias granted its base account's roles passes", () => {
+    // e.g. "4D11_sakuten" carrying the same roles as "4D11" — such aliases
+    // can hold a second entry set; only grant them roles where acceptable.
+    expect(
+      isEligibleForLottery(kaitaku, ["Sousakuten", "G4", "ClassD", "Students"]),
+    ).toBe(true);
   });
 
   it("rejects accounts of other divisions for the kaitaku lottery", () => {
-    expect(isEligibleForLottery(kaitaku, "2A01")).toBe(false);
-    expect(isEligibleForLottery(kaitaku, "5A01")).toBe(false);
+    expect(isEligibleForLottery(kaitaku, studentRoles("2A"))).toBe(false);
+    expect(isEligibleForLottery(kaitaku, studentRoles("5A"))).toBe(false);
   });
 
-  it("accepts staff accounts only where canStaffApply is set", () => {
-    expect(isEligibleForLottery(sousaku, "k0959176")).toBe(true);
-    expect(isEligibleForLottery(kaitaku, "k0959176")).toBe(false);
+  it("accepts Teachers accounts only where canStaffApply is set", () => {
+    expect(isEligibleForLottery(sousaku, TEACHER_ROLES)).toBe(true);
+    expect(isEligibleForLottery(kaitaku, TEACHER_ROLES)).toBe(false);
   });
 
-  it("rejects malformed staff usernames even on a staff lottery", () => {
-    expect(isEligibleForLottery(sousaku, "k0959176_x")).toBe(false);
-    expect(isEligibleForLottery(sousaku, "k095917")).toBe(false);
+  it("rejects role-less and committee-only accounts", () => {
+    expect(isEligibleForLottery(sousaku, [])).toBe(false);
+    expect(isEligibleForLottery(sousaku, ["IT"])).toBe(false);
+    expect(isEligibleForLottery(sousaku, ["Sousakuten"])).toBe(false);
+  });
+
+  it("rejects a Students account whose roles pin no single class", () => {
+    expect(isEligibleForLottery(sousaku, ["Students"])).toBe(false);
+    expect(isEligibleForLottery(sousaku, ["G4", "Students"])).toBe(false);
   });
 
   it("accepts every grade's students for the sousaku lottery", () => {
-    expect(isEligibleForLottery(sousaku, "1A01")).toBe(true);
-    expect(isEligibleForLottery(sousaku, "6D01")).toBe(true);
+    expect(isEligibleForLottery(sousaku, studentRoles("1A"))).toBe(true);
+    expect(isEligibleForLottery(sousaku, studentRoles("6D"))).toBe(true);
   });
 });
 
 describe("canApplyToLottery", () => {
   it("rejects an applicant type the lottery does not offer", () => {
-    expect(canApplyToLottery(kaitaku, "3A05", "student")).toBe(false);
+    expect(canApplyToLottery(kaitaku, studentRoles("3A"), "student")).toBe(
+      false,
+    );
   });
 
   it("accepts an offered applicant type for an eligible account", () => {
-    expect(canApplyToLottery(kaitaku, "3A05", "parent")).toBe(true);
-    expect(canApplyToLottery(sousaku, "1A01", "student")).toBe(true);
-    expect(canApplyToLottery(sousaku, "1A01", "parent")).toBe(true);
+    expect(canApplyToLottery(kaitaku, studentRoles("3A"), "parent")).toBe(true);
+    expect(canApplyToLottery(sousaku, studentRoles("1A"), "student")).toBe(
+      true,
+    );
+    expect(canApplyToLottery(sousaku, studentRoles("1A"), "parent")).toBe(true);
   });
 
   it("lets staff apply only as themselves, never as a parent", () => {
-    expect(canApplyToLottery(sousaku, "k0959176", "student")).toBe(true);
-    expect(canApplyToLottery(sousaku, "k0959176", "parent")).toBe(false);
-    expect(canApplyToLottery(kaitaku, "k0959176", "parent")).toBe(false);
+    expect(canApplyToLottery(sousaku, TEACHER_ROLES, "student")).toBe(true);
+    expect(canApplyToLottery(sousaku, TEACHER_ROLES, "parent")).toBe(false);
+    expect(canApplyToLottery(kaitaku, TEACHER_ROLES, "parent")).toBe(false);
   });
 
   it("rejects an ineligible account even for an offered type", () => {
-    expect(canApplyToLottery(kaitaku, "5A01", "parent")).toBe(false);
+    expect(canApplyToLottery(kaitaku, studentRoles("5A"), "parent")).toBe(
+      false,
+    );
   });
 });
 

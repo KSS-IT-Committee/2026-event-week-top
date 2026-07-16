@@ -4,7 +4,6 @@ import {
   isClassName,
   type LotteryApplicantType,
 } from "@/db/schema";
-import { classOf } from "@/lib/user-category";
 
 /**
  * Viewing-lottery definitions and the pure rules around them.
@@ -51,12 +50,12 @@ export type Lottery = {
   // their child's student account, so "parent" still authenticates as the
   // child; one account holds at most one entry set per type.
   applicantTypes: readonly LotteryApplicantType[];
-  // The account's class (classOf(username)) must be one of these. For
-  // parents this is the child's class — "parents with a child in the
+  // The account's class (classFromRoles(user.roles)) must be one of these.
+  // For parents this is the child's class — "parents with a child in the
   // division" is exactly "accounts of that division's classes".
   eligibleClasses: readonly ClassName[];
-  // Whether staff (k-prefixed) accounts may enter. Staff have no class, so
-  // eligibleClasses never admits them; they apply as themselves via the
+  // Whether staff (Teachers-role) accounts may enter. Staff have no class,
+  // so eligibleClasses never admits them; they apply as themselves via the
   // "student" applicant type (labeled 本人), never as "parent".
   canStaffApply: boolean;
   // What an applicant ranks (up to MAX_CHOICES_PER_SLOT) within each slot.
@@ -75,18 +74,40 @@ export type Lottery = {
   closesAt: Date | null;
 };
 
-// Exactly one base student account per student (e.g. "3A05"). Deliberately
-// stricter than lib/user-category.ts's prefix-matching STUDENT_RE: alias
-// accounts like "4D11_sakuten" must not hold a second entry set on top of
-// the base account's, so lottery eligibility requires the exact form.
-const BASE_STUDENT_RE = /^[1-6][A-D]\d{2}$/;
+// Population roles → class code parts. Must stay in lockstep with the
+// G1–G6 / ClassA–ClassD members of ROLENAMES (db/schema.ts), which
+// 2026-account-generator derives from the roster. Plain string keys (not
+// the Role type): roles come off SessionUser.roles, which is string[] so
+// preview sessions stay forward-compatible with roles this build predates.
+const GRADE_BY_ROLE: Record<string, string> = {
+  G1: "1",
+  G2: "2",
+  G3: "3",
+  G4: "4",
+  G5: "5",
+  G6: "6",
+};
+const CLASS_LETTER_BY_ROLE: Record<string, string> = {
+  ClassA: "A",
+  ClassB: "B",
+  ClassC: "C",
+  ClassD: "D",
+};
 
-// Staff accounts: exactly k + 7 digits. Must stay in lockstep with the
-// staff shape 2026-account-generator/generate_sql.py derives the Teachers
-// role from (lib/user-category.ts no longer carries a staff regex — guards
-// are role-based). Anchored for the same one-account-one-entry-set reason
-// as BASE_STUDENT_RE.
-const STAFF_RE = /^k\d{7}$/;
+/**
+ * The class code an account's roles pin it to ("G4" + "ClassD" -> "4D"), or
+ * null when the roles don't name exactly one class — no grade/class roles
+ * (staff, committee-only accounts) or contradictory ones (two grades). Both
+ * roles come from 2026-account-generator's users.sql, so roster accounts —
+ * and hand-made aliases granted the same roles — resolve cleanly.
+ */
+export function classFromRoles(roles: readonly string[]): ClassName | null {
+  const grades = roles.filter((role) => role in GRADE_BY_ROLE);
+  const letters = roles.filter((role) => role in CLASS_LETTER_BY_ROLE);
+  if (grades.length !== 1 || letters.length !== 1) return null;
+  const classCode = GRADE_BY_ROLE[grades[0]] + CLASS_LETTER_BY_ROLE[letters[0]];
+  return isClassName(classCode) ? classCode : null;
+}
 
 function classesInGrades(grades: readonly string[]): ClassName[] {
   return CLASSNAMES.filter((className) => grades.includes(className[0]));
@@ -239,33 +260,37 @@ export function describeEligibleGrades(lottery: Lottery): string {
 }
 
 /**
- * Whether the account may take part in the lottery at all: either a staff
- * account on a lottery that admits staff, or a base student account
- * (aliases like "4D11_sakuten" are excluded so one student never yields two
- * entry sets) whose class (the child's class, for parents) is one of the
- * eligible classes. Committee and other non-matching accounts never pass.
+ * Whether the account may take part in the lottery at all, decided from the
+ * session's roles (never the username shape): either a Teachers account on
+ * a lottery that admits staff, or a Students account whose role-derived
+ * class (the child's class, for parents) is one of the eligible classes.
+ * Committee-only and other role-less accounts never pass. NOTE: an alias
+ * account granted the same roles as its base account (e.g. "4D11_sakuten"
+ * next to "4D11") is eligible too, and entries are keyed by username — so
+ * such aliases can hold a second entry set. Grant alias accounts student
+ * roles only where that is acceptable.
  */
 export function isEligibleForLottery(
   lottery: Lottery,
-  username: string,
+  roles: readonly string[],
 ): boolean {
-  if (STAFF_RE.test(username)) return lottery.canStaffApply;
-  if (!BASE_STUDENT_RE.test(username)) return false;
-  const classCode = classOf(username);
-  if (classCode === null || !isClassName(classCode)) return false;
+  if (roles.includes("Teachers")) return lottery.canStaffApply;
+  if (!roles.includes("Students")) return false;
+  const classCode = classFromRoles(roles);
+  if (classCode === null) return false;
   return lottery.eligibleClasses.includes(classCode);
 }
 
 export function canApplyToLottery(
   lottery: Lottery,
-  username: string,
+  roles: readonly string[],
   applicantType: LotteryApplicantType,
 ): boolean {
   if (!lottery.applicantTypes.includes(applicantType)) return false;
-  // Staff apply as themselves only — there is no child behind a k-account
-  // for a "parent" entry to belong to.
-  if (applicantType === "parent" && STAFF_RE.test(username)) return false;
-  return isEligibleForLottery(lottery, username);
+  // Staff apply as themselves only — there is no child behind a staff
+  // account for a "parent" entry to belong to.
+  if (applicantType === "parent" && roles.includes("Teachers")) return false;
+  return isEligibleForLottery(lottery, roles);
 }
 
 export type LotteryAvailability = "upcoming" | "open" | "closed";

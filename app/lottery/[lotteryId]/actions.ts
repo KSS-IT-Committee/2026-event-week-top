@@ -77,9 +77,9 @@ export async function submitLotteryEntriesAction(
   const applicantType = applicantTypeValue;
 
   // Eligibility is re-checked here (not only in the page) because the action
-  // is directly invocable: the account's class must belong to the lottery and
-  // the applicant type must be offered by it.
-  if (!canApplyToLottery(lottery, user.username, applicantType)) {
+  // is directly invocable: the account's role-derived class must belong to
+  // the lottery and the applicant type must be offered by it.
+  if (!canApplyToLottery(lottery, user.roles, applicantType)) {
     return {
       error: "このアカウントではこの抽選に申し込めません。",
       success: false,

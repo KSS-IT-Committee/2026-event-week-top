@@ -48,7 +48,7 @@ async function LotteryIndex() {
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => {
             const availability = getLotteryAvailability(lottery, now);
-            const isEligible = isEligibleForLottery(lottery, user.username);
+            const isEligible = isEligibleForLottery(lottery, user.roles);
             const deadline = describeApplicationDeadline(lottery);
             return (
               <article key={lottery.id} className={styles.lotteryCard}>

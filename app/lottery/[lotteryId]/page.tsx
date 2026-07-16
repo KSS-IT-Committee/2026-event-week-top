@@ -73,7 +73,7 @@ async function LotteryDetail({
   // For a fully ineligible viewer nothing matches — fall back to the
   // lottery's own list so the page still renders the 対象外 explanation.
   const usableTypes = lottery.applicantTypes.filter((type) =>
-    canApplyToLottery(lottery, user.username, type),
+    canApplyToLottery(lottery, user.roles, type),
   );
   const offeredTypes =
     usableTypes.length > 0 ? usableTypes : lottery.applicantTypes;
@@ -87,7 +87,7 @@ async function LotteryDetail({
       ? requestedType
       : offeredTypes[0];
 
-  const canApply = canApplyToLottery(lottery, user.username, applicantType);
+  const canApply = canApplyToLottery(lottery, user.roles, applicantType);
   const availability = getLotteryAvailability(lottery, new Date());
   const deadline = describeApplicationDeadline(lottery);
   const maxPartySize = MAX_PARTY_SIZE_BY_APPLICANT_TYPE[applicantType];
