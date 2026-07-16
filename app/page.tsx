@@ -6,6 +6,7 @@ import { Internal } from "@/app/components/Internal";
 import { Schedule } from "@/app/components/schedule";
 import { INTERNAL_ROLES } from "@/lib/access";
 
+import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
@@ -120,6 +121,14 @@ export default function Toppage() {
             随時更新していきますので、ぜひチェックしてください！
             <br />
           </p>
+          {/* Countdown */}
+          <div className={styles.countdown}>
+            <Countdown
+              title="行事週間まであと"
+              startedTitle="行事週間スタート!!"
+              targetDate="2026-09-06T00:00:00+09:00"
+            />
+          </div>
         </div>
 
         {/* 芸能祭 */}
