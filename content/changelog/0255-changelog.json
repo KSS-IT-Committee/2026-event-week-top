@@ -1,5 +1,5 @@
 {
-  "title": "fix in menu",
-  "description": "TODO",
+  "title": "メニュー表示の切り替え",
+  "description": "メニュー表示の挙動を一部変更しました。",
   "credits": ["@rotarymars"]
 }
