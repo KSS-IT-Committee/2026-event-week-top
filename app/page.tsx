@@ -180,6 +180,27 @@ export default function Toppage() {
               </ul>
             )}
           </div>
+
+          <Internal>
+            <div className={styles.lead}>
+              <p>↓体育祭サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
+              <div className={styles.sportsSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  体育祭サイト
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
+            </div>
+          </Internal>
           <div className={styles.sportsGrid}>
             <section className={styles.sportItem}>
               <h2 className={styles.sportName}>サッカー</h2>
