@@ -25,6 +25,9 @@ export type ChatViewer = {
   // The logged-in student's class, or null for non-students (teachers /
   // committee / admin). Class-private tools return nothing when this is null.
   className: ClassName | null;
+  // The session's authorization roles (lib/access.ts) — get_recent_news
+  // filters role-restricted posts with them, exactly like the news pages.
+  roles: string[];
 };
 
 export const chatToolDeclarations: FunctionDeclaration[] = [
@@ -130,7 +133,7 @@ export async function dispatchTool(
         typeof rawLimit === "number" && Number.isFinite(rawLimit)
           ? Math.min(Math.max(Math.trunc(rawLimit), 1), 20)
           : 5;
-      const news = getNews()
+      const news = getNews(viewer)
         .slice(0, limit)
         .map((item) => ({
           title: item.title,

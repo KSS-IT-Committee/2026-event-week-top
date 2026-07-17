@@ -9,6 +9,8 @@ const FIXTURE = vi.hoisted(() => [
     title: "February Post",
     date: "2026-02-01T09:00:00.000Z",
     tag: "sport",
+    internal: false,
+    roles: [] as string[],
     content: "# Feb body\n\nSome content.",
     contentHtml: "<h1>Feb body</h1><p>Some content.</p>",
   },
@@ -18,6 +20,8 @@ const FIXTURE = vi.hoisted(() => [
     title: "January Post",
     date: "2026-01-15T12:30:00.000Z",
     tag: "info",
+    internal: true,
+    roles: [] as string[],
     content: "",
     contentHtml: "",
   },
@@ -27,6 +31,8 @@ const FIXTURE = vi.hoisted(() => [
     title: "March Post",
     date: "2026-03-20T18:45:00.000Z",
     tag: "art",
+    internal: false,
+    roles: ["IT"] as string[],
     content: "March content",
     contentHtml: "<p>March content</p>",
   },
@@ -92,7 +98,7 @@ describe("getAllPosts", () => {
 });
 
 describe("getPostById", () => {
-  it("resolves to { id: slug, contentHtml, title, date } for an existing post", async () => {
+  it("resolves to { id: slug, contentHtml, title, date, internal, roles } for an existing post", async () => {
     const post = await getPostById("post-feb");
 
     expect(post).toEqual({
@@ -100,6 +106,8 @@ describe("getPostById", () => {
       contentHtml: "<h1>Feb body</h1><p>Some content.</p>",
       title: "February Post",
       date: "2026-02-01T09:00:00.000Z",
+      internal: false,
+      roles: [],
     });
   });
 
@@ -111,6 +119,8 @@ describe("getPostById", () => {
       contentHtml: "",
       title: "January Post",
       date: "2026-01-15T12:30:00.000Z",
+      internal: true,
+      roles: [],
     });
   });
 
@@ -118,7 +128,7 @@ describe("getPostById", () => {
     const post = await getPostById("post-mar");
 
     expect(Object.keys(post).sort()).toEqual(
-      ["contentHtml", "date", "id", "title"].sort(),
+      ["contentHtml", "date", "id", "internal", "roles", "title"].sort(),
     );
   });
 
