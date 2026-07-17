@@ -181,7 +181,6 @@ export default function Toppage() {
             )}
           </div>
 
-          <Internal>
             <div className={styles.lead}>
               <p>↓体育祭サイトはこちらからアクセス</p>
             </div>
@@ -200,7 +199,6 @@ export default function Toppage() {
                 </p>
               </div>
             </div>
-          </Internal>
 
           <div className={styles.sportsGrid}>
             <section className={styles.sportItem}>
