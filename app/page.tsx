@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Internal } from "@/app/components/Internal";
-import { Schedule } from "@/app/components/schedule";
 import { INTERNAL_ROLES } from "@/lib/access";
 
 import { Countdown } from "./components/Countdown";
@@ -112,7 +111,6 @@ export default function Toppage() {
 
         {/* Introduction */}
         <div className={styles.event}>
-          <h1 className={styles.introductionTitle}>Introduction</h1>
           <p className={styles.text}>
             こちらは行事週間の総合サイトです！
             <br />
@@ -181,7 +179,7 @@ export default function Toppage() {
               </ul>
             )}
           </div>
-          <div className={styles.sportsGrid}>
+          {/* <div className={styles.sportsGrid}>
             <section className={styles.sportItem}>
               <h2 className={styles.sportName}>サッカー</h2>
               <Schedule
@@ -225,7 +223,7 @@ export default function Toppage() {
                 ]}
               />
             </section>
-          </div>
+          </div> */}
         </div>
 
         {/* 創作展 */}
