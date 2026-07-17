@@ -6,21 +6,32 @@ import { Internal } from "../Internal";
 import styles from "./floating.module.css";
 import { FloatingMenuShell } from "./FloatingMenuShell";
 
-export type FloatingMenuItem = {
-  label: string;
-  href: string;
-  /**
-   * Render only for logged-in school accounts (see INTERNAL_ROLES), or —
-   * when `role` is also given — only for those holding one of the roles.
-   */
-  isInternal?: boolean;
-  /**
-   * Narrow an internal entry to one or more roles. Only meaningful next to
-   * `isInternal`; without it the entry falls back to INTERNAL_ROLES
-   * (Students / Teachers).
-   */
-  role?: Role | readonly Role[];
-};
+// A discriminated union so `role` cannot be given without `isInternal: true`
+// — the renderer only branches on `isInternal`, so a lone `role` would be
+// silently ignored and the entry rendered publicly. The union turns that
+// mistake into a compile error instead.
+export type FloatingMenuItem =
+  | {
+      label: string;
+      href: string;
+      /** Public entry, shown to everyone; role gating requires `isInternal`. */
+      isInternal?: false;
+      role?: never;
+    }
+  | {
+      label: string;
+      href: string;
+      /**
+       * Render only for logged-in school accounts (see INTERNAL_ROLES), or —
+       * when `role` is also given — only for those holding one of the roles.
+       */
+      isInternal: true;
+      /**
+       * Narrow an internal entry to one or more roles. Without it the entry
+       * falls back to INTERNAL_ROLES (Students / Teachers).
+       */
+      role?: Role | readonly Role[];
+    };
 
 type FloatingMenuProps = {
   items: FloatingMenuItem[];
