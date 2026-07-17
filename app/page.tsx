@@ -260,7 +260,10 @@ export default function Toppage() {
               <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
             </div>
             <div className={styles.linkContainer}>
-              <div className={styles.rentalSite}>
+              <a
+                className={styles.rentalSite}
+                href="https://equipment.2026.kss-it.com"
+              >
                 <p
                   style={{
                     color: "#fff",
@@ -269,10 +272,8 @@ export default function Toppage() {
                   }}
                 >
                   工具貸出サイト
-                  <br />
-                  （Coming Soon）
                 </p>
-              </div>
+              </a>
 
               <div className={styles.informationSite}>
                 <p
