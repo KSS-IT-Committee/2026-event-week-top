@@ -18,7 +18,7 @@ jobs:
     # fork からの PR は対象外: pull_request_target は secrets と書き込み権限を
     # 持つため、fork のコード (package.json など) を扱ってはいけない
     if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
 
     steps:
       - uses: actions/checkout@v7
