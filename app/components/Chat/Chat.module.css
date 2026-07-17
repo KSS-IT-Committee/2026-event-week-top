@@ -162,3 +162,12 @@
   opacity: 0.5;
   cursor: default;
 }
+
+.notes {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: color-mix(in oklch, var(--foreground) 65%, transparent);
+  summary {
+    font-size : 16px;
+  }
+}
