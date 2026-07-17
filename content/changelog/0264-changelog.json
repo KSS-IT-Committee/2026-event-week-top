@@ -1,5 +1,5 @@
 {
-  "title": "news filtering",
-  "description": "TODO",
+  "title": "ニュースのフィルタリングを追加",
+  "description": "特定の人のみに公開されるNewsを発行できるようになりました。これに伴い、一部ニュースの表示対象者が変更されました。",
   "credits": ["@rotarymars"]
 }
