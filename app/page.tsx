@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Internal } from "@/app/components/Internal";
 import { Schedule } from "@/app/components/schedule";
+import { INTERNAL_ROLES } from "@/lib/access";
 
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
@@ -275,12 +276,17 @@ export default function Toppage() {
             <br />
           </div>
 
-          <Internal>
+          <Internal role={INTERNAL_ROLES}>
             <div className={styles.lead}>
-              <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
+              <p>
+                ↓工具貸出・減点管理サイト、情報伝達用サイトはこちらからアクセス
+              </p>
             </div>
             <div className={styles.linkContainer}>
-              <div className={styles.rentalSite}>
+              <a
+                className={styles.rentalSite}
+                href="https://equipment.2026.kss-it.com"
+              >
                 <p
                   style={{
                     color: "#fff",
@@ -288,11 +294,9 @@ export default function Toppage() {
                     opacity: 1,
                   }}
                 >
-                  工具貸出サイト
-                  <br />
-                  （Coming Soon）
+                  工具貸出・減点管理サイト
                 </p>
-              </div>
+              </a>
 
               <div className={styles.informationSite}>
                 <p

@@ -44,12 +44,13 @@ function makeRow(overrides: Record<string, unknown> = {}) {
   return {
     id: 1,
     lotteryId: "kaitaku-performance",
-    slotId: "slot-1",
+    slotId: "sep12",
     username: "3A05",
     applicantType: "parent",
-    firstChoice: "3A",
+    firstChoice: "performance-1",
     secondChoice: null,
     thirdChoice: null,
+    partySize: 1,
     createdAt: new Date("2026-09-01T00:00:00Z"),
     ...overrides,
   };
@@ -91,25 +92,13 @@ describe("getLotteryEntries", () => {
     expect(result).toEqual([]);
   });
 
-  it("maps a fully ranked row to a three-choice summary", async () => {
+  it("maps a fully ranked row to a summary with its 観覧人数", async () => {
     rowsHolder.rows = [
-      makeRow({ firstChoice: "3A", secondChoice: "3B", thirdChoice: "4C" }),
-    ];
-    const result = await getLotteryEntries(
-      "3A05",
-      "kaitaku-performance",
-      "parent",
-    );
-    expect(result).toEqual([{ slotId: "slot-1", choices: ["3A", "3B", "4C"] }]);
-  });
-
-  it("omits unused ranks from the choices array", async () => {
-    rowsHolder.rows = [
-      makeRow({ slotId: "slot-2", firstChoice: "4A" }),
       makeRow({
-        slotId: "slot-3",
-        firstChoice: "3C",
-        secondChoice: "3D",
+        firstChoice: "performance-1",
+        secondChoice: "performance-2",
+        thirdChoice: "performance-4",
+        partySize: 2,
       }),
     ];
     const result = await getLotteryEntries(
@@ -118,8 +107,35 @@ describe("getLotteryEntries", () => {
       "parent",
     );
     expect(result).toEqual([
-      { slotId: "slot-2", choices: ["4A"] },
-      { slotId: "slot-3", choices: ["3C", "3D"] },
+      {
+        slotId: "sep12",
+        choices: ["performance-1", "performance-2", "performance-4"],
+        partySize: 2,
+      },
+    ]);
+  });
+
+  it("omits unused ranks from the choices array", async () => {
+    rowsHolder.rows = [
+      makeRow({ slotId: "sep12", firstChoice: "performance-4" }),
+      makeRow({
+        slotId: "sep13",
+        firstChoice: "performance-3",
+        secondChoice: "performance-5",
+      }),
+    ];
+    const result = await getLotteryEntries(
+      "3A05",
+      "kaitaku-performance",
+      "parent",
+    );
+    expect(result).toEqual([
+      { slotId: "sep12", choices: ["performance-4"], partySize: 1 },
+      {
+        slotId: "sep13",
+        choices: ["performance-3", "performance-5"],
+        partySize: 1,
+      },
     ]);
   });
 });

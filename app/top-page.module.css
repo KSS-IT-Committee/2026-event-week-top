@@ -285,10 +285,9 @@
 .rentalSite,
 .informationSite,
 .sousakutenSite {
-  width: 200px;
+  width: 250px;
   padding: 10px 0;
   text-align: center;
-  background-color: #676767;
   color: #ffffff;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -299,9 +298,21 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .rentalSite p,
-.informationSite p {
+.informationSite p,
+.sousakutenSite p {
   color: #ffffff;
 }
+
+.rentalSite {
+  background-color: #2a6cca;
+}
+.informationSite {
+  background-color: #676767;
+}
+.sousakutenSite {
+  background-color: #676767;
+}
+
 .ceremonyTitle {
   font-size: 4rem;
   font-family: "Yu Mincho", serif;

@@ -47,8 +47,21 @@ const fd = (o: Record<string, string>) => {
   return f;
 };
 
-function asUser(username: string) {
-  vi.mocked(getCurrentUser).mockResolvedValue({ username, roles: [] });
+// Session fixture. Eligibility is role-based, so grant the roles
+// 2026-account-generator's users.sql would: grade + class + Students for a
+// student username, Teachers for a k-account. Pass roles explicitly to
+// model accounts whose roles differ from their name's shape (aliases,
+// role-less committee accounts).
+function asUser(username: string, roles?: readonly string[]) {
+  const grantedRoles =
+    roles ??
+    (username.startsWith("k")
+      ? ["Teachers"]
+      : [`G${username[0]}`, `Class${username[1]}`, "Students"]);
+  vi.mocked(getCurrentUser).mockResolvedValue({
+    username,
+    roles: [...grantedRoles],
+  });
 }
 
 function mustGetLottery(lotteryId: string): Lottery {
@@ -207,7 +220,7 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "sousaku-performance",
         applicantType: "student",
-        "choice-slot-1-1": "6A",
+        "choice-sep13-slot-1-1": "6A",
       }),
     );
 
@@ -217,16 +230,42 @@ describe("submitLotteryEntriesAction", () => {
         expect.objectContaining({
           username: "k0959176",
           applicantType: "student",
-          slotId: "slot-1",
+          slotId: "sep13-slot-1",
           firstChoice: "6A",
+          partySize: 1,
         }),
       ],
       {},
     );
   });
 
-  it("rejects alias accounts (suffixed usernames), without writing", async () => {
-    asUser("3A05_sakuten");
+  it("accepts an alias account granted its base account's roles", async () => {
+    asUser("4D11_sakuten", ["Sousakuten", "G4", "ClassD", "Students"]);
+    const state = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "kaitaku-performance",
+        applicantType: "parent",
+        "choice-sep12-1": "performance-1",
+        "party-sep12": "1",
+      }),
+    );
+
+    expect(state).toEqual({ error: null, success: true, savedSlotCount: 1 });
+    expect(addLotteryEntries).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({
+          username: "4D11_sakuten",
+          slotId: "sep12",
+          firstChoice: "performance-1",
+        }),
+      ],
+      {},
+    );
+  });
+
+  it("rejects a role-less account (e.g. an unprivileged alias), without writing", async () => {
+    asUser("3A05_sakuten", []);
     const state = await submitLotteryEntriesAction(
       prev,
       fd({ lotteryId: "kaitaku-performance", applicantType: "parent" }),
@@ -271,7 +310,8 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-preferred-slot-1": "performance-1",
+        "choice-sep12-1": "performance-1",
+        "party-sep12": "1",
       }),
     );
     expect(lastInstant.success).toBe(true);
@@ -282,7 +322,8 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-preferred-slot-1": "performance-1",
+        "choice-sep12-1": "performance-1",
+        "party-sep12": "1",
       }),
     );
     expect(afterClose.success).toBe(false);
@@ -297,8 +338,8 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "sousaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "5A",
-        "choice-slot-1-2": "5A",
+        "choice-sep12-slot-1-1": "5A",
+        "choice-sep12-slot-1-2": "5A",
       }),
     );
 
@@ -314,7 +355,7 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-preferred-slot-1": "3A",
+        "choice-sep12-1": "3A",
       }),
     );
 
@@ -331,9 +372,11 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "sousaku-performance",
         applicantType: "parent",
-        "choice-slot-1-1": "5A",
-        "choice-slot-1-2": "5B",
-        "choice-slot-3-1": "6D",
+        "choice-sep12-slot-1-1": "5A",
+        "choice-sep12-slot-1-2": "5B",
+        "party-sep12-slot-1": "2",
+        "choice-sep13-slot-3-1": "6D",
+        "party-sep13-slot-3": "1",
       }),
     );
 
@@ -351,21 +394,23 @@ describe("submitLotteryEntriesAction", () => {
       [
         {
           lotteryId: "sousaku-performance",
-          slotId: "slot-1",
+          slotId: "sep12-slot-1",
           username: "3A05",
           applicantType: "parent",
           firstChoice: "5A",
           secondChoice: "5B",
           thirdChoice: null,
+          partySize: 2,
         },
         {
           lotteryId: "sousaku-performance",
-          slotId: "slot-3",
+          slotId: "sep13-slot-3",
           username: "3A05",
           applicantType: "parent",
           firstChoice: "6D",
           secondChoice: null,
           thirdChoice: null,
+          partySize: 1,
         },
       ],
       {},
@@ -389,8 +434,9 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "sousaku-performance",
         applicantType: "parent",
-        "choice-slot-2-2": "5C",
-        "choice-slot-2-3": "6A",
+        "choice-sep12-slot-2-2": "5C",
+        "choice-sep12-slot-2-3": "6A",
+        "party-sep12-slot-2": "1",
       }),
     );
 
@@ -399,55 +445,87 @@ describe("submitLotteryEntriesAction", () => {
       [
         {
           lotteryId: "sousaku-performance",
-          slotId: "slot-2",
+          slotId: "sep12-slot-2",
           username: "3A05",
           applicantType: "parent",
           firstChoice: "5C",
           secondChoice: "6A",
           thirdChoice: null,
+          partySize: 1,
         },
       ],
       {},
     );
   });
 
-  it("saves a kaitaku parent's single ranked-performance entry", async () => {
+  it("saves a kaitaku parent's per-day ranked-performance entries", async () => {
     asUser("3A05");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-preferred-slot-1": "performance-3",
-        "choice-preferred-slot-2": "performance-6",
+        "choice-sep12-1": "performance-3",
+        "choice-sep12-2": "performance-6",
+        "party-sep12": "2",
+        "choice-sep13-1": "performance-1",
+        "party-sep13": "1",
       }),
     );
 
-    expect(state).toEqual({ error: null, success: true, savedSlotCount: 1 });
+    expect(state).toEqual({ error: null, success: true, savedSlotCount: 2 });
     expect(addLotteryEntries).toHaveBeenCalledWith(
       [
         {
           lotteryId: "kaitaku-performance",
-          slotId: "preferred-slot",
+          slotId: "sep12",
           username: "3A05",
           applicantType: "parent",
           firstChoice: "performance-3",
           secondChoice: "performance-6",
           thirdChoice: null,
+          partySize: 2,
+        },
+        {
+          lotteryId: "kaitaku-performance",
+          slotId: "sep13",
+          username: "3A05",
+          applicantType: "parent",
+          firstChoice: "performance-1",
+          secondChoice: null,
+          thirdChoice: null,
+          partySize: 1,
         },
       ],
       {},
     );
   });
 
-  it("trims whitespace around submitted choice values", async () => {
+  it("rejects a parent entry whose 観覧人数 is missing, without writing", async () => {
     asUser("3A05");
     const state = await submitLotteryEntriesAction(
       prev,
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-preferred-slot-1": " performance-1 ",
+        "choice-sep12-1": "performance-1",
+      }),
+    );
+
+    expect(state.success).toBe(false);
+    expect(state.error).toContain("観覧人数");
+    expectNoWrites();
+  });
+
+  it("trims whitespace around submitted choice and 人数 values", async () => {
+    asUser("3A05");
+    const state = await submitLotteryEntriesAction(
+      prev,
+      fd({
+        lotteryId: "kaitaku-performance",
+        applicantType: "parent",
+        "choice-sep12-1": " performance-1 ",
+        "party-sep12": " 2 ",
       }),
     );
 
@@ -455,8 +533,9 @@ describe("submitLotteryEntriesAction", () => {
     expect(addLotteryEntries).toHaveBeenCalledWith(
       [
         expect.objectContaining({
-          slotId: "preferred-slot",
+          slotId: "sep12",
           firstChoice: "performance-1",
+          partySize: 2,
         }),
       ],
       {},
@@ -483,7 +562,9 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "sousaku-performance",
         applicantType: "student",
-        "choice-slot-2-1": "5A",
+        "choice-sep12-slot-2-1": "5A",
+        // Crafted 人数 on a 本人 entry must be ignored — always 1.
+        "party-sep12-slot-2": "2",
       }),
     );
 
@@ -492,12 +573,13 @@ describe("submitLotteryEntriesAction", () => {
       [
         {
           lotteryId: "sousaku-performance",
-          slotId: "slot-2",
+          slotId: "sep12-slot-2",
           username: "1A01",
           applicantType: "student",
           firstChoice: "5A",
           secondChoice: null,
           thirdChoice: null,
+          partySize: 1,
         },
       ],
       {},
@@ -513,7 +595,8 @@ describe("submitLotteryEntriesAction", () => {
       fd({
         lotteryId: "kaitaku-performance",
         applicantType: "parent",
-        "choice-preferred-slot-1": "performance-1",
+        "choice-sep12-1": "performance-1",
+        "party-sep12": "1",
       }),
     );
 

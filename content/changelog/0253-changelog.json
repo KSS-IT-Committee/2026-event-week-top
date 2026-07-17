@@ -1,0 +1,5 @@
+{
+  "title": "抽選システムの修正",
+  "description": "抽選システムの内部の挙動を一部修正しました。",
+  "credits": ["@rotarymars"]
+}

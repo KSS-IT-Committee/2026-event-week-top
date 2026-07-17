@@ -19,7 +19,29 @@ import {
 
 // Login credentials, loaded out-of-band from 2026-account-generator's
 // users.sql.
-export const ROLENAMES = ["IT", "Sousakuten", "Taiikusai"] as const;
+export const ROLENAMES = [
+  // Committee roles — granted by hand (SQL UPDATE) to individual accounts.
+  "IT",
+  "Sousakuten",
+  "Taiikusai",
+  // Population roles — every roster account carries them via
+  // 2026-account-generator's users.sql: students get G<grade> + Class<letter>
+  // + Students, staff accounts get Teachers. AuthGuard/Internal gate on these
+  // instead of username patterns. Append-only: Postgres enums cannot drop or
+  // reorder values, so new roles go at the end.
+  "G1",
+  "G2",
+  "G3",
+  "G4",
+  "G5",
+  "G6",
+  "ClassA",
+  "ClassB",
+  "ClassC",
+  "ClassD",
+  "Students",
+  "Teachers",
+] as const;
 export const roleEnum = pgEnum("role", ROLENAMES);
 
 export const users = pgTable("users", {
@@ -110,6 +132,11 @@ export const lotteryEntries = pgTable(
     firstChoice: varchar("first_choice", { length: 64 }).notNull(),
     secondChoice: varchar("second_choice", { length: 64 }),
     thirdChoice: varchar("third_choice", { length: 64 }),
+    // 観覧人数 — seats this entry claims if drawn (保護者 entries may bring
+    // up to 2 people; 本人 entries are always 1). The exact per-applicant
+    // maximum is app policy (lib/lotteries.ts); the DB only sanity-checks
+    // positivity.
+    partySize: integer("party_size").notNull().default(1),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -124,6 +151,7 @@ export const lotteryEntries = pgTable(
       table.applicantType,
     ),
     index("lottery_entries_username_idx").on(table.username),
+    check("party_size_positive", sql`${table.partySize} >= 1`),
     // Ranks fill top-down: no third choice without a second.
     check(
       "choice_ranks_fill_top_down",

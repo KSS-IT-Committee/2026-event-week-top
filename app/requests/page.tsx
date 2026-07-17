@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { Internal } from "@/app/components/Internal";
+import { INTERNAL_ROLES } from "@/lib/access";
 
 import styles from "./requests.module.css";
 
@@ -40,7 +41,7 @@ export default function RequestPage() {
       <p className={styles.lead}>
         このサイトへの新機能の追加や修正を提案することができます。
       </p>
-      <Internal>
+      <Internal role={INTERNAL_ROLES}>
         <h2 className={styles.sectionTitle}>委員に直接伝える</h2>
         <p className={styles.description}>
           IT委員に直接お伝えください。内容を委員会で検討し、必要に応じて新機能の追加や修正を行います。

@@ -1,23 +1,31 @@
 # Viewing Lottery (公演観覧抽選)
 
 The `/lottery` pages collect ranked viewing preferences (第1〜第3希望) for
-the class plays of the 開拓部門 (grades 3–4) and 創作部門 (grades 5–6). The
-two lotteries ask different questions: for **創作部門** an applicant ranks up
-to three _classes_ per performance slot; for **開拓部門** a parent ranks up
-to three _performances (time slots)_ in one single question — which time
-they want to attend. This document explains the moving parts and, most
-importantly, **how to add another lottery later**.
+the class plays of the 開拓部門 (grades 3–4) and 創作部門 (grades 5–6),
+across the festival's two days (9/12・9/13 — the program repeats each day).
+The two lotteries ask different questions: for **創作部門** an applicant
+ranks up to three _classes_ per performance slot (4 performances × 2 days);
+for **開拓部門** a parent ranks up to three _performances (time slots)_ once
+per day — which time they want to attend. Each entry also carries a 観覧人数
+(1–2 for parents, always 1 for 本人 entries). This document explains the
+moving parts and, most importantly, **how to add another lottery later**.
 
 ## How it works
 
 - **Definitions are code, not rows.** Every lottery (its slots, acts,
   eligibility, application window) is an entry in `LOTTERIES` in
   `lib/lotteries.ts`. The database only stores the opaque ids defined there.
-- **`slots` are the questions; `acts` are what gets ranked.** 創作部門 has 4
-  slots (one per performance) whose acts are the grade 5–6 classes. 開拓部門
-  has a single slot (`preferred-slot`, 「観覧を希望する公演」) whose acts are
-  the 8 timed performances themselves. Any future lottery picks whichever
-  shape fits — the storage and validation are identical.
+- **`slots` are the questions; `acts` are what gets ranked.** 創作部門 has 8
+  slots (4 performances × 2 days, ids `sep12-slot-1`…`sep13-slot-4`) whose
+  acts are the grade 5–6 classes. 開拓部門 has one slot per festival day
+  (`sep12` / `sep13`) whose acts are the 8 timed performances themselves —
+  so a family may enter each day separately. Any future lottery picks
+  whichever shape fits — the storage and validation are identical.
+- **観覧人数 (`party_size`).** Every entry row stores how many people it
+  admits if drawn. The per-applicant-type maximum is app policy
+  (`MAX_PARTY_SIZE_BY_APPLICANT_TYPE`: parents 2, 本人 1 — no selector is
+  shown for 本人); the DB only checks positivity, so raising the maximum
+  later is config-only.
 - **One table stores every lottery's entries.** `lottery_entries`
   (`db/schema.ts`, canonical copy in `2026-db`) holds one row per
   `(lottery_id, slot_id, username, applicant_type)` with `first_choice` /
@@ -50,6 +58,9 @@ importantly, **how to add another lottery later**.
 1. Append a definition to `LOTTERIES` in `lib/lotteries.ts` — id, title,
    description, notes, `applicantTypes`, `eligibleClasses`, `canStaffApply`,
    `acts`, `slots`, window. **No schema change and no migration is needed.**
+   Optional `parentNotes` renders as red bullets on the 保護者 tab only —
+   notices a parent must not miss (kaitaku: who may apply; sousaku: the
+   child's-class priority and its scope).
 2. Pick ids that will stay stable (`lottery_id`, slot ids, act ids are what
    gets stored; renaming them orphans saved entries).
 3. Extend `lib/lotteries.test.ts` with the new definition's pins (slot/act

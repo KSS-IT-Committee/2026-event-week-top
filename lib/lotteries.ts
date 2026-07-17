@@ -4,7 +4,6 @@ import {
   isClassName,
   type LotteryApplicantType,
 } from "@/db/schema";
-import { classOf } from "@/lib/user-category";
 
 /**
  * Viewing-lottery definitions and the pure rules around them.
@@ -43,16 +42,20 @@ export type Lottery = {
   description: string;
   // Shown as bullet points on the application page (venue rules, breaks…).
   notes: readonly string[];
+  // Extra bullet points shown in red on the 保護者 tab only — notices a
+  // parent must not miss (who may apply, how a child's own class is
+  // prioritized).
+  parentNotes?: readonly string[];
   // Which kinds of applicant may enter, in display order. Parents apply via
   // their child's student account, so "parent" still authenticates as the
   // child; one account holds at most one entry set per type.
   applicantTypes: readonly LotteryApplicantType[];
-  // The account's class (classOf(username)) must be one of these. For
-  // parents this is the child's class — "parents with a child in the
+  // The account's class (classFromRoles(user.roles)) must be one of these.
+  // For parents this is the child's class — "parents with a child in the
   // division" is exactly "accounts of that division's classes".
   eligibleClasses: readonly ClassName[];
-  // Whether staff (k-prefixed) accounts may enter. Staff have no class, so
-  // eligibleClasses never admits them; they apply as themselves via the
+  // Whether staff (Teachers-role) accounts may enter. Staff have no class,
+  // so eligibleClasses never admits them; they apply as themselves via the
   // "student" applicant type (labeled 本人), never as "parent".
   canStaffApply: boolean;
   // What an applicant ranks (up to MAX_CHOICES_PER_SLOT) within each slot.
@@ -71,17 +74,40 @@ export type Lottery = {
   closesAt: Date | null;
 };
 
-// Exactly one base student account per student (e.g. "3A05"). Deliberately
-// stricter than lib/user-category.ts's prefix-matching STUDENT_RE: alias
-// accounts like "4D11_sakuten" must not hold a second entry set on top of
-// the base account's, so lottery eligibility requires the exact form.
-const BASE_STUDENT_RE = /^[1-6][A-D]\d{2}$/;
+// Population roles → class code parts. Must stay in lockstep with the
+// G1–G6 / ClassA–ClassD members of ROLENAMES (db/schema.ts), which
+// 2026-account-generator derives from the roster. Plain string keys (not
+// the Role type): roles come off SessionUser.roles, which is string[] so
+// preview sessions stay forward-compatible with roles this build predates.
+const GRADE_BY_ROLE: Record<string, string> = {
+  G1: "1",
+  G2: "2",
+  G3: "3",
+  G4: "4",
+  G5: "5",
+  G6: "6",
+};
+const CLASS_LETTER_BY_ROLE: Record<string, string> = {
+  ClassA: "A",
+  ClassB: "B",
+  ClassC: "C",
+  ClassD: "D",
+};
 
-// Staff accounts: exactly k + 7 digits. Mirrors TEACHER_RE in
-// lib/user-category.ts (unexported there, and that file is byte-identical
-// across the four apps, so it must not change). Anchored for the same
-// one-account-one-entry-set reason as BASE_STUDENT_RE.
-const STAFF_RE = /^k\d{7}$/;
+/**
+ * The class code an account's roles pin it to ("G4" + "ClassD" -> "4D"), or
+ * null when the roles don't name exactly one class — no grade/class roles
+ * (staff, committee-only accounts) or contradictory ones (two grades). Both
+ * roles come from 2026-account-generator's users.sql, so roster accounts —
+ * and hand-made aliases granted the same roles — resolve cleanly.
+ */
+export function classFromRoles(roles: readonly string[]): ClassName | null {
+  const grades = roles.filter((role) => role in GRADE_BY_ROLE);
+  const letters = roles.filter((role) => role in CLASS_LETTER_BY_ROLE);
+  if (grades.length !== 1 || letters.length !== 1) return null;
+  const classCode = GRADE_BY_ROLE[grades[0]] + CLASS_LETTER_BY_ROLE[letters[0]];
+  return isClassName(classCode) ? classCode : null;
+}
 
 function classesInGrades(grades: readonly string[]): ClassName[] {
   return CLASSNAMES.filter((className) => grades.includes(className[0]));
@@ -95,9 +121,15 @@ function actForClass(className: ClassName): LotteryAct {
 const KAITAKU_CLASSES = classesInGrades(["3", "4"]);
 const SOUSAKU_CLASSES = classesInGrades(["5", "6"]);
 
-// 開拓部門: a parent ranks WHICH performance (time slot) to attend, not
-// which class — so the ranked choices are the performances themselves,
-// asked as one single-slot question.
+// 創作展 runs two days; both divisions repeat the same program each day.
+const FESTIVAL_DAYS = [
+  { id: "sep12", label: "9月12日（土）" },
+  { id: "sep13", label: "9月13日（日）" },
+] as const;
+
+// 開拓部門: a parent ranks WHICH performance (time slot) to attend on a
+// given day, not which class — so the ranked choices are the performances
+// themselves, asked once per festival day (one slot per day).
 const KAITAKU_PERFORMANCES: LotteryAct[] = [
   { id: "performance-1", label: "第一公演（8:45～9:15）" },
   { id: "performance-2", label: "第二公演（9:30～10:00）" },
@@ -109,22 +141,36 @@ const KAITAKU_PERFORMANCES: LotteryAct[] = [
   { id: "performance-8", label: "第八公演（14:45～15:15）" },
 ];
 
+const SOUSAKU_PERFORMANCE_TIMES = [
+  { label: "第一公演", time: "8:45～10:00" },
+  { label: "第二公演", time: "10:20～11:35" },
+  { label: "第三公演", time: "12:30～13:45" },
+  { label: "第四公演", time: "14:05～15:20" },
+] as const;
+
 export const LOTTERIES: readonly Lottery[] = [
   {
     id: "kaitaku-performance",
     title: "開拓部門公演 観覧抽選",
     description:
-      "開拓部門（3・4年生）のクラス劇の観覧抽選です。開拓部門の生徒の保護者の方が対象で、観覧を希望する公演（時間帯）を第1〜第3希望まで選べます。",
+      "開拓部門（3・4年生）のクラス劇の観覧抽選です。開拓部門の生徒の保護者の方が対象で、9月12日（土）・13日（日）のそれぞれについて、観覧を希望する公演（時間帯）を第1〜第3希望まで選べます。",
     notes: [
       "公演時間は30分、幕間は15分です。",
-      "お昼休憩は60分です。第四公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
+      "お昼休憩は60分です。第四公演終了後、12:15まで観客入場禁止となります。",
       "保護者の方はお子様のアカウントでログインして申し込んでください。保護者の方の希望はお子様のアカウント1つにつき1件です。",
+      "観覧人数は1日につき2名まで選べます。",
+    ],
+    parentNotes: [
+      "この抽選に申し込めるのは、お子様が開拓部門（3・4年生）に在籍している保護者の方のみです。",
     ],
     applicantTypes: ["parent"],
     eligibleClasses: KAITAKU_CLASSES,
     canStaffApply: false,
     acts: KAITAKU_PERFORMANCES,
-    slots: [{ id: "preferred-slot", label: "観覧を希望する公演" }],
+    slots: FESTIVAL_DAYS.map((day) => ({
+      id: day.id,
+      label: `${day.label}の公演`,
+    })),
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
@@ -133,23 +179,30 @@ export const LOTTERIES: readonly Lottery[] = [
     id: "sousaku-performance",
     title: "創作部門公演 観覧抽選",
     description:
-      "創作部門（5・6年生）のクラス劇の観覧抽選です。全学年の生徒・保護者の方と教職員の方が対象で、公演ごとに観たいクラスを第1〜第3希望まで選べます。",
+      "創作部門（5・6年生）のクラス劇の観覧抽選です。全学年の生徒・保護者の方と教職員の方が対象で、9月12日（土）・13日（日）の公演ごとに観たいクラスを第1〜第3希望まで選べます。",
     notes: [
       "公演時間は75分、幕間は20分です。",
-      "お昼休憩は55分です。第二公演のお客さんがはけ次第、12:15まで観客入場禁止となります。",
+      "お昼休憩は55分です。第二公演終了後、12:15まで観客入場禁止となります。",
       "生徒本人と保護者の方は、同じアカウントからそれぞれ別に申し込めます。保護者の方の希望はお子様のアカウント1つにつき1件です。",
       "教職員の方はご自身のアカウントでログインして申し込んでください。",
+      "保護者の方の観覧人数は1公演につき2名まで選べます（生徒本人・教職員の方は1名です）。",
+    ],
+    parentNotes: [
+      "お子様のクラスを第1希望に選んだ公演は、その公演の申込人数が座席数を超えない限り、そのまま観覧できます。お子様の公演を観覧するには、いずれか1公演で第1希望に選ぶだけで大丈夫です。",
+      "お子様のクラスを2公演以上で希望した場合、優先して観覧できるのはいずれか1公演のみです。それ以外の希望は、他の申込者の方と同じ条件で抽選されます。",
+      "これらの優先は、お子様が創作部門（5・6年生）に在籍している保護者の方にのみ適用されます。",
     ],
     applicantTypes: ["student", "parent"],
     eligibleClasses: [...CLASSNAMES],
     canStaffApply: true,
     acts: SOUSAKU_CLASSES.map(actForClass),
-    slots: [
-      { id: "slot-1", label: "第一公演", time: "8:45～10:00" },
-      { id: "slot-2", label: "第二公演", time: "10:20～11:35" },
-      { id: "slot-3", label: "第三公演", time: "12:30～13:45" },
-      { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
-    ],
+    slots: FESTIVAL_DAYS.flatMap((day) =>
+      SOUSAKU_PERFORMANCE_TIMES.map((performance, index) => ({
+        id: `${day.id}-slot-${index + 1}`,
+        label: `${day.label}${performance.label}`,
+        time: performance.time,
+      })),
+    ),
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
@@ -161,6 +214,18 @@ export const LOTTERIES: readonly Lottery[] = [
 export const APPLICANT_TYPE_LABELS: Record<LotteryApplicantType, string> = {
   student: "本人",
   parent: "保護者",
+};
+
+// 観覧人数の上限（1件あたり） — parents may bring up to two people; a 本人
+// entry (student or staff) is always the account holder alone, so no
+// selector is shown for it. Policy lives here, not in the schema: the DB
+// only sanity-checks positivity.
+export const MAX_PARTY_SIZE_BY_APPLICANT_TYPE: Record<
+  LotteryApplicantType,
+  number
+> = {
+  student: 1,
+  parent: 2,
 };
 
 export function getLottery(lotteryId: string): Lottery | null {
@@ -195,33 +260,37 @@ export function describeEligibleGrades(lottery: Lottery): string {
 }
 
 /**
- * Whether the account may take part in the lottery at all: either a staff
- * account on a lottery that admits staff, or a base student account
- * (aliases like "4D11_sakuten" are excluded so one student never yields two
- * entry sets) whose class (the child's class, for parents) is one of the
- * eligible classes. Committee and other non-matching accounts never pass.
+ * Whether the account may take part in the lottery at all, decided from the
+ * session's roles (never the username shape): either a Teachers account on
+ * a lottery that admits staff, or a Students account whose role-derived
+ * class (the child's class, for parents) is one of the eligible classes.
+ * Committee-only and other role-less accounts never pass. NOTE: an alias
+ * account granted the same roles as its base account (e.g. "4D11_sakuten"
+ * next to "4D11") is eligible too, and entries are keyed by username — so
+ * such aliases can hold a second entry set. Grant alias accounts student
+ * roles only where that is acceptable.
  */
 export function isEligibleForLottery(
   lottery: Lottery,
-  username: string,
+  roles: readonly string[],
 ): boolean {
-  if (STAFF_RE.test(username)) return lottery.canStaffApply;
-  if (!BASE_STUDENT_RE.test(username)) return false;
-  const classCode = classOf(username);
-  if (classCode === null || !isClassName(classCode)) return false;
+  if (roles.includes("Teachers")) return lottery.canStaffApply;
+  if (!roles.includes("Students")) return false;
+  const classCode = classFromRoles(roles);
+  if (classCode === null) return false;
   return lottery.eligibleClasses.includes(classCode);
 }
 
 export function canApplyToLottery(
   lottery: Lottery,
-  username: string,
+  roles: readonly string[],
   applicantType: LotteryApplicantType,
 ): boolean {
   if (!lottery.applicantTypes.includes(applicantType)) return false;
-  // Staff apply as themselves only — there is no child behind a k-account
-  // for a "parent" entry to belong to.
-  if (applicantType === "parent" && STAFF_RE.test(username)) return false;
-  return isEligibleForLottery(lottery, username);
+  // Staff apply as themselves only — there is no child behind a staff
+  // account for a "parent" entry to belong to.
+  if (applicantType === "parent" && roles.includes("Teachers")) return false;
+  return isEligibleForLottery(lottery, roles);
 }
 
 export type LotteryAvailability = "upcoming" | "open" | "closed";
@@ -246,6 +315,8 @@ export function getLotteryAvailability(
 export type SlotChoicesInput = {
   slotId: string;
   choices: readonly string[];
+  // Raw 観覧人数 form value; validated only when the slot has choices.
+  partySize: string;
 };
 
 // One slot's validated preferences, ready to insert.
@@ -254,6 +325,7 @@ export type LotteryEntryInput = {
   firstChoice: string;
   secondChoice: string | null;
   thirdChoice: string | null;
+  partySize: number;
 };
 
 export type ParseLotteryEntriesResult =
@@ -262,13 +334,16 @@ export type ParseLotteryEntriesResult =
 /**
  * Validate raw per-slot rank inputs against a lottery definition and shape
  * them for storage. Gaps compact upward (a 1st + 3rd choice becomes 1st +
- * 2nd), a slot with no choices yields no entry (= not applying for it), and
- * unknown slots/acts or a repeated act within a slot reject the whole
- * submission with a user-facing message.
+ * 2nd), a slot with no choices yields no entry (= not applying for it, its
+ * partySize is ignored), and unknown slots/acts, a repeated act within a
+ * slot, or an out-of-range 観覧人数 reject the whole submission with a
+ * user-facing message. maxPartySize comes from the caller's applicant type
+ * (MAX_PARTY_SIZE_BY_APPLICANT_TYPE).
  */
 export function parseLotteryEntries(
   lottery: Lottery,
   submissions: readonly SlotChoicesInput[],
+  maxPartySize: number,
 ): ParseLotteryEntriesResult {
   const actIds = new Set(lottery.acts.map((act) => act.id));
   const seenSlotIds = new Set<string>();
@@ -306,11 +381,24 @@ export function parseLotteryEntries(
       };
     }
 
+    const partySize = Number(submission.partySize);
+    if (
+      !Number.isInteger(partySize) ||
+      partySize < 1 ||
+      partySize > maxPartySize
+    ) {
+      return {
+        ok: false,
+        error: `「${slot.label}」の観覧人数の指定が正しくありません。`,
+      };
+    }
+
     entries.push({
       slotId: slot.id,
       firstChoice: choices[0],
       secondChoice: choices[1] ?? null,
       thirdChoice: choices[2] ?? null,
+      partySize,
     });
   }
 

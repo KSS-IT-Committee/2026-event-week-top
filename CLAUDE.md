@@ -40,7 +40,7 @@ The `/login` page and `lib/session.ts` implement a credentials login whose sessi
 
 Beyond first login, `/login` also hosts a **self-service password change** (`changePasswordAction`): it self-authorizes from the session (never from form input), re-verifies the current password, then in one transaction rewrites the bcrypt hash and **revokes every session for that account** (logout across all apps via the shared `sessions` table) before re-issuing one for the current device. `users.has_logged_in` latches `true` on first login. Login and password-change are rate-limited per-**username** (not IP — the school is behind one NAT) via `lib/rate-limit.ts`, and post-login redirects pass through `lib/safe-next.ts` (open-redirect guard confined to the `SESSION_COOKIE_DOMAIN` host family).
 
-`lib/session-cookie.ts`, `lib/session.ts`, `proxy.ts`, `lib/access.ts`, and `lib/user-category.ts` are **byte-identical across all four app repos** (as are the shared `AuthGuard` / `AccountNav` components) — see the root `CLAUDE.md` footgun list. Edit once, copy to the others, verify with `sha256sum`.
+`lib/session-cookie.ts`, `lib/session.ts`, `proxy.ts`, `lib/access.ts`, and `lib/user-category.ts` are **byte-identical across all four app repos** (as are the shared `AuthGuard` / `Internal` / `AccountNav` components) — see the root `CLAUDE.md` footgun list. Edit once, copy to the others, verify with `sha256sum`.
 
 ## Architecture
 
