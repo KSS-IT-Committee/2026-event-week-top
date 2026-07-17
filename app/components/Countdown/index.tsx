@@ -52,8 +52,9 @@ export function Countdown({
   return (
     <div className={styles.countdown}>
       <div className={styles.title}>{isStarted ? startedTitle : title}</div>
+
       {!isStarted && (
-        <>
+        <div className={styles.itemsContainer}>
           <div className={styles.item}>
             <span className={styles.number}>{days}</span>日
           </div>
@@ -66,7 +67,7 @@ export function Countdown({
           <div className={styles.item}>
             <span className={styles.number}>{seconds}</span>秒
           </div>
-        </>
+        </div>
       )}
     </div>
   );
