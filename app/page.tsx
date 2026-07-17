@@ -255,7 +255,9 @@ export default function Toppage() {
 
           <Internal role={INTERNAL_ROLES}>
             <div className={styles.lead}>
-              <p>↓工具貸出サイト、情報伝達用サイトはこちらからアクセス</p>
+              <p>
+                ↓工具貸出・減点管理サイト、情報伝達用サイトはこちらからアクセス
+              </p>
             </div>
             <div className={styles.linkContainer}>
               <a
@@ -269,7 +271,7 @@ export default function Toppage() {
                     opacity: 1,
                   }}
                 >
-                  工具貸出サイト
+                  工具貸出・減点管理サイト
                 </p>
               </a>
 
