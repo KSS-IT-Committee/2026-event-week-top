@@ -283,7 +283,8 @@
 }
 .sportsSite,
 .rentalSite,
-.informationSite {
+.informationSite,
+.sousakutenSite {
   width: 200px;
   padding: 10px 0;
   text-align: center;

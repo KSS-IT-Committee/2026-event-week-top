@@ -307,6 +307,20 @@ export default function Toppage() {
                   （Coming Soon）
                 </p>
               </div>
+
+              <div className={styles.sousakutenSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  創作展ホームページ
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
             </div>
           </Internal>
         </div>
