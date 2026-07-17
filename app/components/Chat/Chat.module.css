@@ -168,6 +168,6 @@
   font-size: 0.85rem;
   color: color-mix(in oklch, var(--foreground) 65%, transparent);
   summary {
-    font-size : 16px;
+    font-size: 16px;
   }
 }
