@@ -343,6 +343,7 @@ export default function Toppage() {
             { label: "News", href: "/news/list" },
             { label: "ページ改善の提案", href: "/requests" },
             { label: "Changelog", href: "/changelog" },
+            { label: "AIとチャット", href: "/chat" },
           ]}
         />
       </div>
