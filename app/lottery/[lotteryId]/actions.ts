@@ -10,6 +10,7 @@ import {
   getLottery,
   getLotteryAvailability,
   MAX_CHOICES_PER_SLOT,
+  MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
   parseLotteryEntries,
 } from "@/lib/lotteries";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -76,9 +77,9 @@ export async function submitLotteryEntriesAction(
   const applicantType = applicantTypeValue;
 
   // Eligibility is re-checked here (not only in the page) because the action
-  // is directly invocable: the account's class must belong to the lottery and
-  // the applicant type must be offered by it.
-  if (!canApplyToLottery(lottery, user.username, applicantType)) {
+  // is directly invocable: the account's role-derived class must belong to
+  // the lottery and the applicant type must be offered by it.
+  if (!canApplyToLottery(lottery, user.roles, applicantType)) {
     return {
       error: "このアカウントではこの抽選に申し込めません。",
       success: false,
@@ -108,16 +109,24 @@ export async function submitLotteryEntriesAction(
   }
 
   // Read the ranks for every slot the lottery defines — never the other way
-  // round (unknown form fields are simply ignored).
-  const submissions = lottery.slots.map((slot) => ({
-    slotId: slot.id,
-    choices: Array.from({ length: MAX_CHOICES_PER_SLOT }, (_, rankIndex) => {
-      const value = formData.get(`choice-${slot.id}-${rankIndex + 1}`);
-      return typeof value === "string" ? value.trim() : "";
-    }),
-  }));
+  // round (unknown form fields are simply ignored). The 観覧人数 field only
+  // exists for applicant types allowed more than one person; everyone else
+  // is pinned to 1 regardless of what the request claims.
+  const maxPartySize = MAX_PARTY_SIZE_BY_APPLICANT_TYPE[applicantType];
+  const submissions = lottery.slots.map((slot) => {
+    const partyValue =
+      maxPartySize > 1 ? formData.get(`party-${slot.id}`) : "1";
+    return {
+      slotId: slot.id,
+      choices: Array.from({ length: MAX_CHOICES_PER_SLOT }, (_, rankIndex) => {
+        const value = formData.get(`choice-${slot.id}-${rankIndex + 1}`);
+        return typeof value === "string" ? value.trim() : "";
+      }),
+      partySize: typeof partyValue === "string" ? partyValue.trim() : "",
+    };
+  });
 
-  const parsed = parseLotteryEntries(lottery, submissions);
+  const parsed = parseLotteryEntries(lottery, submissions, maxPartySize);
   if (!parsed.ok) {
     return { error: parsed.error, success: false, savedSlotCount: 0 };
   }
@@ -140,6 +149,7 @@ export async function submitLotteryEntriesAction(
           firstChoice: entry.firstChoice,
           secondChoice: entry.secondChoice,
           thirdChoice: entry.thirdChoice,
+          partySize: entry.partySize,
         })),
         tx,
       );

@@ -8,6 +8,8 @@ export type LotteryEntrySummary = {
   slotId: string;
   // Rank order (1st, 2nd, 3rd), with unused ranks omitted.
   choices: string[];
+  // 観覧人数 (1 unless the applicant type allows more).
+  partySize: number;
 };
 
 /**
@@ -38,5 +40,6 @@ export async function getLotteryEntries(
     choices: [row.firstChoice, row.secondChoice, row.thirdChoice].filter(
       (choice): choice is string => choice !== null,
     ),
+    partySize: row.partySize,
   }));
 }

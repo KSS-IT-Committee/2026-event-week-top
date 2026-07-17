@@ -4,6 +4,7 @@ import { unauthorized } from "next/navigation";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
   describeApplicationDeadline,
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function LotteryIndexPage() {
   return (
-    <AuthGuard>
+    <AuthGuard role={INTERNAL_ROLES}>
       <LotteryIndex />
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </AuthGuard>
@@ -47,7 +48,7 @@ async function LotteryIndex() {
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => {
             const availability = getLotteryAvailability(lottery, now);
-            const isEligible = isEligibleForLottery(lottery, user.username);
+            const isEligible = isEligibleForLottery(lottery, user.roles);
             const deadline = describeApplicationDeadline(lottery);
             return (
               <article key={lottery.id} className={styles.lotteryCard}>
@@ -58,10 +59,6 @@ async function LotteryIndex() {
                     .map((type) => APPLICANT_TYPE_LABELS[type])
                     .join("・")}
                   ）{lottery.canStaffApply && "と教職員"}
-                  {/* Only meaningful when the slots are the performances
-                      (kaitaku's single slot is one question, not one 公演). */}
-                  {lottery.slots.length > 1 &&
-                    `／全${lottery.slots.length}公演`}
                 </p>
                 {deadline !== null && (
                   <p className={styles.lotteryMeta}>申込期限: {deadline}</p>

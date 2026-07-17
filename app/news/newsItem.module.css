@@ -17,6 +17,10 @@
     transform 0.15s ease;
 }
 
+.newsText .a {
+  text-decoration: underline;
+}
+
 .newsText:hover {
   opacity: 0.7;
   transform: translateX(2px);

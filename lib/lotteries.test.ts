@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CLASSNAMES } from "@/db/schema";
 import {
   canApplyToLottery,
+  classFromRoles,
   describeApplicationDeadline,
   describeEligibleGrades,
   getLottery,
@@ -11,8 +12,17 @@ import {
   LOTTERIES,
   type Lottery,
   MAX_CHOICES_PER_SLOT,
+  MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
   parseLotteryEntries,
 } from "@/lib/lotteries";
+
+// Role sets as 2026-account-generator's users.sql grants them: students get
+// grade + class + Students, staff get Teachers. Committee roles ride along
+// on some accounts and must not affect eligibility.
+function studentRoles(classCode: string): string[] {
+  return [`G${classCode[0]}`, `Class${classCode[1]}`, "Students"];
+}
+const TEACHER_ROLES = ["Teachers"];
 
 function mustGetLottery(lotteryId: string): Lottery {
   const lottery = getLottery(lotteryId);
@@ -50,9 +60,10 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.closesAt).toBeInstanceOf(Date);
   });
 
-  it("asks kaitaku parents one question: rank the 8 announced performances", () => {
+  it("asks kaitaku parents one question per festival day: rank the 8 performances", () => {
     expect(kaitaku.slots).toEqual([
-      { id: "preferred-slot", label: "観覧を希望する公演" },
+      { id: "sep12", label: "9月12日（土）の公演" },
+      { id: "sep13", label: "9月13日（日）の公演" },
     ]);
     expect(kaitaku.acts).toEqual([
       { id: "performance-1", label: "第一公演（8:45～9:15）" },
@@ -66,13 +77,56 @@ describe("LOTTERIES registry", () => {
     ]);
   });
 
-  it("matches the announced sousaku timetable (4 performances)", () => {
+  it("repeats the announced sousaku timetable on both festival days", () => {
     expect(sousaku.slots).toEqual([
-      { id: "slot-1", label: "第一公演", time: "8:45～10:00" },
-      { id: "slot-2", label: "第二公演", time: "10:20～11:35" },
-      { id: "slot-3", label: "第三公演", time: "12:30～13:45" },
-      { id: "slot-4", label: "第四公演", time: "14:05～15:20" },
+      {
+        id: "sep12-slot-1",
+        label: "9月12日（土）第一公演",
+        time: "8:45～10:00",
+      },
+      {
+        id: "sep12-slot-2",
+        label: "9月12日（土）第二公演",
+        time: "10:20～11:35",
+      },
+      {
+        id: "sep12-slot-3",
+        label: "9月12日（土）第三公演",
+        time: "12:30～13:45",
+      },
+      {
+        id: "sep12-slot-4",
+        label: "9月12日（土）第四公演",
+        time: "14:05～15:20",
+      },
+      {
+        id: "sep13-slot-1",
+        label: "9月13日（日）第一公演",
+        time: "8:45～10:00",
+      },
+      {
+        id: "sep13-slot-2",
+        label: "9月13日（日）第二公演",
+        time: "10:20～11:35",
+      },
+      {
+        id: "sep13-slot-3",
+        label: "9月13日（日）第三公演",
+        time: "12:30～13:45",
+      },
+      {
+        id: "sep13-slot-4",
+        label: "9月13日（日）第四公演",
+        time: "14:05～15:20",
+      },
     ]);
+  });
+
+  it("lets parents bring up to two people, 本人 entries exactly one", () => {
+    expect(MAX_PARTY_SIZE_BY_APPLICANT_TYPE).toEqual({
+      student: 1,
+      parent: 2,
+    });
   });
 
   it("offers the sousaku classes (grades 5-6) as sousaku acts", () => {
@@ -109,6 +163,16 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.canStaffApply).toBe(true);
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
   });
+
+  it("carries the important parent-facing notes for both lotteries", () => {
+    // Sousaku explains the child's-class priority and its scope.
+    const sousakuNotes = (sousaku.parentNotes ?? []).join("");
+    expect(sousakuNotes).toContain("第1希望");
+    expect(sousakuNotes).toContain("創作部門");
+    // Kaitaku states that only its own division's parents may apply.
+    const kaitakuNotes = (kaitaku.parentNotes ?? []).join("");
+    expect(kaitakuNotes).toContain("開拓部門");
+  });
 });
 
 describe("getLottery", () => {
@@ -121,57 +185,94 @@ describe("getLottery", () => {
   });
 });
 
-describe("isEligibleForLottery", () => {
-  it("accepts a kaitaku-class account for the kaitaku lottery", () => {
-    expect(isEligibleForLottery(kaitaku, "3A05")).toBe(true);
-    expect(isEligibleForLottery(kaitaku, "4D11")).toBe(true);
+describe("classFromRoles", () => {
+  it("derives the class from one grade role plus one class role", () => {
+    expect(classFromRoles(["G4", "ClassD", "Students"])).toBe("4D");
+    expect(classFromRoles(["G1", "ClassA", "Students"])).toBe("1A");
   });
 
-  it("rejects alias accounts (suffixed usernames) so one student cannot double-enter", () => {
-    expect(isEligibleForLottery(kaitaku, "4D11_sakuten")).toBe(false);
-    expect(isEligibleForLottery(sousaku, "1A01_test")).toBe(false);
+  it("ignores committee and other unrelated roles", () => {
+    expect(classFromRoles(["Sousakuten", "G4", "ClassD", "Students"])).toBe(
+      "4D",
+    );
+  });
+
+  it("returns null without exactly one grade and one class role", () => {
+    expect(classFromRoles([])).toBeNull();
+    expect(classFromRoles(["Students"])).toBeNull();
+    expect(classFromRoles(["G4", "Students"])).toBeNull();
+    expect(classFromRoles(["ClassD", "Students"])).toBeNull();
+    expect(classFromRoles(["G3", "G4", "ClassD", "Students"])).toBeNull();
+    expect(classFromRoles(["G4", "ClassC", "ClassD", "Students"])).toBeNull();
+  });
+});
+
+describe("isEligibleForLottery", () => {
+  it("accepts a kaitaku-class account for the kaitaku lottery", () => {
+    expect(isEligibleForLottery(kaitaku, studentRoles("3A"))).toBe(true);
+    expect(isEligibleForLottery(kaitaku, studentRoles("4D"))).toBe(true);
+  });
+
+  it("judges by roles alone, so an alias granted its base account's roles passes", () => {
+    // e.g. "4D11_sakuten" carrying the same roles as "4D11" — such aliases
+    // can hold a second entry set; only grant them roles where acceptable.
+    expect(
+      isEligibleForLottery(kaitaku, ["Sousakuten", "G4", "ClassD", "Students"]),
+    ).toBe(true);
   });
 
   it("rejects accounts of other divisions for the kaitaku lottery", () => {
-    expect(isEligibleForLottery(kaitaku, "2A01")).toBe(false);
-    expect(isEligibleForLottery(kaitaku, "5A01")).toBe(false);
+    expect(isEligibleForLottery(kaitaku, studentRoles("2A"))).toBe(false);
+    expect(isEligibleForLottery(kaitaku, studentRoles("5A"))).toBe(false);
   });
 
-  it("accepts staff accounts only where canStaffApply is set", () => {
-    expect(isEligibleForLottery(sousaku, "k0959176")).toBe(true);
-    expect(isEligibleForLottery(kaitaku, "k0959176")).toBe(false);
+  it("accepts Teachers accounts only where canStaffApply is set", () => {
+    expect(isEligibleForLottery(sousaku, TEACHER_ROLES)).toBe(true);
+    expect(isEligibleForLottery(kaitaku, TEACHER_ROLES)).toBe(false);
   });
 
-  it("rejects malformed staff usernames even on a staff lottery", () => {
-    expect(isEligibleForLottery(sousaku, "k0959176_x")).toBe(false);
-    expect(isEligibleForLottery(sousaku, "k095917")).toBe(false);
+  it("rejects role-less and committee-only accounts", () => {
+    expect(isEligibleForLottery(sousaku, [])).toBe(false);
+    expect(isEligibleForLottery(sousaku, ["IT"])).toBe(false);
+    expect(isEligibleForLottery(sousaku, ["Sousakuten"])).toBe(false);
+  });
+
+  it("rejects a Students account whose roles pin no single class", () => {
+    expect(isEligibleForLottery(sousaku, ["Students"])).toBe(false);
+    expect(isEligibleForLottery(sousaku, ["G4", "Students"])).toBe(false);
   });
 
   it("accepts every grade's students for the sousaku lottery", () => {
-    expect(isEligibleForLottery(sousaku, "1A01")).toBe(true);
-    expect(isEligibleForLottery(sousaku, "6D01")).toBe(true);
+    expect(isEligibleForLottery(sousaku, studentRoles("1A"))).toBe(true);
+    expect(isEligibleForLottery(sousaku, studentRoles("6D"))).toBe(true);
   });
 });
 
 describe("canApplyToLottery", () => {
   it("rejects an applicant type the lottery does not offer", () => {
-    expect(canApplyToLottery(kaitaku, "3A05", "student")).toBe(false);
+    expect(canApplyToLottery(kaitaku, studentRoles("3A"), "student")).toBe(
+      false,
+    );
   });
 
   it("accepts an offered applicant type for an eligible account", () => {
-    expect(canApplyToLottery(kaitaku, "3A05", "parent")).toBe(true);
-    expect(canApplyToLottery(sousaku, "1A01", "student")).toBe(true);
-    expect(canApplyToLottery(sousaku, "1A01", "parent")).toBe(true);
+    expect(canApplyToLottery(kaitaku, studentRoles("3A"), "parent")).toBe(true);
+    expect(canApplyToLottery(sousaku, studentRoles("1A"), "student")).toBe(
+      true,
+    );
+    expect(canApplyToLottery(sousaku, studentRoles("1A"), "parent")).toBe(true);
   });
 
   it("lets staff apply only as themselves, never as a parent", () => {
-    expect(canApplyToLottery(sousaku, "k0959176", "student")).toBe(true);
-    expect(canApplyToLottery(sousaku, "k0959176", "parent")).toBe(false);
-    expect(canApplyToLottery(kaitaku, "k0959176", "parent")).toBe(false);
+    expect(canApplyToLottery(sousaku, TEACHER_ROLES, "student")).toBe(true);
+    expect(canApplyToLottery(sousaku, TEACHER_ROLES, "parent")).toBe(false);
+    expect(canApplyToLottery(kaitaku, TEACHER_ROLES, "parent")).toBe(false);
   });
 
   it("rejects an ineligible account even for an offered type", () => {
-    expect(canApplyToLottery(kaitaku, "5A01", "parent")).toBe(false);
+    expect(canApplyToLottery(kaitaku, studentRoles("5A"), "parent")).toBe(
+      false,
+    );
   });
 });
 
@@ -240,151 +341,228 @@ describe("describeEligibleGrades", () => {
 });
 
 describe("parseLotteryEntries", () => {
-  it("keeps ranked choices for a fully filled slot", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "5B", "6C"] },
-    ]);
+  it("keeps ranked choices and 観覧人数 for a fully filled slot", () => {
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "5B", "6C"], partySize: "2" }],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "slot-1",
+          slotId: "sep12-slot-1",
           firstChoice: "5A",
           secondChoice: "5B",
           thirdChoice: "6C",
+          partySize: 2,
         },
       ],
     });
   });
 
-  it("parses kaitaku's single question as ranked performances", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      {
-        slotId: "preferred-slot",
-        choices: ["performance-3", "performance-6", ""],
-      },
-    ]);
+  it("parses kaitaku's per-day questions as ranked performances", () => {
+    const result = parseLotteryEntries(
+      kaitaku,
+      [
+        {
+          slotId: "sep12",
+          choices: ["performance-3", "performance-6", ""],
+          partySize: "2",
+        },
+        {
+          slotId: "sep13",
+          choices: ["performance-1", "", ""],
+          partySize: "1",
+        },
+      ],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "preferred-slot",
+          slotId: "sep12",
           firstChoice: "performance-3",
           secondChoice: "performance-6",
           thirdChoice: null,
+          partySize: 2,
+        },
+        {
+          slotId: "sep13",
+          firstChoice: "performance-1",
+          secondChoice: null,
+          thirdChoice: null,
+          partySize: 1,
         },
       ],
     });
   });
 
   it("compacts gaps upward (a 1st + 3rd choice becomes 1st + 2nd)", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "", "5B"] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "", "5B"], partySize: "1" }],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "slot-1",
+          slotId: "sep12-slot-1",
           firstChoice: "5A",
           secondChoice: "5B",
           thirdChoice: null,
+          partySize: 1,
         },
       ],
     });
   });
 
   it("promotes a lone 2nd-rank choice to the 1st choice", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-2", choices: ["", "6A", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep13-slot-2", choices: ["", "6A", ""], partySize: "1" }],
+      2,
+    );
     expect(result).toEqual({
       ok: true,
       entries: [
         {
-          slotId: "slot-2",
+          slotId: "sep13-slot-2",
           firstChoice: "6A",
           secondChoice: null,
           thirdChoice: null,
+          partySize: 1,
         },
       ],
     });
   });
 
   it("skips slots with no choices and keeps slot submission order", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "", ""] },
-      { slotId: "slot-2", choices: ["", "", ""] },
-      { slotId: "slot-3", choices: ["6B", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [
+        { slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize: "1" },
+        { slotId: "sep12-slot-2", choices: ["", "", ""], partySize: "1" },
+        { slotId: "sep13-slot-3", choices: ["6B", "", ""], partySize: "1" },
+      ],
+      2,
+    );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.entries.map((entry) => entry.slotId)).toEqual([
-      "slot-1",
-      "slot-3",
+      "sep12-slot-1",
+      "sep13-slot-3",
     ]);
   });
 
-  it("returns no entries for an all-blank submission", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["", "", ""] },
-    ]);
+  it("returns no entries for an all-blank submission, ignoring 人数", () => {
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["", "", ""], partySize: "" }],
+      2,
+    );
     expect(result).toEqual({ ok: true, entries: [] });
   });
 
   it("rejects an unknown slot id", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-99", choices: ["5A", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "slot-99", choices: ["5A", "", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain("不正な公演");
   });
 
   it("rejects a slot submitted twice", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "", ""] },
-      { slotId: "slot-1", choices: ["5B", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [
+        { slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize: "1" },
+        { slotId: "sep12-slot-1", choices: ["5B", "", ""], partySize: "1" },
+      ],
+      2,
+    );
     expect(result.ok).toBe(false);
   });
 
   it("rejects more ranks than MAX_CHOICES_PER_SLOT", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "5B", "5C", "5D"] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [
+        {
+          slotId: "sep12-slot-1",
+          choices: ["5A", "5B", "5C", "5D"],
+          partySize: "1",
+        },
+      ],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain(`${MAX_CHOICES_PER_SLOT}件まで`);
   });
 
   it("rejects an act the lottery does not offer, naming the slot", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-2", choices: ["3A", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-2", choices: ["3A", "", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.error).toContain("第二公演");
+    expect(result.error).toContain("9月12日（土）第二公演");
     expect(result.error).toContain("不正な選択肢");
   });
 
   it("rejects a class code where kaitaku expects a performance", () => {
-    const result = parseLotteryEntries(kaitaku, [
-      { slotId: "preferred-slot", choices: ["3A", "", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      kaitaku,
+      [{ slotId: "sep12", choices: ["3A", "", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.error).toContain("観覧を希望する公演");
+    expect(result.error).toContain("9月12日（土）の公演");
     expect(result.error).toContain("不正な選択肢");
   });
 
   it("rejects the same act at two ranks of one slot, naming the slot", () => {
-    const result = parseLotteryEntries(sousaku, [
-      { slotId: "slot-1", choices: ["5A", "5A", ""] },
-    ]);
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "5A", ""], partySize: "1" }],
+      2,
+    );
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error).toContain("第一公演");
     expect(result.error).toContain("同じ選択肢");
+  });
+
+  it("rejects an out-of-range or non-numeric 観覧人数", () => {
+    for (const partySize of ["0", "3", "1.5", "abc", ""]) {
+      const result = parseLotteryEntries(
+        sousaku,
+        [{ slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize }],
+        2,
+      );
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.error).toContain("観覧人数");
+    }
+  });
+
+  it("caps 観覧人数 at the caller's maximum (本人 = 1)", () => {
+    const result = parseLotteryEntries(
+      sousaku,
+      [{ slotId: "sep12-slot-1", choices: ["5A", "", ""], partySize: "2" }],
+      1,
+    );
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toContain("観覧人数");
   });
 });

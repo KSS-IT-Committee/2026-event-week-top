@@ -284,10 +284,9 @@
 .sportsSite,
 .rentalSite,
 .informationSite {
-  width: 200px;
+  width: 250px;
   padding: 10px 0;
   text-align: center;
-  background-color: #676767;
   color: #ffffff;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -301,6 +300,14 @@
 .informationSite p {
   color: #ffffff;
 }
+
+.rentalSite {
+  background-color: #2a6cca;
+}
+.informationSite {
+  background-color: #676767;
+}
+
 .ceremonyTitle {
   font-size: 4rem;
   font-family: "Yu Mincho", serif;

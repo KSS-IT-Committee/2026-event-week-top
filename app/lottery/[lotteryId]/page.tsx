@@ -6,6 +6,7 @@ import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { getLotteryEntries } from "@/db/getLotteryEntries";
 import { isLotteryApplicantType, type LotteryApplicantType } from "@/db/schema";
+import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
   canApplyToLottery,
@@ -14,11 +15,13 @@ import {
   getLottery,
   getLotteryAvailability,
   type Lottery,
+  MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
 } from "@/lib/lotteries";
 import { getCurrentUser } from "@/lib/session";
 
 import styles from "../lottery.module.css";
 import { LotteryEntryForm } from "./LotteryEntryForm";
+import { PartySizeGuide } from "./PartySizeGuide";
 
 export const metadata: Metadata = {
   title: "公演観覧抽選 | 行事週間2026",
@@ -39,7 +42,7 @@ export default async function LotteryDetailPage({
   if (lottery === null) notFound();
 
   return (
-    <AuthGuard>
+    <AuthGuard role={INTERNAL_ROLES}>
       <LotteryDetail
         lottery={lottery}
         requestedType={typeof as === "string" ? as : undefined}
@@ -70,7 +73,7 @@ async function LotteryDetail({
   // For a fully ineligible viewer nothing matches — fall back to the
   // lottery's own list so the page still renders the 対象外 explanation.
   const usableTypes = lottery.applicantTypes.filter((type) =>
-    canApplyToLottery(lottery, user.username, type),
+    canApplyToLottery(lottery, user.roles, type),
   );
   const offeredTypes =
     usableTypes.length > 0 ? usableTypes : lottery.applicantTypes;
@@ -84,14 +87,18 @@ async function LotteryDetail({
       ? requestedType
       : offeredTypes[0];
 
-  const canApply = canApplyToLottery(lottery, user.username, applicantType);
+  const canApply = canApplyToLottery(lottery, user.roles, applicantType);
   const availability = getLotteryAvailability(lottery, new Date());
   const deadline = describeApplicationDeadline(lottery);
+  const maxPartySize = MAX_PARTY_SIZE_BY_APPLICANT_TYPE[applicantType];
   const savedEntries = canApply
     ? await getLotteryEntries(user.username, lottery.id, applicantType)
     : [];
   const defaultChoices = Object.fromEntries(
     savedEntries.map((entry) => [entry.slotId, entry.choices]),
+  );
+  const defaultPartySizes = Object.fromEntries(
+    savedEntries.map((entry) => [entry.slotId, entry.partySize]),
   );
 
   return (
@@ -105,6 +112,7 @@ async function LotteryDetail({
           ))}
           {deadline !== null && <li>申込期限は{deadline}です。</li>}
         </ul>
+        {maxPartySize > 1 && <PartySizeGuide />}
         {offeredTypes.length > 1 && (
           <nav className={styles.tabs} aria-label="申込者の区分">
             {offeredTypes.map((type) => (
@@ -127,6 +135,15 @@ async function LotteryDetail({
           {APPLICANT_TYPE_LABELS[applicantType]}としての申込（アカウント:{" "}
           {user.username}）
         </p>
+        {applicantType === "parent" &&
+          canApply &&
+          lottery.parentNotes !== undefined && (
+            <ul className={`${styles.notesList} ${styles.importantNotes}`}>
+              {lottery.parentNotes.map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
+          )}
         {availability === "upcoming" && (
           <p className={styles.closed}>申込受付はまだ始まっていません。</p>
         )}
@@ -146,6 +163,8 @@ async function LotteryDetail({
             slots={lottery.slots}
             acts={lottery.acts}
             defaultChoices={defaultChoices}
+            defaultPartySizes={defaultPartySizes}
+            maxPartySize={maxPartySize}
             isOpen={availability === "open"}
           />
         ) : (

@@ -31,6 +31,7 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
     "remark-html": "^16.0.1"
   },
   "devDependencies": {
@@ -42,12 +43,12 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "16.2.10",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-unused-imports": "^4.0.0",
     "pdf-lib": "^1.17.1",
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.5",
     "tailwindcss": "^4",
     "typescript": "^6",
     "unpdf": "^1.6.2",
