@@ -127,7 +127,7 @@ export function LotteryEntryForm({
       {savedSlotCount > 0 ? (
         <p className={`${styles.submitStatus} ${styles.submitStatusDone}`}>
           申込済み：{savedSlotCount}件の希望がサーバーに保存されています。
-          {isOpen && "もう一度送信すると内容は上書きされます。"}
+          {isOpen && "申込み内容を変更したい場合は、再度クラスを選択し、「希望を送信」を押してください。"}
         </p>
       ) : (
         <p className={`${styles.submitStatus} ${styles.submitStatusNone}`}>
