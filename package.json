@@ -15,6 +15,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "fix": "npm run lint:fix && npm run format",
     "pretest": "npm run changelog && npm run posts",
     "test": "vitest run",
     "test:watch": "vitest",

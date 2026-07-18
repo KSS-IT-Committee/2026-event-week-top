@@ -1,0 +1,5 @@
+{
+  "title": "package.jsonのscriptsにfixを追加",
+  "description": "lint:fixとformatを一括でできるようになります。",
+  "credits": ["@hatuna-827"]
+}
