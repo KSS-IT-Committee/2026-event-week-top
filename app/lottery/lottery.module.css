@@ -272,7 +272,10 @@
   background: color-mix(in oklch, #237804 8%, var(--background));
 }
 
-.submitStatusNone {
+/* .submitStatusDirty (edits not yet submitted) shares 未申込's amber — both
+   mean "the server does not have what you see; press 送信". */
+.submitStatusNone,
+.submitStatusDirty {
   color: #d46b08;
   border-color: color-mix(in oklch, #d46b08 45%, transparent);
   background: color-mix(in oklch, #d46b08 8%, var(--background));
@@ -322,7 +325,8 @@
     background: color-mix(in oklch, #95de64 10%, var(--background));
   }
 
-  .submitStatusNone {
+  .submitStatusNone,
+  .submitStatusDirty {
     /* Same WCAG AA swap as .closed, on the banner's own tinted background. */
     color: #ffa940;
     border-color: color-mix(in oklch, #ffa940 45%, transparent);
