@@ -254,6 +254,30 @@
   color: #237804;
 }
 
+/* 申込状況 banner — the always-visible answer to "did my application reach
+   the server?" (the transient .success line alone was read as a mere local
+   save and people doubted their submission went through). */
+.submitStatus {
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.submitStatusDone {
+  color: #237804;
+  border-color: color-mix(in oklch, #237804 45%, transparent);
+  background: color-mix(in oklch, #237804 8%, var(--background));
+}
+
+.submitStatusNone {
+  color: #d46b08;
+  border-color: color-mix(in oklch, #d46b08 45%, transparent);
+  background: color-mix(in oklch, #d46b08 8%, var(--background));
+}
+
 .ineligible {
   font-size: 0.9rem;
   color: #d4380d;
@@ -289,6 +313,20 @@
   .closed {
     /* #d46b08 is below WCAG AA contrast on the dark card background. */
     color: #ffa940;
+  }
+
+  .submitStatusDone {
+    /* Same WCAG AA swap as .success, on the banner's own tinted background. */
+    color: #95de64;
+    border-color: color-mix(in oklch, #95de64 45%, transparent);
+    background: color-mix(in oklch, #95de64 10%, var(--background));
+  }
+
+  .submitStatusNone {
+    /* Same WCAG AA swap as .closed, on the banner's own tinted background. */
+    color: #ffa940;
+    border-color: color-mix(in oklch, #ffa940 45%, transparent);
+    background: color-mix(in oklch, #ffa940 10%, var(--background));
   }
 }
 

@@ -50,6 +50,18 @@ export function LotteryEntryForm({
     submitLotteryEntriesAction,
     INITIAL_STATE,
   );
+  // How many performance slots the SERVER currently holds entries for — what
+  // the 申込状況 banner reports. Seeded from the page's server render and
+  // advanced only when a submit round-trips successfully, so the banner shows
+  // confirmed server state, never an optimistic guess.
+  const [savedSlotCount, setSavedSlotCount] = useState(
+    () => Object.keys(defaultChoices).length,
+  );
+  // Adjusted during render (not in an effect) so a fresh success never paints
+  // a stale banner frame; the equality guard makes it settle immediately.
+  if (state.success && savedSlotCount !== state.savedSlotCount) {
+    setSavedSlotCount(state.savedSlotCount);
+  }
   // Controlled selects so a class picked at one rank can be disabled at the
   // slot's other ranks. Keyed per slot, always RANK_LABELS.length long,
   // "" = no choice at that rank.
@@ -112,6 +124,17 @@ export function LotteryEntryForm({
     <form action={formAction} onSubmit={handleSubmit} className={styles.form}>
       <input type="hidden" name="lotteryId" value={lotteryId} />
       <input type="hidden" name="applicantType" value={applicantType} />
+      {savedSlotCount > 0 ? (
+        <p className={`${styles.submitStatus} ${styles.submitStatusDone}`}>
+          申込済み：{savedSlotCount}件の希望がサーバーに保存されています。
+          {isOpen && "もう一度送信すると内容は上書きされます。"}
+        </p>
+      ) : (
+        <p className={`${styles.submitStatus} ${styles.submitStatusNone}`}>
+          未申込：まだ希望はサーバーに送信されていません。
+          {isOpen && "希望を選んで「希望を送信」を押してください。"}
+        </p>
+      )}
       {slots.map((slot) => {
         const choices = choicesBySlot[slot.id];
         return (
@@ -209,13 +232,13 @@ export function LotteryEntryForm({
       {state.success && (
         <p className={styles.success} role="status">
           {state.savedSlotCount > 0
-            ? `希望を保存しました（${state.savedSlotCount}件）。`
+            ? `送信が完了しました。希望をサーバーに保存しました（${state.savedSlotCount}件）。`
             : "希望をすべて取り消しました。"}
         </p>
       )}
       {isOpen && (
         <button className={styles.button} type="submit" disabled={isPending}>
-          {isPending ? "保存中…" : "希望を保存"}
+          {isPending ? "送信中…" : "希望を送信"}
         </button>
       )}
     </form>

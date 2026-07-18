@@ -150,7 +150,7 @@ async function LotteryDetail({
         {availability === "closed" && (
           <p className={styles.closed}>
             申込受付は終了しました。
-            {canApply && "保存済みの希望は以下のとおりです。"}
+            {canApply && "送信済みの希望は以下のとおりです。"}
           </p>
         )}
         {canApply ? (
