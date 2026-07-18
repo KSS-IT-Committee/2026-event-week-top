@@ -40,8 +40,6 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
   opacity: 0;
   animation: fadeSlideshow 52s linear infinite;
 }
@@ -83,6 +81,20 @@
 }
 .slide:nth-child(13) {
   animation-delay: -48s;
+}
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;       /* ← background-size: cover; の代わり */
+  object-position: center; /* ← background-position: center; の代わり */
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide {
+    animation: none;
+  }
+  .skude:first-child {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeSlideshow {
