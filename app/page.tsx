@@ -12,6 +12,22 @@ import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
 
+const images = [
+  '/background/background (1).jpg',
+  '/background/background (2).jpg',
+  '/background/background (3).jpg',
+  '/background/background (4).jpg',
+  '/background/background (5).jpg',
+  '/background/background (6).jpg',
+  '/background/background (7).jpg',
+  '/background/background (8).jpg',
+  '/background/background (9).jpg',
+  '/background/background (10).jpg',
+  '/background/background (11).jpg',
+  '/background/background (12).jpg',
+  '/background/background (13).jpg',
+];
+
 const latestNews = getNews()
   .sort((a, b) => (a.date < b.date ? 1 : -1))
   .slice(0, 4);
@@ -41,6 +57,18 @@ export default function Toppage() {
   return (
     <>
       <header className={styles.header}>
+      <div className={styles.bgSlider}>
+        {images.map((src, index) => (
+          <div
+            key={src}
+            className={styles.slide}
+            style={{
+              backgroundImage: `url('${src}')`,
+              animationDelay: `${index * -4}s` 
+            }}
+          />
+        ))}
+      </div>
         <div className={styles.themeContainer}>
           <Image
             className={styles.theme}
