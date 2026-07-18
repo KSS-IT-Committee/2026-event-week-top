@@ -1,5 +1,5 @@
 {
-  "title": "adding proper description on save",
-  "description": "TODO",
+  "title": "抽選フォームの修正",
+  "description": "抽選フォームにおける\"希望を保存\"ボタンについて、分かりにくかったため説明を追加しました。",
   "credits": ["@rotarymars"]
 }
