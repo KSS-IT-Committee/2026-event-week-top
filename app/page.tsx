@@ -59,12 +59,8 @@ export default function Toppage() {
       <header className={styles.header}>
         <div className={styles.bgSlider}>
           {images.map((src, index) => (
-            <div key={index} className={styles.slide}>
-              <img 
-                src={src} 
-                loading="lazy" 
-                alt={`背景画像 ${index + 1}`} 
-              />
+            <div key={src} className={styles.slide}>
+              <img src={src} loading="lazy" alt="" aria-hidden="true" />
             </div>
           ))}
         </div>

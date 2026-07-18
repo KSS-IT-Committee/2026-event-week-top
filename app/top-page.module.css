@@ -33,7 +33,6 @@
   height: 100%;
   z-index: 0;
 }
-
 .slide {
   position: absolute;
   top: 0;
@@ -85,8 +84,8 @@
 .slide img {
   width: 100%;
   height: 100%;
-  object-fit: cover;       /* ← background-size: cover; の代わり */
-  object-position: center; /* ← background-position: center; の代わり */
+  object-fit: cover;
+  object-position: center;
 }
 @media (prefers-reduced-motion: reduce) {
   .slide {
