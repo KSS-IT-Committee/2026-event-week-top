@@ -131,7 +131,7 @@ export function LotteryEntryForm({
         </p>
       ) : (
         <p className={`${styles.submitStatus} ${styles.submitStatusNone}`}>
-          未申込：まだ希望はサーバーに送信されていません。
+          未申込：まだ希望はサーバーに送信されていない、もしくは希望がない状態として保存されています。
           {isOpen && "希望を選んで「希望を送信」を押してください。"}
         </p>
       )}
