@@ -8,7 +8,7 @@ import { INTERNAL_ROLES } from "@/lib/access";
 
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
-import HeaderSlider from "./components/HeaderSlider";
+import { HeaderSlider } from "./components/HeaderSlider";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";

@@ -21,7 +21,7 @@ const images = [
   "/background/background (13).jpg",
 ];
 
-export default function HeaderSlider() {
+export function HeaderSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
 

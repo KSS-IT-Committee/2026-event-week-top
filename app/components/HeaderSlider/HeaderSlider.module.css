@@ -20,12 +20,12 @@
 
 .active {
   opacity: 1;
-  z-index: 2;
+  z-index: 1;
 }
 
 .fadingOut {
   opacity: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .slide img {
