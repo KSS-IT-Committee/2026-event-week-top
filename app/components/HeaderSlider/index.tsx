@@ -1,7 +1,8 @@
 "use client";
 
-import Image from 'next/image';
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
 import styles from "./HeaderSlider.module.css";
 
 const images = [
@@ -38,18 +39,18 @@ export default function HeaderSlider() {
         const isVisible = index === currentIndex || index === prevIndex;
         if (!isVisible) return null;
         return (
-          <div 
-            key={src} 
+          <div
+            key={src}
             className={`${styles.slide} ${index === currentIndex ? styles.active : styles.fadingOut}`}
           >
-            <Image 
-              src={src} 
-              alt="" 
-              aria-hidden="true" 
+            <Image
+              src={src}
+              alt=""
+              aria-hidden="true"
               fill
               priority={index === 0}
               sizes="100vw"
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              style={{ objectFit: "cover", objectPosition: "center" }}
             />
           </div>
         );
