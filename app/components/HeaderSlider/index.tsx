@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import styles from './HeaderSlider.module.css';
+import Image from 'next/image';
+import { useEffect, useState } from "react";
+import styles from "./HeaderSlider.module.css";
 
 const images = [
   "/background/background (1).jpg",
@@ -36,13 +37,20 @@ export default function HeaderSlider() {
       {images.map((src, index) => {
         const isVisible = index === currentIndex || index === prevIndex;
         if (!isVisible) return null;
-
         return (
           <div 
             key={src} 
             className={`${styles.slide} ${index === currentIndex ? styles.active : styles.fadingOut}`}
           >
-            <img src={src} alt="" aria-hidden="true" />
+            <Image 
+              src={src} 
+              alt="" 
+              aria-hidden="true" 
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+            />
           </div>
         );
       })}
