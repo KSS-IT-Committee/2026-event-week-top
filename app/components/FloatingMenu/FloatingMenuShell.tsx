@@ -31,7 +31,7 @@ type FloatingMenuShellProps = {
  */
 export function FloatingMenuShell({ children }: FloatingMenuShellProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [atBottom, setAtBottom] = useState(false);
+  const [isAtBottom, setAtBottom] = useState(false);
   const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -99,7 +99,7 @@ export function FloatingMenuShell({ children }: FloatingMenuShellProps) {
         type="button"
         className={`${styles.hamburger} ${
           isOpen ? styles.hidden : styles.visible
-        } ${atBottom ? styles.atBottom : ""}`}
+        } ${!isOpen && isAtBottom ? styles.atBottom : ""}`}
         tabIndex={isOpen ? -1 : 0}
         onClick={() => setIsOpen(true)}
       >
