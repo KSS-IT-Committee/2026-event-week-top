@@ -1,5 +1,5 @@
 {
-  "title": "Setting Opacity to FloatingMenu",
-  "description": "TODO",
+  "title": "フローティングメニューの透明度の変更",
+  "description": "ページの下部まで行ったときにフローティングメニューの透明が変化するようになりました。",
   "credits": ["@SakaYq4875"]
 }
