@@ -253,13 +253,11 @@ export default function Toppage() {
             <br />
           </div>
 
-          <Internal role={INTERNAL_ROLES}>
-            <div className={styles.lead}>
-              <p>
-                ↓工具貸出・減点管理サイト、情報伝達用サイトはこちらからアクセス
-              </p>
-            </div>
-            <div className={styles.linkContainer}>
+          <div className={styles.lead}>
+            <p>↓創作展の関連サイトはこちらからアクセス</p>
+          </div>
+          <div className={styles.linkContainer}>
+            <Internal role={INTERNAL_ROLES}>
               <a
                 className={styles.rentalSite}
                 href="https://equipment.2026.kss-it.com"
@@ -274,22 +272,23 @@ export default function Toppage() {
                   工具貸出・減点管理サイト
                 </p>
               </a>
+            </Internal>
 
-              <div className={styles.informationSite}>
-                <p
-                  style={{
-                    color: "#fff",
-                    WebkitTextFillColor: "#fff",
-                    opacity: 1,
-                  }}
-                >
-                  情報発信サイト
-                  <br />
-                  （Coming Soon）
-                </p>
-              </div>
-            </div>
-          </Internal>
+            <a
+              className={styles.informationSite}
+              href="https://sousakuten-info.2026.kss-it.com"
+            >
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
+              >
+                情報発信サイト
+              </p>
+            </a>
+          </div>
         </div>
 
         {/* 後夜祭 */}
