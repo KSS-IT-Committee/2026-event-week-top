@@ -37,6 +37,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .slide {
-    animation: none;
+    transition: none;
   }
 }
