@@ -1,0 +1,82 @@
+name: Add to Project
+
+on:
+  issues:
+    types: [opened]
+  # fork からの PR でも secrets を参照できるよう pull_request_target を使う。
+  # コードの checkout も実行も一切しないため、fork のコードが動くことはない
+  pull_request_target:
+    types: [opened]
+
+# GITHUB_TOKEN は一切使わない (org の Project v2 には PAT が必要)
+permissions: {}
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add to project
+        id: add
+        uses: actions/add-to-project@v2.0.0
+        with:
+          project-url: https://github.com/orgs/KSS-IT-Committee/projects/1
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+
+      - name: Set Iteration to the next iteration
+        env:
+          GH_TOKEN: ${{ secrets.ADD_TO_PROJECT_PAT }}
+          ITEM_ID: ${{ steps.add.outputs.itemId }}
+        run: |
+          DATA=$(gh api graphql -f query='
+            query {
+              organization(login: "KSS-IT-Committee") {
+                projectV2(number: 1) {
+                  id
+                  field(name: "Iteration") {
+                    ... on ProjectV2IterationField {
+                      id
+                      configuration {
+                        iterations { id startDate }
+                      }
+                    }
+                  }
+                }
+              }
+            }')
+
+          PROJECT_ID=$(jq -r '.data.organization.projectV2.id' <<< "$DATA")
+          FIELD_ID=$(jq -r '.data.organization.projectV2.field.id' <<< "$DATA")
+
+          # 「次の iteration」= 今日より後に始まる最初の iteration。
+          # 今日がある iteration の期間中なら、ちょうどその次のものになる。
+          # ランナーは UTC なので、日付の判定は日本時間に合わせる
+          TODAY=$(TZ=Asia/Tokyo date +%F)
+          NEXT_ID=$(jq -r --arg today "$TODAY" '
+            .data.organization.projectV2.field.configuration.iterations
+            | map(select(.startDate > $today))
+            | first
+            | .id // empty
+          ' <<< "$DATA")
+
+          if [ -z "$NEXT_ID" ]; then
+            echo "::warning::No iteration starts after $TODAY. Extend the iteration schedule in the project; leaving the field unset."
+            exit 0
+          fi
+
+          gh api graphql \
+            -f query='
+              mutation($project: ID!, $item: ID!, $field: ID!, $iteration: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $project
+                  itemId: $item
+                  fieldId: $field
+                  value: { iterationId: $iteration }
+                }) {
+                  projectV2Item { id }
+                }
+              }' \
+            -f project="$PROJECT_ID" \
+            -f item="$ITEM_ID" \
+            -f field="$FIELD_ID" \
+            -f iteration="$NEXT_ID"
