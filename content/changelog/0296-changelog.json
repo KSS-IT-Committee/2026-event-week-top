@@ -1,5 +1,5 @@
 {
-  "title": "Added countdown for all events",
-  "description": "TODO",
+  "title": "全てのイベントにカウントダウンを追加",
+  "description": "創作展、体育祭、芸能祭、後夜祭の全てのイベントにカウントダウンを追加しました。",
   "credits": ["@Shirym-min"]
 }
