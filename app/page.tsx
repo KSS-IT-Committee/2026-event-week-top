@@ -141,6 +141,13 @@ export default function Toppage() {
               height={100}
             />
           </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="芸能祭まであと"
+              startedTitle="芸能祭スタート!!"
+              targetDate="2026-09-07T00:00:00+09:00"
+            />
+          </div>
           <div className={styles.content}>
             <p>《お知らせ》</p>
             {geinousaiNews.length === 0 ? (
@@ -165,6 +172,13 @@ export default function Toppage() {
               alt="今日、勝ちにきました"
               width={400}
               height={100}
+            />
+          </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="体育祭まであと"
+              startedTitle="体育祭スタート!!"
+              targetDate="2026-09-09T00:00:00+09:00"
             />
           </div>
           <div className={styles.content}>
@@ -239,6 +253,13 @@ export default function Toppage() {
               sizes="(max-width: 1060px) 50vw, 400px"
             />
           </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="創作展まであと"
+              startedTitle="創作展スタート!!"
+              targetDate="2026-09-12T00:00:00+09:00"
+            />
+          </div>
           <div className={styles.content}>
             <p>《お知らせ》</p>
             {sousakutenNews.length === 0 ? (
@@ -302,6 +323,13 @@ export default function Toppage() {
               width={400}
               height={100}
               sizes="(max-width: 1060px) 50vw, 400px"
+            />
+          </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="後夜祭まであと"
+              startedTitle="後夜祭スタート!!"
+              targetDate="2026-09-14T00:00:00+09:00"
             />
           </div>
           <div className={styles.content}>
