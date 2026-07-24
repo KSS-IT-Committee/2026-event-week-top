@@ -40,6 +40,26 @@ const files = readdirSync(SOURCE_DIR)
   .filter((f) => f.endsWith(".md"))
   .sort();
 
+// Optional visibility frontmatter (lib/post-access.ts interprets it):
+// `internal: true` limits a post to logged-in school accounts, `roles: [...]`
+// to holders of at least one listed role. Only the shape is validated here —
+// role NAMES are checked against ROLENAMES by test/content-posts.test.ts, so
+// this script doesn't carry its own copy of the role list.
+function readVisibility(file, data) {
+  if (data.internal !== undefined && typeof data.internal !== "boolean") {
+    throw new Error(
+      `[posts] ${file}: frontmatter 'internal' must be a boolean`,
+    );
+  }
+  const roles = data.roles ?? [];
+  if (!Array.isArray(roles) || roles.some((r) => typeof r !== "string")) {
+    throw new Error(
+      `[posts] ${file}: frontmatter 'roles' must be an array of strings`,
+    );
+  }
+  return { internal: data.internal === true, roles };
+}
+
 const posts = await Promise.all(
   files.map(async (file) => {
     const raw = readFileSync(join(SOURCE_DIR, file), "utf8");
@@ -59,6 +79,7 @@ const posts = await Promise.all(
       title: data.title,
       date: new Date(data.date).toISOString(),
       tag: typeof data.tag === "string" ? data.tag : "",
+      ...readVisibility(file, data),
       content,
       contentHtml,
     };

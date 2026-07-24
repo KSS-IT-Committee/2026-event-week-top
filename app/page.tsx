@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Internal } from "@/app/components/Internal";
 import { INTERNAL_ROLES } from "@/lib/access";
+import { getCurrentUser } from "@/lib/session";
 
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
@@ -12,32 +13,30 @@ import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
 
-const latestNews = getNews()
-  .sort((a, b) => (a.date < b.date ? 1 : -1))
-  .slice(0, 4);
-
-const geinousaiNews = getNews()
-  .filter((data) => data.tag === "perform")
-  .slice(0, 3);
-const taiikusaiNews = getNews()
-  .filter((data) => data.tag === "sport")
-  .slice(0, 3);
-const sousakutenNews = getNews()
-  .filter((data) => data.tag === "create")
-  .slice(0, 3);
-const koyasaiNews = getNews()
-  .filter((data) => data.tag === "ceremony")
-  .slice(0, 3);
-const ITcommitteeNews = getNews()
-  .filter((data) => data.tag === "itcommittee")
-  .slice(0, 3);
-
 export const metadata: Metadata = {
   title: "2026年度行事週間",
   description: "2026年度行事週間 トップページ",
 };
 
-export default function Toppage() {
+export default async function Toppage() {
+  // News is filtered per viewer, so it is derived inside the request instead
+  // of at module scope. getNews returns newest-first already.
+  const news = getNews(await getCurrentUser());
+  const latestNews = news.slice(0, 4);
+  const geinousaiNews = news
+    .filter((data) => data.tag === "perform")
+    .slice(0, 3);
+  const taiikusaiNews = news.filter((data) => data.tag === "sport").slice(0, 3);
+  const sousakutenNews = news
+    .filter((data) => data.tag === "create")
+    .slice(0, 3);
+  const koyasaiNews = news
+    .filter((data) => data.tag === "ceremony")
+    .slice(0, 3);
+  const ITcommitteeNews = news
+    .filter((data) => data.tag === "itcommittee")
+    .slice(0, 3);
+
   return (
     <>
       <header className={styles.header}>

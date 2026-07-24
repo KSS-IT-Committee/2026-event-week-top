@@ -62,6 +62,8 @@ Consequences:
 
 A second content pipeline mirrors the changelog: `scripts/build-posts.mjs` (also run by `predev` / `prebuild`, or standalone via `npm run posts`) renders `content/posts/*.md` — frontmatter via `gray-matter`, body via `remark` — into the gitignored `lib/posts.generated.json`, statically imported by `lib/posts.ts` and `app/news/newsData.ts` and rendered at `/news`, `/news/list`, `/news/[id]` (also surfaced to the chat via its `get_recent_news` tool). Adding news = drop a new markdown file in `content/posts/`; like the changelog, never hand-edit the generated JSON. Same standalone-`tsc` caveat applies: this artifact is gitignored, so run `npm run posts` (alongside `npm run changelog`) before a cold `tsc --noEmit`.
 
+Posts support optional **visibility frontmatter**, interpreted by `lib/post-access.ts` with the same deny-by-default semantics as `AuthGuard`/`Internal`: `internal: true` restricts a post to logged-in school accounts (`INTERNAL_ROLES`), `roles: [IT, …]` to holders of at least one listed role, both together union, neither = public. Every consumer states its viewer — `getNews(viewer)` filters lists (pages pass the session user, the chat tool its session-derived viewer), and `/news/[id]` answers 401/403 for a restricted post the viewer may not see (public posts skip the session read). An unknown role name hides the post from everyone (fail closed); `test/content-posts.test.ts` fails CI on such typos since the build script can't import `ROLENAMES`.
+
 ### Database access
 
 `lib/db.ts` exports `db` as a lazy Proxy that constructs the Drizzle client on first property access. Reasons it's written this way:
