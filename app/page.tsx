@@ -196,7 +196,7 @@ export default async function Toppage() {
               </ul>
             )}
           </div>
-          <Internal>
+          <Internal role={INTERNAL_ROLES}>
             <div className={styles.lead}>
               <p>↓体育祭サイトはこちらからアクセス</p>
             </div>
