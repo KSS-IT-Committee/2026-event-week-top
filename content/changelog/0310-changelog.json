@@ -1,5 +1,5 @@
 {
-  "title": "Feature/special clasrooms knowledge",
-  "description": "TODO",
+  "title": "特別教室使用クラス一覧をknowledgeに追加",
+  "description": "特別教室使用クラスの一覧をAIが参照できるようにしました。",
   "credits": ["@SakaYq4875"]
 }
