@@ -45,6 +45,8 @@ export const ROLENAMES = [
 ] as const;
 export const roleEnum = pgEnum("role", ROLENAMES);
 
+export const performanceEnum = pgEnum("performance", ["A", "B", "C", "D", "E"]);
+
 export const users = pgTable("users", {
   username: varchar("username", { length: 32 }).primaryKey(),
   passwordHash: varchar("password_hash", { length: 60 }).notNull(),
@@ -284,3 +286,14 @@ export const Borrowings = pgTable(
     ),
   ],
 );
+
+// 芸能祭座席DB
+export const Seats = pgTable("seats", {
+  id: serial("id").primaryKey(),
+  username: varchar("username", { length: 32 })
+    .notNull()
+    .references(() => users.username, { onDelete: "cascade" }),
+  performance: performanceEnum("performance").notNull(),
+  addedAt: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
+  seat: text("seat").notNull(),
+});
