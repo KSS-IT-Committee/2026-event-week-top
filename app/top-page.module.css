@@ -240,7 +240,8 @@
   margin-top: 10px;
 }
 .rentalSite,
-.informationSite {
+.informationSite,
+.seatSite {
   width: 250px;
   padding: 10px 0;
   text-align: center;
@@ -254,12 +255,14 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .rentalSite p,
-.informationSite p {
+.informationSite p,
+.seatSite p {
   color: #ffffff;
 }
 
 .rentalSite,
-.informationSite {
+.informationSite,
+.seatSite {
   background-color: #2a6cca;
 }
 

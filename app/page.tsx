@@ -162,6 +162,23 @@ export default async function Toppage() {
                 ))}
               </ul>
             )}
+            <div className={styles.linkContainer}>
+              <Internal role={INTERNAL_ROLES}>
+                <a className={styles.seatSite} href="/seat">
+                  <p
+                    style={{
+                      color: "#fff",
+                      WebkitTextFillColor: "#fff",
+                      opacity: 1,
+                    }}
+                  >
+                    芸能祭座席サイト
+                    <br />
+                    （後期生のみ）
+                  </p>
+                </a>
+              </Internal>
+            </div>
           </div>
         </div>
 
@@ -366,6 +383,7 @@ export default async function Toppage() {
         <FloatingMenu
           items={[
             { label: "芸能祭", href: "#performance" },
+            { label: "芸能祭座席", href: "/seat" },
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },
