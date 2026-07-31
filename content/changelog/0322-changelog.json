@@ -1,5 +1,5 @@
 {
-  "title": "fix size",
-  "description": "TODO",
+  "title": "カウントダウンの表示を改善",
+  "description": "カウントダウンの表示が見やすくなるように改善しました。",
   "credits": ["@utsukushiioto0816-tech"]
 }
