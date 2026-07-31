@@ -305,18 +305,22 @@
   text-align: left;
   padding: 15px;
 }
+.endanGrid,
 .sportsGrid {
-  display: grid;
+   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 24px;
   padding: 0 15px 10px;
   margin-top: 4px;
 }
+.endanItem,
 .sportItem {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width:100px;
 }
+.endanName,
 .sportName {
   font-family: "Yu Mincho", serif;
   font-size: 1.5rem;
