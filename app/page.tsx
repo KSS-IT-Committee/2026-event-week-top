@@ -196,68 +196,68 @@ export default async function Toppage() {
               </ul>
             )}
             <div className={styles.endanGrid}>
-             <h1 className={styles.endanTitle}>援ダンスケジュール</h1>
-             <section className={styles.endanItem}>
-               <h2 className={styles.endanPlace}>グラウンド</h2>
-               <Schedule
-                 subject="グラウンド"
-                 items={[
-                 { label: "A", date: "2026/09/01" },
-                 { label: "D", date: "2026/09/02" },
-                 { label: "C", date: "2026/09/03" },
-                 { label: "B", date: "2026/09/04" },
-                 ]}
-               />
-             </section>
-             <section className={styles.endanItem}>
-               <h2 className={styles.endanPlace}>アリーナ</h2>
-               <Schedule
-                 subject="アリーナ"
-                 items={[
-                 { label: "C", date: "2026/09/01" },
-                 { label: "B", date: "2026/09/02" },
-                 { label: "D", date: "2026/09/03" },
-                 { label: "A", date: "2026/09/04" },
-                 ]}
-               />
-             </section>
-             <section className={styles.endanItem}>
-               <h2 className={styles.endanPlace}>柔道場</h2>
-               <Schedule
-                 subject="柔道場"
-                 items={[
-                 { label: "6B", date: "2026/09/01" },
-                 { label: "5C", date: "2026/09/02" },
-                 { label: "6A", date: "2026/09/03" },
-                 { label: "4C", date: "2026/09/04" },
-                 ]}
+              <h1 className={styles.endanTitle}>援ダンスケジュール</h1>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>グラウンド</h2>
+                <Schedule
+                  subject="グラウンド"
+                  items={[
+                    { label: "A", date: "2026/09/01" },
+                    { label: "D", date: "2026/09/02" },
+                    { label: "C", date: "2026/09/03" },
+                    { label: "B", date: "2026/09/04" },
+                  ]}
                 />
-             </section>
-             <section className={styles.endanItem}>
-               <h2 className={styles.endanPlace}>剣道場</h2>
-               <Schedule
-                 subject="剣道場"
-                 items={[
-                 { label: "6D", date: "2026/09/01" },
-                 { label: "6C", date: "2026/09/02" },
-                 { label: "4B", date: "2026/09/03" },
-                 { label: "6D", date: "2026/09/04" },
-                 ]}
-               />
-             </section>
-             <section className={styles.endanItem}>
-               <h2 className={styles.endanPlace}>光庭</h2>
-               <Schedule
-                 subject="光庭"
-                 items={[
-                 { label: "5D", date: "2026/09/01" },
-                 { label: "4,5A", date: "2026/09/02" },
-                 { label: "5,6B", date: "2026/09/03" },
-                 { label: "4,5D", date: "2026/09/04" },
-                 ]}
-               />
-             </section>
-           </div>
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>アリーナ</h2>
+                <Schedule
+                  subject="アリーナ"
+                  items={[
+                    { label: "C", date: "2026/09/01" },
+                    { label: "B", date: "2026/09/02" },
+                    { label: "D", date: "2026/09/03" },
+                    { label: "A", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>柔道場</h2>
+                <Schedule
+                  subject="柔道場"
+                  items={[
+                    { label: "6B", date: "2026/09/01" },
+                    { label: "5C", date: "2026/09/02" },
+                    { label: "6A", date: "2026/09/03" },
+                    { label: "4C", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>剣道場</h2>
+                <Schedule
+                  subject="剣道場"
+                  items={[
+                    { label: "6D", date: "2026/09/01" },
+                    { label: "6C", date: "2026/09/02" },
+                    { label: "4B", date: "2026/09/03" },
+                    { label: "6D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>光庭</h2>
+                <Schedule
+                  subject="光庭"
+                  items={[
+                    { label: "5D", date: "2026/09/01" },
+                    { label: "4,5A", date: "2026/09/02" },
+                    { label: "5,6B", date: "2026/09/03" },
+                    { label: "4,5D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+            </div>
           </div>
           {/* <div className={styles.sportsGrid}>
             <section className={styles.sportItem}>
@@ -303,8 +303,8 @@ export default async function Toppage() {
                 ]}
               />
             </section>
-          </div> */} 
-       </div>
+          </div> */}
+        </div>
 
         {/* 創作展 */}
         <div id="create" className={styles.event}>
