@@ -259,10 +259,12 @@
   color: #ffffff;
 }
 
+.sportsSite,
 .rentalSite,
 .informationSite {
   background-color: #2a6cca;
 }
+
 
 .ceremonyTitle {
   font-size: 4rem;
