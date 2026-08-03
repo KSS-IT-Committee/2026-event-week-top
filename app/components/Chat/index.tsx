@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import markdownStyles from "@/app/news/markdown.module.css";
 import { CHAT_RESET_SIGNAL } from "@/lib/chat-protocol";
 // Type-only import: erased at compile time, so it never pulls the
 // server-only knowledge module into this client bundle.
 import type { KnowledgeSource } from "@/lib/knowledge";
-
-import markdownStyles from "@/app/news/markdown.module.css";
 import { parseMarkdown } from "@/lib/markdown";
 
 import styles from "./Chat.module.css";
