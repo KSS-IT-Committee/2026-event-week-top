@@ -6,4 +6,3 @@ export async function parseMarkdown(markdown: string): Promise<string> {
   const processed = await remark().use(gfm).use(html).process(markdown);
   return String(processed);
 }
-

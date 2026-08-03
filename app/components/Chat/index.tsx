@@ -48,20 +48,24 @@ async function readError(response: Response): Promise<string> {
   return "エラーが発生しました。時間をおいて再度お試しください。";
 }
 
-function ModelBubble({text}: {text: string}){
+function ModelBubble({ text }: { text: string }) {
   const [htmlContent, setHtmlContent] = useState("");
-  useEffect(()=>{
+  useEffect(() => {
     let active = true;
-    parseMarkdown(text).then((res)=>{
-      if(active)setHtmlContent(res);
+    parseMarkdown(text).then((res) => {
+      if (active) setHtmlContent(res);
     });
-    return ()=>{
-      active=false;
-    }
+    return () => {
+      active = false;
+    };
   }, [text]);
   return (
-      <div className={markdownStyles.markdown} style={{whiteSpace: "normal", padding:0}}dangerouslySetInnerHTML={{ __html: htmlContent }} />
-  )
+    <div
+      className={markdownStyles.markdown}
+      style={{ whiteSpace: "normal", padding: 0 }}
+      dangerouslySetInnerHTML={{ __html: htmlContent }}
+    />
+  );
 }
 
 export function Chat({
@@ -214,7 +218,7 @@ export function Chat({
                   <span className={styles.typing}>…</span>
                 ) : message.role === "user" ? (
                   message.text
-                ):(
+                ) : (
                   <ModelBubble text={message.text} />
                 )}
               </div>
