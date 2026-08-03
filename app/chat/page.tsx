@@ -6,6 +6,7 @@ import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { INTERNAL_ROLES } from "@/lib/access";
 import { listKnowledgeSources } from "@/lib/knowledge";
 
+
 export const metadata: Metadata = {
   title: "AIチャット | 行事週間2026",
   description: "行事週間2026 の行事について質問できるAIチャットボット",
