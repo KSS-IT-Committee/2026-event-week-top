@@ -10,6 +10,9 @@ vi.mock("@/lib/gemini", () => ({ embedText: vi.fn() }));
 
 type RealChunk = {
   id: string;
+  source: string;
+  title: string;
+  context?: string;
   embedding: number[];
 };
 
@@ -132,6 +135,7 @@ type SyntheticChunk = {
   source: string;
   title: string;
   text: string;
+  context?: string;
   embedding: number[];
 };
 
@@ -171,6 +175,7 @@ async function loadWith(
   queryVec: number[],
 ): Promise<{
   retrieveKnowledge: typeof import("@/lib/knowledge").retrieveKnowledge;
+  listKnowledgeSources: typeof import("@/lib/knowledge").listKnowledgeSources;
   embed: ReturnType<typeof vi.fn>;
 }> {
   vi.resetModules();
@@ -180,7 +185,11 @@ async function loadWith(
   const embed = vi.fn().mockResolvedValue(queryVec);
   vi.doMock("@/lib/gemini", () => ({ embedText: embed }));
   const mod = await import("@/lib/knowledge");
-  return { retrieveKnowledge: mod.retrieveKnowledge, embed };
+  return {
+    retrieveKnowledge: mod.retrieveKnowledge,
+    listKnowledgeSources: mod.listKnowledgeSources,
+    embed,
+  };
 }
 
 // Synthetic, already-normalized basis chunks.
@@ -335,5 +344,112 @@ describe("retrieveKnowledge — synthetic index (branch coverage)", () => {
 
     expect(results).toHaveLength(1);
     expect(results[0].score).toBeCloseTo(1, 10);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// listKnowledgeSources — the /chat "what can the AI reference" disclosure.
+// ---------------------------------------------------------------------------
+describe("listKnowledgeSources — real index", () => {
+  it.skipIf(index.chunks.length === 0)(
+    "lists each disclosed source exactly once, with a title",
+    async () => {
+      const { listKnowledgeSources } = await import("@/lib/knowledge");
+
+      const sources = listKnowledgeSources();
+
+      const expected = new Set(
+        index.chunks
+          .map((chunk) => chunk.source)
+          .filter((source) => source !== "instructions"),
+      );
+      expect(new Set(sources.map((s) => s.source))).toEqual(expected);
+      expect(sources.map((s) => s.source)).toHaveLength(expected.size);
+      for (const source of sources) {
+        expect(source.title).toEqual(expect.any(String));
+        expect(source.title).not.toBe("");
+      }
+    },
+  );
+
+  it.skipIf(index.chunks.length === 0)(
+    "flags exactly the sources whose chunks carry a context note",
+    async () => {
+      const { listKnowledgeSources } = await import("@/lib/knowledge");
+
+      const sources = listKnowledgeSources();
+
+      const withContext = new Set(
+        index.chunks
+          .filter((chunk) => chunk.context !== undefined)
+          .map((chunk) => chunk.source),
+      );
+      for (const source of sources) {
+        expect(source.isReference).toBe(withContext.has(source.source));
+      }
+    },
+  );
+});
+
+describe("listKnowledgeSources — synthetic index", () => {
+  afterEach(() => {
+    vi.resetModules();
+    vi.doUnmock("./knowledge.generated.json");
+    vi.doUnmock("@/lib/knowledge.generated.json");
+    vi.doUnmock("@/lib/gemini");
+  });
+
+  it("returns [] for an empty corpus without calling embedText", async () => {
+    const { listKnowledgeSources, embed } = await loadWith(
+      makeIndex([]),
+      [1, 0, 0],
+    );
+
+    expect(listKnowledgeSources()).toEqual([]);
+    expect(embed).not.toHaveBeenCalled();
+  });
+
+  it("dedupes chunks by source, keeping corpus order and the first title", async () => {
+    const docA1 = { ...chunk("a1", [1, 0, 0]), source: "doc-a" };
+    const docA2 = {
+      ...chunk("a2", [0, 1, 0]),
+      source: "doc-a",
+      title: "a2-later-title",
+    };
+    const docB = { ...chunk("b1", [0, 0, 1]), source: "doc-b" };
+    const { listKnowledgeSources } = await loadWith(
+      makeIndex([docA1, docA2, docB]),
+      [1, 0, 0],
+    );
+
+    expect(listKnowledgeSources()).toEqual([
+      { source: "doc-a", title: "a1-title", isReference: false },
+      { source: "doc-b", title: "b1-title", isReference: false },
+    ]);
+  });
+
+  it("marks a source as reference material when its chunk has a context note", async () => {
+    const plain = chunk("plain", [1, 0, 0]);
+    const noted = { ...chunk("noted", [0, 1, 0]), context: "昨年度の資料" };
+    const { listKnowledgeSources } = await loadWith(
+      makeIndex([plain, noted]),
+      [1, 0, 0],
+    );
+
+    expect(listKnowledgeSources()).toEqual([
+      { source: "plain-source", title: "plain-title", isReference: false },
+      { source: "noted-source", title: "noted-title", isReference: true },
+    ]);
+  });
+
+  it("hides behavioral documents (the instructions source)", async () => {
+    const hidden = { ...chunk("h1", [1, 0, 0]), source: "instructions" };
+    const visible = chunk("v1", [0, 1, 0]);
+    const { listKnowledgeSources } = await loadWith(
+      makeIndex([hidden, visible]),
+      [1, 0, 0],
+    );
+
+    expect(listKnowledgeSources().map((s) => s.source)).toEqual(["v1-source"]);
   });
 });

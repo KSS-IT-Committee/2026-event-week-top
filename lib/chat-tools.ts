@@ -18,6 +18,9 @@ import { type ClassName } from "@/db/schema";
  * class server-side, from the authenticated session — NOT from a model-supplied
  * argument. The model is never given a class parameter for these, so neither the
  * model nor a prompt-injected user can widen the scope to another class.
+ *
+ * When adding or removing a tool, also update LIVE_DATA_SOURCES in
+ * app/components/Chat — the user-facing list of what the assistant can access.
  */
 
 // The viewer's identity, derived from the session (never from the model).

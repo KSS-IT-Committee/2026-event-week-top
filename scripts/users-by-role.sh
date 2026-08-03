@@ -7,7 +7,7 @@ set -euo pipefail
 #   ./users-by-role.sh <role>
 #   ./users-by-role.sh Sousakuten
 
-ROLES=(IT Sousakuten Taiikusai)
+ROLES=(IT Sousakuten Taiikusai G1 G2 G3 G4 G5 G6 ClassA ClassB ClassC ClassD Students Teachers SousakutenMain)
 
 die() {
   echo "error: $1" >&2
