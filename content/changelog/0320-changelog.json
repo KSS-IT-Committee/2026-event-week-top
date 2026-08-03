@@ -1,5 +1,5 @@
 {
   "title": "Update Node.js to f70403e",
-  "description": "TODO",
+  "description": "ラインタイムのコンテナのバージョンを上げました。これによるページの変更はありません。",
   "credits": ["@renovate[bot]"]
 }

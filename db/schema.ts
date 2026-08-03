@@ -41,6 +41,7 @@ export const ROLENAMES = [
   "ClassD",
   "Students",
   "Teachers",
+  "SousakutenMain",
 ] as const;
 export const roleEnum = pgEnum("role", ROLENAMES);
 
