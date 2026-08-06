@@ -1,5 +1,5 @@
 {
-  "title": "fix in proxy",
-  "description": "TODO",
+  "title": "loading画面の削除",
+  "description": "loading画面を削除しました。これにより、一部ページが適切に表示されるようになりました。",
   "credits": ["@rotarymars"]
 }
