@@ -17,18 +17,16 @@ import {
  * Must stay byte-identical across the app repos.
  */
 export function proxy(request: NextRequest) {
+  const response = NextResponse.next();
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
   if (sessionCookie?.value) {
-    const response = NextResponse.next();
     response.cookies.set(
       SESSION_COOKIE_NAME,
       sessionCookie.value,
       sessionCookieOptions(),
     );
-    return response;
   }
-  // No session cookie – return 401 Unauthorized
-  return new NextResponse(null, { status: 401 });
+  return response;
 }
 
 export const config = {
