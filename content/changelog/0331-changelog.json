@@ -1,5 +1,5 @@
 {
-  "title": "adding schema",
-  "description": "TODO",
+  "title": "内部実装の変更",
+  "description": "ページ内の実装を一部変更しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
