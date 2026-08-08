@@ -274,6 +274,7 @@ export const Borrowings = pgTable(
       .defaultNow()
       .notNull(),
     returnedAt: timestamp("returned_at", { withTimezone: true }),
+    equipmentIdentifier: integer("equipment_identifier"),
   },
   (table) => [
     index("equipment_idx").on(table.equipmentId),
