@@ -1,11 +1,10 @@
+import type { ReactNode } from "react";
 export async function TimeGuard({
   children,
   start,
   end,
   fallback = null,
 }: {
-import type { ReactNode } from "react";
-
   children: ReactNode;
   start?: string;
   end?: string;
