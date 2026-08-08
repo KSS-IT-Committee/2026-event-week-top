@@ -4,10 +4,12 @@ export async function TimeGuard({
   end,
   fallback = null,
 }: {
-  children: React.ReactNode;
+import type { ReactNode } from "react";
+
+  children: ReactNode;
   start?: string;
   end?: string;
-  fallback?: React.ReactNode;
+  fallback?: ReactNode;
 }) {
   const now = new Date();
   if (start && now < new Date(start)) {
