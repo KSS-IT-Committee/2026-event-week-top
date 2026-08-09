@@ -31,13 +31,14 @@ export const EXTERNAL_FORM_URL: string | null = null;
  * 期間が未定のうちは null にすると「後日お知らせします」と表示されます。
  * 例: "8月22日（土）12:00 ～ 9月5日（土）18:00"
  */
-export const APPLICATION_PERIOD: string | null = null;
+export const APPLICATION_PERIOD: string | null =
+  "8月17日（月）12時〜8月25日（火）終日";
 
 /**
  * 当選発表の予定時期。未定なら null。
  * 例: "9月8日（火）頃"
  */
-export const RESULT_ANNOUNCEMENT: string | null = null;
+export const RESULT_ANNOUNCEMENT: string | null = "8月27日（木）以降順次";
 
 /**
  * 当選者一覧ページのURL（抽選後に公開する場合）。
