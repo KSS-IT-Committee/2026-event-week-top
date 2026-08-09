@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
-
 import {
   APPLICATION_PERIOD,
   EXTERNAL_FORM_URL,
