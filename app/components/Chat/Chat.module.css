@@ -171,3 +171,15 @@
     font-size: 16px;
   }
 }
+
+.sources {
+  margin-top: 4px;
+  ul {
+    margin: 2px 0 8px;
+  }
+}
+
+.sourcesHeading {
+  margin-top: 8px;
+  font-weight: 600;
+}

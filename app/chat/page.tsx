@@ -4,6 +4,7 @@ import { AuthGuard } from "@/app/components/AuthGuard";
 import { Chat } from "@/app/components/Chat";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { INTERNAL_ROLES } from "@/lib/access";
+import { listKnowledgeSources } from "@/lib/knowledge";
 
 export const metadata: Metadata = {
   title: "AIチャット | 行事週間2026",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 export default function ChatPage() {
   return (
     <AuthGuard role={INTERNAL_ROLES}>
-      <Chat />
+      <Chat knowledgeSources={listKnowledgeSources()} />
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </AuthGuard>
   );

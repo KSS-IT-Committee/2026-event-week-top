@@ -86,7 +86,7 @@ async function drain(gen: AsyncGenerator<string>): Promise<string[]> {
   return out;
 }
 
-const VIEWER = { className: null } as const;
+const VIEWER = { className: null, roles: [] as string[] } as const;
 
 describe("runChat", () => {
   beforeEach(() => {
@@ -105,7 +105,7 @@ describe("runChat", () => {
     vi.mocked(getGemini).mockReturnValue(gemini);
 
     const out = await drain(
-      runChat([{ role: "user", text: "hi" }], { className: null }),
+      runChat([{ role: "user", text: "hi" }], { className: null, roles: [] }),
     );
 
     expect(out.join("")).toBe("こんにちは");
@@ -141,7 +141,7 @@ describe("runChat", () => {
     ]);
     vi.mocked(getGemini).mockReturnValue(gemini);
     vi.mocked(dispatchTool).mockResolvedValue({ news: [] });
-    const viewer = { className: null };
+    const viewer = { className: null, roles: [] };
 
     const out = await drain(runChat([{ role: "user", text: "news?" }], viewer));
 

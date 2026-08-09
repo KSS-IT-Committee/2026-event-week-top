@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
   const rawClass = classOf(user.username);
   const viewer = {
     className: rawClass !== null && isClassName(rawClass) ? rawClass : null,
+    roles: user.roles,
   };
 
   const encoder = new TextEncoder();

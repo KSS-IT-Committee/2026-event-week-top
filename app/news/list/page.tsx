@@ -1,19 +1,21 @@
-export const dynamic = "force-static";
-
 import { Metadata } from "next";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import styles from "@/app/news/list/news-page.module.css";
 import { getNews } from "@/app/news/newsData";
 import { NewsItem } from "@/app/news/newsItem";
+import { getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
   title: "News List",
   description: "2026年度行事週間 ニュース一覧ページ",
 };
 
-export default function NewsListPage() {
-  const sorted = [...getNews()].sort((a, b) => (a.date < b.date ? 1 : -1));
+// The list is filtered per viewer (getNews needs the session), so this page
+// renders dynamically — it can no longer be force-static.
+export default async function NewsListPage() {
+  const user = await getCurrentUser();
+  const sorted = getNews(user);
 
   return (
     <div className={styles.newsContainer}>

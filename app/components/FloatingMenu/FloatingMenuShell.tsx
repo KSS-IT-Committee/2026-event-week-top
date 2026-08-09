@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import styles from "./floating.module.css";
@@ -30,6 +31,8 @@ type FloatingMenuShellProps = {
  */
 export function FloatingMenuShell({ children }: FloatingMenuShellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAtBottom, setAtBottom] = useState(false);
+  const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -46,6 +49,25 @@ export function FloatingMenuShell({ children }: FloatingMenuShellProps) {
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isOpen]);
+
+  useEffect(() => {
+    const update = () => {
+      const { scrollHeight } = document.documentElement;
+      const { innerHeight, scrollY } = window;
+
+      setAtBottom(
+        scrollHeight <= innerHeight ||
+          innerHeight + scrollY >= scrollHeight - 50,
+      );
+    };
+    requestAnimationFrame(update);
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [pathname]);
 
   return (
     <div
@@ -77,7 +99,7 @@ export function FloatingMenuShell({ children }: FloatingMenuShellProps) {
         type="button"
         className={`${styles.hamburger} ${
           isOpen ? styles.hidden : styles.visible
-        }`}
+        } ${!isOpen && isAtBottom ? styles.atBottom : ""}`}
         tabIndex={isOpen ? -1 : 0}
         onClick={() => setIsOpen(true)}
       >

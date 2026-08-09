@@ -282,7 +282,7 @@ describe("POST /api/chat — happy path streaming", () => {
     expect(mockRunChat).toHaveBeenCalledTimes(1);
     const [messages, viewer, signal] = mockRunChat.mock.calls[0];
     expect(messages).toEqual([{ role: "user", text: "spaced" }]);
-    expect(viewer).toEqual({ className: null });
+    expect(viewer).toEqual({ className: null, roles: [] });
     expect(signal).toBe(controller.signal);
   });
 
@@ -330,7 +330,7 @@ describe("POST /api/chat — viewer class derivation", () => {
     expect(mockClassOf).toHaveBeenCalledWith("1A01");
     expect(mockIsClassName).toHaveBeenCalledWith("1A");
     const [, viewer] = mockRunChat.mock.calls[0];
-    expect(viewer).toEqual({ className: "1A" });
+    expect(viewer).toEqual({ className: "1A", roles: [] });
   });
 
   it("sets className null for a non-student (classOf returns null)", async () => {
@@ -343,7 +343,7 @@ describe("POST /api/chat — viewer class derivation", () => {
     // classOf returned null, so isClassName must be short-circuited away.
     expect(mockIsClassName).not.toHaveBeenCalled();
     const [, viewer] = mockRunChat.mock.calls[0];
-    expect(viewer).toEqual({ className: null });
+    expect(viewer).toEqual({ className: null, roles: [] });
   });
 
   it("sets className null when classOf is non-null but isClassName rejects it", async () => {
@@ -356,7 +356,22 @@ describe("POST /api/chat — viewer class derivation", () => {
 
     expect(mockIsClassName).toHaveBeenCalledWith("ZZ");
     const [, viewer] = mockRunChat.mock.calls[0];
-    expect(viewer).toEqual({ className: null });
+    expect(viewer).toEqual({ className: null, roles: [] });
+  });
+
+  it("forwards the session's roles to the viewer", async () => {
+    mockGetCurrentUser.mockResolvedValue({
+      username: "k1234567",
+      roles: ["IT", "Teachers"],
+    });
+    mockClassOf.mockReturnValue(null);
+    mockRunChat.mockImplementation(() => deltaGenerator(["x"]) as never);
+
+    const res = await POST(makeRequest({ body: { messages: [userMessage] } }));
+    await readBody(res);
+
+    const [, viewer] = mockRunChat.mock.calls[0];
+    expect(viewer).toEqual({ className: null, roles: ["IT", "Teachers"] });
   });
 });
 

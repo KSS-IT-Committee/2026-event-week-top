@@ -9,6 +9,8 @@ const FIXTURE = vi.hoisted(() => [
     title: "February Post",
     date: "2026-02-01T09:00:00.000Z",
     tag: "sport",
+    internal: false,
+    roles: [] as string[],
     content: "Feb content",
     contentHtml: "<p>Feb content</p>",
   },
@@ -18,6 +20,8 @@ const FIXTURE = vi.hoisted(() => [
     title: "January Post",
     date: "2026-01-15T12:30:00.000Z",
     tag: "info",
+    internal: false,
+    roles: [] as string[],
     content: "",
     contentHtml: "",
   },
@@ -27,16 +31,42 @@ const FIXTURE = vi.hoisted(() => [
     title: "March Post",
     date: "2026-03-20T18:45:00.000Z",
     tag: "art",
+    internal: false,
+    roles: [] as string[],
     content: "March content",
     contentHtml: "<p>March content</p>",
   },
+  {
+    slug: "post-internal",
+    id: "post-internal",
+    title: "Internal Post",
+    date: "2026-04-01T00:00:00.000Z",
+    tag: "info",
+    internal: true,
+    roles: [] as string[],
+    content: "Members only",
+    contentHtml: "<p>Members only</p>",
+  },
+  {
+    slug: "post-it-only",
+    id: "post-it-only",
+    title: "IT Committee Post",
+    date: "2026-04-02T00:00:00.000Z",
+    tag: "itcommittee",
+    internal: false,
+    roles: ["IT"] as string[],
+    content: "Committee only",
+    contentHtml: "<p>Committee only</p>",
+  },
 ]);
+
+const PUBLIC_IDS = ["post-mar", "post-feb", "post-jan"];
 
 vi.mock("@/lib/posts.generated.json", () => ({ default: FIXTURE }));
 
 describe("getNews", () => {
   it("maps each post to a NewsItem with a date-only date", () => {
-    const news = getNews();
+    const news = getNews(null);
 
     expect(news).toContainEqual({
       id: "post-feb",
@@ -48,22 +78,18 @@ describe("getNews", () => {
   });
 
   it("sorts posts by date descending (newest first)", () => {
-    const news = getNews();
+    const news = getNews(null);
 
     expect(news.map((item) => item.date)).toEqual([
       "2026-03-20",
       "2026-02-01",
       "2026-01-15",
     ]);
-    expect(news.map((item) => item.id)).toEqual([
-      "post-mar",
-      "post-feb",
-      "post-jan",
-    ]);
+    expect(news.map((item) => item.id)).toEqual(PUBLIC_IDS);
   });
 
   it("strips the time component from every date", () => {
-    const news = getNews();
+    const news = getNews(null);
 
     news.forEach((item) => {
       expect(item.date).not.toContain("T");
@@ -72,7 +98,7 @@ describe("getNews", () => {
   });
 
   it("produces exactly the NewsItem fields for each item", () => {
-    const news = getNews();
+    const news = getNews(null);
 
     news.forEach((item) => {
       expect(Object.keys(item).sort()).toEqual(
@@ -82,14 +108,47 @@ describe("getNews", () => {
   });
 
   it("preserves empty content for posts with no body", () => {
-    const news = getNews();
+    const news = getNews(null);
     const jan = news.find((item) => item.id === "post-jan");
 
     expect(jan?.content).toBe("");
   });
+});
 
-  it("returns one NewsItem per source post", () => {
-    const news = getNews();
+describe("getNews — visibility filtering", () => {
+  it("shows only public posts to an anonymous viewer", () => {
+    const news = getNews(null);
+
+    expect(news.map((item) => item.id)).toEqual(PUBLIC_IDS);
+  });
+
+  it("hides restricted posts from a logged-in viewer without roles", () => {
+    const news = getNews({ roles: [] });
+
+    expect(news.map((item) => item.id)).toEqual(PUBLIC_IDS);
+  });
+
+  it("shows internal posts to a viewer holding an internal role", () => {
+    const news = getNews({ roles: ["Students"] });
+
+    expect(news.map((item) => item.id)).toEqual([
+      "post-internal",
+      ...PUBLIC_IDS,
+    ]);
+  });
+
+  it("shows role-restricted posts only to holders of a listed role", () => {
+    const news = getNews({ roles: ["IT", "Teachers"] });
+
+    expect(news.map((item) => item.id)).toEqual([
+      "post-it-only",
+      "post-internal",
+      ...PUBLIC_IDS,
+    ]);
+  });
+
+  it("returns every post to a viewer allowed to see them all", () => {
+    const news = getNews({ roles: ["Students", "IT"] });
 
     expect(news).toHaveLength(FIXTURE.length);
   });
