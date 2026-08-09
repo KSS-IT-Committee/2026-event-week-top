@@ -94,9 +94,8 @@ export default function LotteryExternalPage() {
             <p className={styles.text}>
               校内でお知らせしている方法（
               <Link
-                className={styles.inlineLink}
+                className={`${styles.inlineLink} ${styles.internalLink}`}
                 href="/lottery"
-                style={{ color: "red" }}
               >
                 校内向け申込ページ
               </Link>
