@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { unauthorized } from "next/navigation";
+import { Suspense } from "react";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { PageLoading } from "@/app/components/PageLoading";
 import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
@@ -24,8 +26,12 @@ export const metadata: Metadata = {
 
 export default function LotteryIndexPage() {
   return (
+    // AuthGuard stays in the static shell so its 401/403 is still a real
+    // status code; only the listing streams behind the boundary.
     <AuthGuard role={INTERNAL_ROLES}>
-      <LotteryIndex />
+      <Suspense fallback={<PageLoading />}>
+        <LotteryIndex />
+      </Suspense>
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </AuthGuard>
   );
@@ -34,7 +40,10 @@ export default function LotteryIndexPage() {
 async function LotteryIndex() {
   const user = await getCurrentUser();
   // AuthGuard already 401s before children render; the re-check narrows the
-  // type (getCurrentUser is request-cached, so it costs nothing).
+  // type (getCurrentUser is request-cached, so it costs nothing). It cannot
+  // actually fire here: this component renders inside a Suspense boundary, and
+  // the shell only flushes once AuthGuard — which resolved the same cached
+  // user — has passed. Keep new status interrupts out of this component.
   if (user === null) unauthorized();
   const now = new Date();
 
