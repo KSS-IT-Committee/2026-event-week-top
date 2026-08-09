@@ -93,7 +93,11 @@ export default function LotteryExternalPage() {
             <h3 className={styles.subTitle}>▶ 生徒・教職員の方</h3>
             <p className={styles.text}>
               校内でお知らせしている方法（
-              <Link className={styles.inlineLink} href="/lottery">
+              <Link
+                className={styles.inlineLink}
+                href="/lottery"
+                style={{ color: "red" }}
+              >
                 校内向け申込ページ
               </Link>
               ）からお申し込みください。このページのフォームは外部の方向けです。
@@ -102,7 +106,11 @@ export default function LotteryExternalPage() {
             <h3 className={styles.subTitle}>▶ 保護者の方</h3>
             <p className={styles.text}>
               お子様のアカウントでログインして、
-              <Link className={styles.inlineLink} href="/lottery">
+              <Link
+                className={styles.inlineLink}
+                href="/lottery"
+                style={{ color: "red" }}
+              >
                 校内向け申込ページ
               </Link>
               からお申し込みください。お子様が所属するクラスの劇は優先して観覧できます。
