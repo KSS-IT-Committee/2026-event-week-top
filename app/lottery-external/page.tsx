@@ -10,8 +10,8 @@ import {
   NOTICES,
   RESULT_ANNOUNCEMENT,
   RESULT_PAGE_URL,
-} from "./formConfig";
-import styles from "./lottery-external.module.css";
+} from "@/app/lottery-external/formConfig";
+import styles from "@/app/lottery-external/lottery-external.module.css";
 
 /**
  * 外部の方向けの観覧抽選 案内ページ。
