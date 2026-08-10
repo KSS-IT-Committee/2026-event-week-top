@@ -43,7 +43,7 @@ async function LotteryIndex() {
       <section className={styles.card}>
         <h1 className={styles.title}>公演観覧抽選</h1>
         <p className={styles.note}>
-          開拓部門・創作部門のクラス劇は、観覧希望を集めて抽選を行います。観覧を希望する公演（開拓部門）や観たいクラス（創作部門）を第1〜第3希望まで選んで申し込んでください。保護者の方はお子様のアカウントでログインして申し込めます。
+          創作部門（5・6年生）のクラス劇は、観覧希望を集めて抽選を行います。観覧を希望する公演・クラスを第1〜第3希望まで選んで申し込んでください。開拓部門に所属する生徒の保護者の方のみ、お子様の所属するクラスの観覧希望の抽選申し込めます。観覧を希望する公演（時間）を第1〜第3希望まで選んで申し込んでください。保護者の方はお子様のアカウントでログインして申し込めます。
         </p>
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => {
@@ -54,15 +54,18 @@ async function LotteryIndex() {
               <article key={lottery.id} className={styles.lotteryCard}>
                 <h2 className={styles.lotteryTitle}>{lottery.title}</h2>
                 <p className={styles.lotteryMeta}>
-                  対象: {describeEligibleGrades(lottery)}のクラス（
+                  対象: {describeEligibleGrades(lottery)}の生徒
                   {lottery.applicantTypes
                     .map((type) => APPLICANT_TYPE_LABELS[type])
                     .join("・")}
-                  ）{lottery.canStaffApply && "と教職員"}
+                  {lottery.canStaffApply && "と教職員"}
                 </p>
                 {deadline !== null && (
                   <p className={styles.lotteryMeta}>申込期限: {deadline}</p>
                 )}
+                <p className={styles.lotteryCaution}>
+                  ※この抽選に申し込めるのは、お子様が開拓部門（3・4年生）に在籍している保護者の方のみです。申し込めるのは、お子様の所属するクラスの公演のみです。
+                </p>
                 <p className={styles.lotteryDescription}>
                   {lottery.description}
                 </p>
