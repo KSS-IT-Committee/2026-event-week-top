@@ -1,5 +1,5 @@
 {
-  "title": "adding a timeout for session validation",
-  "description": "TODO",
+  "title": "ログイン情報の読み込み方法の改善",
+  "description": "内部でのログイン情報の読み込み方法を改善し、ページがまれに読み込まれない問題を解決しました。",
   "credits": ["@rotarymars"]
 }
