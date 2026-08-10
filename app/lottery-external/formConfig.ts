@@ -40,7 +40,7 @@ export const EXTERNAL_FORM_URL: string | null =
  * FORM_CLOSE_AT は「その時刻まで表示」です。「8月25日 終日」なら
  * 翌26日の 00:00:00 を指定します。
  */
-export const FORM_OPEN_AT: string | null = "2026-08-10T17:30:00+09:00";
+export const FORM_OPEN_AT: string | null = "2026-08-10T17:35:00+09:00";
 export const FORM_CLOSE_AT: string | null = "2026-08-26T00:00:00+09:00";
 
 /**
