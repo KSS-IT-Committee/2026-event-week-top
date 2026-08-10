@@ -259,7 +259,9 @@
   color: #ffffff;
 }
 
-.sportsSite,
+.sportsSite {
+  background-color: #71757b;
+}
 .rentalSite,
 .informationSite {
   background-color: #2a6cca;
