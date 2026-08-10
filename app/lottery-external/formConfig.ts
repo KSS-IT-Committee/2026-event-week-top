@@ -38,7 +38,7 @@ export const APPLICATION_PERIOD: string | null =
  * 当選発表の予定時期。未定なら null。
  * 例: "9月8日（火）頃"
  */
-export const RESULT_ANNOUNCEMENT: string | null = "8月27日（木）以降順次";
+export const RESULT_ANNOUNCEMENT: string | null = "8月27日（木）以降";
 
 /**
  * 当選者一覧ページのURL（抽選後に公開する場合）。
