@@ -1,16 +1,17 @@
+import { Schedule } from "@app/components/Schedule";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Internal } from "@/app/components/Internal";
+import { Internal } from "@/components/Internal";
 import { INTERNAL_ROLES } from "@/lib/access";
 import { getCurrentUser } from "@/lib/session";
 
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
-import { Schedule } from "./components/Schedule/schedule";
 import { getNews } from "./news/newsData";
+s;
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
 
@@ -24,6 +25,7 @@ export default async function Toppage() {
   // of at module scope. getNews returns newest-first already.
   const news = getNews(await getCurrentUser());
   const latestNews = news.slice(0, 4);
+  s;
   const geinousaiNews = news
     .filter((data) => data.tag === "perform")
     .slice(0, 3);
