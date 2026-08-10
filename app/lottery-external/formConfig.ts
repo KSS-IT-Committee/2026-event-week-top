@@ -22,7 +22,8 @@
  *
  * 例: export const EXTERNAL_FORM_URL = "https://logoform.jp/form/XXXX/XXXXXX";
  */
-export const EXTERNAL_FORM_URL: string | null = null;
+export const EXTERNAL_FORM_URL: string | null =
+  "https://logoform.jp/form/tmgform/1691356";
 
 /**
  * 「申し込みフォームへ」ボタンを実際に表示する期間。
