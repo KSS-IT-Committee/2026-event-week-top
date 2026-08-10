@@ -1,5 +1,5 @@
 {
-  "title": "fix of coding style",
-  "description": "TODO",
+  "title": "内部コードの修正",
+  "description": "ページ内のコードを一部修正しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
