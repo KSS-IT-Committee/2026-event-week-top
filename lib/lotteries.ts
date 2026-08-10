@@ -46,6 +46,8 @@ export type Lottery = {
   // parent must not miss (who may apply, how a child's own class is
   // prioritized).
   parentNotes?: readonly string[];
+  // Optional caution message displayed prominently to applicants.
+  caution?: string;
   // Which kinds of applicant may enter, in display order. Parents apply via
   // their child's student account, so "parent" still authenticates as the
   // child; one account holds at most one entry set per type.
@@ -152,8 +154,10 @@ export const LOTTERIES: readonly Lottery[] = [
   {
     id: "kaitaku-performance",
     title: "開拓部門公演 観覧抽選",
+    caution:
+      "※この抽選に申し込めるのは、お子様が開拓部門（3・4年生）に在籍している保護者の方のみです。申し込めるのは、お子様の所属するクラスの公演のみです。",
     description:
-      "開拓部門（3・4年生）の生徒の保護者のみが申し込める、お子様の所属するクラス劇の観覧時間の抽選です。開拓部門（3・4年生）の生徒の保護者を対象で、9月12日（土）・13日（日）のそれぞれについて、お子様の所属するクラスの観覧希望公演（時間帯）を第1〜第3希望まで選べます。",
+      "開拓部門（3・4年生）の生徒の保護者のみが申し込める、お子様の所属するクラス劇の観覧時間の抽選です。開拓部門（3・4年生）の生徒の保護者が対象で、9月12日（土）・13日（日）のそれぞれについて、お子様の所属するクラスの観覧希望公演（時間帯）を第1〜第3希望まで選べます。",
     notes: [
       "公演時間は30分、幕間は15分です。",
       "お昼休憩は60分です。第四公演終了後、12:15まで観客入場禁止となります。",
