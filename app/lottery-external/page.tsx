@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
-import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
 import {
   APPLICATION_PERIOD,
   EXTERNAL_FORM_URL,
@@ -11,6 +10,7 @@ import {
   RESULT_PAGE_URL,
 } from "@/app/lottery-external/formConfig";
 import styles from "@/app/lottery-external/lottery-external.module.css";
+import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
 
 /**
  * 外部の方向けの観覧抽選 案内ページ。
@@ -95,6 +95,7 @@ export default function LotteryExternalPage() {
               <Link
                 className={`${styles.inlineLink} ${styles.internalLink}`}
                 href="/lottery"
+                style={{ color: "red" }}
               >
                 校内向け申込ページ
               </Link>
