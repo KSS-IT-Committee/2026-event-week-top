@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { PageLoading } from "@/app/components/PageLoading";
 import { safeNextPath } from "@/lib/safe-next";
 import { getCurrentUser } from "@/lib/session";
 
@@ -18,7 +20,19 @@ type LoginPageProps = {
   searchParams: Promise<{ next?: string }>;
 };
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+// The page shell is synchronous so the loading UI streams first; the session
+// read and the `searchParams` promise are awaited behind the boundary. This
+// page has no status interrupt to protect — it must stay reachable while
+// logged out — but the shell/boundary split keeps it consistent with the rest.
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <LoginContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function LoginContent({ searchParams }: LoginPageProps) {
   const [user, { next }] = await Promise.all([getCurrentUser(), searchParams]);
 
   // Sanitize once on the server so the change-password return link (rendered as

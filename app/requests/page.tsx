@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { Internal } from "@/app/components/Internal";
+import { PageLoading } from "@/app/components/PageLoading";
 import { INTERNAL_ROLES } from "@/lib/access";
 
 import styles from "./requests.module.css";
@@ -34,7 +36,18 @@ function MaintainerItem({ username }: { username: string }) {
   );
 }
 
+// Synchronous shell; the only async work on this page is the <Internal>
+// fragment's session read, which happens behind the boundary. No status
+// interrupt here — <Internal> hides its children instead of throwing.
 export default function RequestPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <RequestContent />
+    </Suspense>
+  );
+}
+
+function RequestContent() {
   return (
     <div className={styles.main}>
       <h1 className={styles.title}>新機能や修正をリクエストするには？</h1>
