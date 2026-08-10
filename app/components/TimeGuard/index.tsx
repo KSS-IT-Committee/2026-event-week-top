@@ -6,12 +6,12 @@ export async function TimeGuard({
   fallback = null,
 }: {
   children: ReactNode;
-  start?: string;
-  end?: string;
+  start?: string | null;
+  end?: string | null;
   fallback?: ReactNode;
 }) {
-  const startAt = start === undefined ? undefined : parseBound(start, "start");
-  const endAt = end === undefined ? undefined : parseBound(end, "end");
+  const startAt = start ? parseBound(start, "start") : null;
+  const endAt = end ? parseBound(end, "end") : null;
 
   const now = new Date();
   if (startAt && now < startAt) {
