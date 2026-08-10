@@ -1,0 +1,5 @@
+{
+  "title": "Bump react from 19.2.7 to 19.2.8",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}

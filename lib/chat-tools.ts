@@ -18,6 +18,9 @@ import { type ClassName } from "@/db/schema";
  * class server-side, from the authenticated session — NOT from a model-supplied
  * argument. The model is never given a class parameter for these, so neither the
  * model nor a prompt-injected user can widen the scope to another class.
+ *
+ * When adding or removing a tool, also update LIVE_DATA_SOURCES in
+ * app/components/Chat — the user-facing list of what the assistant can access.
  */
 
 // The viewer's identity, derived from the session (never from the model).
@@ -25,6 +28,9 @@ export type ChatViewer = {
   // The logged-in student's class, or null for non-students (teachers /
   // committee / admin). Class-private tools return nothing when this is null.
   className: ClassName | null;
+  // The session's authorization roles (lib/access.ts) — get_recent_news
+  // filters role-restricted posts with them, exactly like the news pages.
+  roles: string[];
 };
 
 export const chatToolDeclarations: FunctionDeclaration[] = [
@@ -130,7 +136,7 @@ export async function dispatchTool(
         typeof rawLimit === "number" && Number.isFinite(rawLimit)
           ? Math.min(Math.max(Math.trunc(rawLimit), 1), 20)
           : 5;
-      const news = getNews()
+      const news = getNews(viewer)
         .slice(0, limit)
         .map((item) => ({
           title: item.title,
