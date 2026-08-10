@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { TimeGuard } from "@/app/components/TimeGuard";
 import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
 import {
   APPLICATION_PERIOD,
   EXTERNAL_FORM_URL,
+  FORM_CLOSE_AT,
+  FORM_OPEN_AT,
   NOTICES,
   RESULT_ANNOUNCEMENT,
   RESULT_PAGE_URL,
@@ -15,10 +18,17 @@ import styles from "@/app/lottery-external/lottery-external.module.css";
 /**
  * 外部の方向けの観覧抽選 案内ページ。
  *
- * ログイン不要の静的ページで、申込そのものは外部フォーム
+ * ログイン不要の案内ページで、申込そのものは外部フォーム
  * （EXTERNAL_FORM_URL）に任せます。校内向けの申込ページ（/lottery）とは
  * 別系統で、DBにも触れません。差し替えたい値は formConfig.ts にあります。
+ * 申し込みボタンは FORM_OPEN_AT / FORM_CLOSE_AT の期間だけ表示されます。
  */
+
+// このページは <TimeGuard> がサーバー側の現在時刻を見て申し込みボタンを
+// 出し分けるため、リクエストごとにレンダリングされる必要があります。
+// 静的生成されると生成時の時刻が焼き込まれ、受付開始時刻になってもボタンが
+// 出ません。現状このアプリは全ルートが動的ですが、それに依存せず明示します。
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "公演観覧抽選（外部の方向け） | 行事週間2026",
@@ -127,14 +137,22 @@ export default function LotteryExternalPage() {
                 申し込みフォームは準備中です。公開まで今しばらくお待ちください。
               </p>
             ) : (
-              <a
-                className={styles.formLink}
-                href={EXTERNAL_FORM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <TimeGuard
+                start={FORM_OPEN_AT}
+                end={FORM_CLOSE_AT}
+                fallback={
+                  <p className={styles.pending}>申し込み受付期間外です。</p>
+                }
               >
-                申し込みフォームへ
-              </a>
+                <a
+                  className={styles.formLink}
+                  href={EXTERNAL_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  申し込みフォームへ
+                </a>
+              </TimeGuard>
             )}
           </section>
 
