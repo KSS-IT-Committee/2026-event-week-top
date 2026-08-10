@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Schedule } from "@/app/components/Schedule/schedule";
 import { INTERNAL_ROLES } from "../lib/access";
 import { getCurrentUser } from "../lib/session";
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
 import { Internal } from "./components/Internal";
-import { Schedule } from "./components/Schedule/schedule";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
