@@ -36,7 +36,7 @@ describe("dispatchTool — get_announcements", () => {
     const result = await dispatchTool(
       "get_announcements",
       {},
-      { className: null },
+      { className: null, roles: [] },
     );
 
     expect(result).toEqual({
@@ -56,7 +56,7 @@ describe("dispatchTool — get_announcements", () => {
     const result = await dispatchTool(
       "get_announcements",
       {},
-      { className: "3B" },
+      { className: "3B", roles: [] },
     );
 
     expect(getAnnouncements).toHaveBeenCalledTimes(1);
@@ -75,7 +75,7 @@ describe("dispatchTool — get_equipment_availability", () => {
     const result = await dispatchTool(
       "get_equipment_availability",
       { name: "  cone  " },
-      { className: null },
+      { className: null, roles: [] },
     );
 
     expect(getEquipmentAvailability).toHaveBeenCalledWith("cone");
@@ -86,14 +86,18 @@ describe("dispatchTool — get_equipment_availability", () => {
     await dispatchTool(
       "get_equipment_availability",
       { name: "   " },
-      { className: null },
+      { className: null, roles: [] },
     );
 
     expect(getEquipmentAvailability).toHaveBeenCalledWith(undefined);
   });
 
   it("passes undefined when name is absent", async () => {
-    await dispatchTool("get_equipment_availability", {}, { className: null });
+    await dispatchTool(
+      "get_equipment_availability",
+      {},
+      { className: null, roles: [] },
+    );
 
     expect(getEquipmentAvailability).toHaveBeenCalledWith(undefined);
   });
@@ -102,7 +106,7 @@ describe("dispatchTool — get_equipment_availability", () => {
     await dispatchTool(
       "get_equipment_availability",
       { name: "x" },
-      { className: null },
+      { className: null, roles: [] },
     );
 
     expect(getEquipmentAvailability).toHaveBeenCalledWith("x");
@@ -112,7 +116,7 @@ describe("dispatchTool — get_equipment_availability", () => {
     await dispatchTool(
       "get_equipment_availability",
       { name: 123 as unknown as string },
-      { className: null },
+      { className: null, roles: [] },
     );
 
     expect(getEquipmentAvailability).toHaveBeenCalledWith(undefined);
@@ -124,7 +128,7 @@ describe("dispatchTool — get_deductions", () => {
     const result = await dispatchTool(
       "get_deductions",
       {},
-      { className: null },
+      { className: null, roles: [] },
     );
 
     expect(result).toEqual({
@@ -144,7 +148,7 @@ describe("dispatchTool — get_deductions", () => {
     const result = await dispatchTool(
       "get_deductions",
       {},
-      { className: "3B" },
+      { className: "3B", roles: [] },
     );
 
     expect(getDeductions).toHaveBeenCalledTimes(1);
@@ -164,6 +168,7 @@ describe("dispatchTool — get_recent_news limit clamping", () => {
   async function newsCount(args: Record<string, unknown>): Promise<number> {
     const result = await dispatchTool("get_recent_news", args, {
       className: null,
+      roles: [],
     });
     return (result.news as unknown[]).length;
   }
@@ -221,6 +226,7 @@ describe("dispatchTool — get_recent_news content trimming", () => {
       { limit: 1 },
       {
         className: null,
+        roles: [],
       },
     );
     const item = (result.news as Array<{ content: string }>)[0];
@@ -240,6 +246,7 @@ describe("dispatchTool — get_recent_news content trimming", () => {
       { limit: 1 },
       {
         className: null,
+        roles: [],
       },
     );
     const item = (result.news as Array<{ content: string }>)[0];
@@ -256,6 +263,7 @@ describe("dispatchTool — get_recent_news content trimming", () => {
       { limit: 1 },
       {
         className: null,
+        roles: [],
       },
     );
     const item = (result.news as Array<{ content: string }>)[0];
@@ -279,6 +287,7 @@ describe("dispatchTool — get_recent_news content trimming", () => {
       { limit: 1 },
       {
         className: null,
+        roles: [],
       },
     );
     const item = (result.news as Array<Record<string, unknown>>)[0];
@@ -295,9 +304,24 @@ describe("dispatchTool — get_recent_news content trimming", () => {
   });
 });
 
+describe("dispatchTool — get_recent_news viewer scoping", () => {
+  it("passes the session viewer to getNews so restricted posts are filtered", async () => {
+    const viewer = { className: null, roles: ["IT"] };
+
+    await dispatchTool("get_recent_news", {}, viewer);
+
+    expect(getNews).toHaveBeenCalledTimes(1);
+    expect(getNews).toHaveBeenCalledWith(viewer);
+  });
+});
+
 describe("dispatchTool — unknown tool", () => {
   it("returns a benign error object without calling any data source", async () => {
-    const result = await dispatchTool("nope", {}, { className: "3B" });
+    const result = await dispatchTool(
+      "nope",
+      {},
+      { className: "3B", roles: [] },
+    );
 
     expect(result).toEqual({ error: "Unknown tool: nope" });
     expect(getAnnouncements).not.toHaveBeenCalled();

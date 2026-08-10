@@ -4,42 +4,45 @@ import Link from "next/link";
 
 import { Internal } from "@/app/components/Internal";
 import { INTERNAL_ROLES } from "@/lib/access";
+import { getCurrentUser } from "@/lib/session";
 
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
+import { HeaderSlider } from "./components/HeaderSlider";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
-
-const latestNews = getNews()
-  .sort((a, b) => (a.date < b.date ? 1 : -1))
-  .slice(0, 4);
-
-const geinousaiNews = getNews()
-  .filter((data) => data.tag === "perform")
-  .slice(0, 3);
-const taiikusaiNews = getNews()
-  .filter((data) => data.tag === "sport")
-  .slice(0, 3);
-const sousakutenNews = getNews()
-  .filter((data) => data.tag === "create")
-  .slice(0, 3);
-const koyasaiNews = getNews()
-  .filter((data) => data.tag === "ceremony")
-  .slice(0, 3);
-const ITcommitteeNews = getNews()
-  .filter((data) => data.tag === "itcommittee")
-  .slice(0, 3);
 
 export const metadata: Metadata = {
   title: "2026年度行事週間",
   description: "2026年度行事週間 トップページ",
 };
 
-export default function Toppage() {
+export default async function Toppage() {
+  // News is filtered per viewer, so it is derived inside the request instead
+  // of at module scope. getNews returns newest-first already.
+  const news = getNews(await getCurrentUser());
+  const latestNews = news.slice(0, 4);
+  const geinousaiNews = news
+    .filter((data) => data.tag === "perform")
+    .slice(0, 3);
+  const taiikusaiNews = news.filter((data) => data.tag === "sport").slice(0, 3);
+  const sousakutenNews = news
+    .filter((data) => data.tag === "create")
+    .slice(0, 3);
+  const koyasaiNews = news
+    .filter((data) => data.tag === "ceremony")
+    .slice(0, 3);
+  const ITcommitteeNews = news
+    .filter((data) => data.tag === "itcommittee")
+    .slice(0, 3);
+
   return (
     <>
       <header className={styles.header}>
+        <div className={styles.bgSlider}>
+          <HeaderSlider />
+        </div>
         <div className={styles.themeContainer}>
           <Image
             className={styles.theme}
@@ -141,6 +144,13 @@ export default function Toppage() {
               height={100}
             />
           </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="芸能祭まであと"
+              startedTitle="芸能祭スタート!!"
+              targetDate="2026-09-07T00:00:00+09:00"
+            />
+          </div>
           <div className={styles.content}>
             <p>《お知らせ》</p>
             {geinousaiNews.length === 0 ? (
@@ -165,6 +175,13 @@ export default function Toppage() {
               alt="今日、勝ちにきました"
               width={400}
               height={100}
+            />
+          </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="体育祭まであと"
+              startedTitle="体育祭スタート!!"
+              targetDate="2026-09-09T00:00:00+09:00"
             />
           </div>
           <div className={styles.content}>
@@ -239,6 +256,13 @@ export default function Toppage() {
               sizes="(max-width: 1060px) 50vw, 400px"
             />
           </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="創作展まであと"
+              startedTitle="創作展スタート!!"
+              targetDate="2026-09-12T00:00:00+09:00"
+            />
+          </div>
           <div className={styles.content}>
             <p>《お知らせ》</p>
             {sousakutenNews.length === 0 ? (
@@ -302,6 +326,13 @@ export default function Toppage() {
               width={400}
               height={100}
               sizes="(max-width: 1060px) 50vw, 400px"
+            />
+          </div>
+          <div className={styles.countdown}>
+            <Countdown
+              title="後夜祭まであと"
+              startedTitle="後夜祭スタート!!"
+              targetDate="2026-09-14T00:00:00+09:00"
             />
           </div>
           <div className={styles.content}>

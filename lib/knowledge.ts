@@ -49,7 +49,37 @@ export type KnowledgeChunk = {
   score: number;
 };
 
+export type KnowledgeSource = {
+  source: string;
+  title: string;
+  // True when the document carries a context note (currently: last year's
+  // manual kept as reference material).
+  isReference: boolean;
+};
+
 const index = knowledgeIndex as KnowledgeIndex;
+
+// Behavioral/meta documents that shape how the assistant answers but are not
+// reader-facing reference material — keep them out of the disclosed list.
+const UNLISTED_SOURCES = new Set(["instructions"]);
+
+/**
+ * The documents the assistant can currently draw on, one entry per source in
+ * corpus order. Backs the "what can the AI reference" disclosure on /chat, so
+ * the list always matches the committed index rather than a hand-kept copy.
+ */
+export function listKnowledgeSources(): KnowledgeSource[] {
+  const seen = new Map<string, KnowledgeSource>();
+  for (const chunk of index.chunks) {
+    if (UNLISTED_SOURCES.has(chunk.source) || seen.has(chunk.source)) continue;
+    seen.set(chunk.source, {
+      source: chunk.source,
+      title: chunk.title,
+      isReference: chunk.context !== undefined,
+    });
+  }
+  return [...seen.values()];
+}
 
 // Discard weak matches so an off-topic question doesn't drag in unrelated text.
 // These thresholds are MODEL- AND MODALITY-specific. gemini-embedding-2 has a

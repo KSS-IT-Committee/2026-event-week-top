@@ -4,83 +4,37 @@
   justify-content: flex-end;
   align-items: center;
   padding: 100px;
-  background-image:
-    linear-gradient(
-      to bottom right,
-      rgba(173, 185, 252, 0) 0%,
-      rgba(227, 231, 255, 0.8) 40%,
-      rgb(255, 255, 255) 100%
-    ),
-    url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
   background-size: cover;
   background-position: center;
-  animation: bg-change 12s infinite ease-in-out;
 }
-@keyframes bg-change {
-  0% {
-    background-image:
-      linear-gradient(
-        to bottom right,
-        rgba(173, 185, 252, 0) 0%,
-        rgba(227, 231, 255, 0.8) 40%,
-        rgb(255, 255, 255) 100%
-      ),
-      url("https://www.metro.ed.jp/koishikawa-s/assets/Reborn2'.jpg");
-  }
-  30% {
-    background-image:
-      linear-gradient(
-        to bottom right,
-        rgba(173, 185, 252, 0) 0%,
-        rgba(227, 231, 255, 0.8) 40%,
-        rgb(255, 255, 255) 100%
-      ),
-      url("https://www.metro.ed.jp/koishikawa-s/assets/%E5%9B%A3%E9%95%B7%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9CR2%20(1).JPG.jpg");
-  }
-  40% {
-    background-image:
-      linear-gradient(
-        to bottom right,
-        rgba(173, 185, 252, 0) 0%,
-        rgba(227, 231, 255, 0.8) 40%,
-        rgb(255, 255, 255) 100%
-      ),
-      url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0009.JPG.jpg");
-  }
-  60% {
-    background-image:
-      linear-gradient(
-        to bottom right,
-        rgba(173, 185, 252, 0) 0%,
-        rgba(227, 231, 255, 0.8) 40%,
-        rgb(255, 255, 255) 100%
-      ),
-      url("https://www.metro.ed.jp/koishikawa-s/assets/DSC_0130.JPG.jpg");
-  }
-  80% {
-    background-image:
-      linear-gradient(
-        to bottom right,
-        rgba(173, 185, 252, 0) 0%,
-        rgba(227, 231, 255, 0.8) 40%,
-        rgb(255, 255, 255) 100%
-      ),
-      url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
-  }
-  100% {
-    background-image:
-      linear-gradient(
-        to bottom right,
-        rgba(173, 185, 252, 0) 0%,
-        rgba(227, 231, 255, 0.8) 40%,
-        rgb(255, 255, 255) 100%
-      ),
-      url("https://www.metro.ed.jp/koishikawa-s/assets/%E9%A8%8E%E9%A6%AC%E6%88%A6%E5%A5%B3%E5%AD%90%20(3).JPG.jpg");
-  }
+.header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+    to bottom right,
+    rgba(173, 185, 252, 0) 0%,
+    rgba(227, 231, 255, 0.8) 40%,
+    rgb(255, 255, 255) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+.bgSlider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 .themeContainer {
   position: relative;
   display: inline-block;
+  z-index: 2;
 }
 .theme {
   opacity: 0;
@@ -101,11 +55,13 @@
   height: 120%;
   width: 80px;
   opacity: 0.9;
+  z-index: 2;
 }
 .flowLine {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: flow-up 3s ease-out forwards;
+  z-index: 2;
 }
 
 @keyframes flow-up {
@@ -123,6 +79,7 @@
   color: rgb(49, 108, 184);
   opacity: 0;
   animation: fade-in-out 3s ease-out infinite;
+  z-index: 2;
 }
 
 @keyframes fade-in-out {
@@ -214,6 +171,7 @@
   padding-left: 20px;
 }
 .countdown {
+  margin-top: 20px;
   margin-left: 30px;
 }
 .eventTop {

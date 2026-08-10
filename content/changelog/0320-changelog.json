@@ -1,0 +1,5 @@
+{
+  "title": "Update Node.js to f70403e",
+  "description": "ラインタイムのコンテナのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@renovate[bot]"]
+}

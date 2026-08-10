@@ -1,6 +1,8 @@
+import type { PostVisibility } from "@/lib/post-access";
+
 import posts from "./posts.generated.json";
 
-type Post = {
+type Post = PostVisibility & {
   id: string;
   contentHtml: string;
   title: string;
@@ -28,5 +30,7 @@ export async function getPostById(id: string): Promise<Post> {
     contentHtml: post.contentHtml,
     title: post.title,
     date: post.date,
+    internal: post.internal,
+    roles: post.roles,
   };
 }
