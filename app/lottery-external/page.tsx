@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { Internal } from "@/app/components/Internal";
 import { TimeGuard } from "@/app/components/TimeGuard";
+import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
 import {
   APPLICATION_PERIOD,
   EXTERNAL_FORM_URL,
@@ -15,7 +16,6 @@ import {
 } from "@/app/lottery-external/formConfig";
 import { InternalNotice } from "@/app/lottery-external/InternalNotice";
 import styles from "@/app/lottery-external/lottery-external.module.css";
-import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
 import { INTERNAL_ROLES } from "@/lib/access";
 
 /**
