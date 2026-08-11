@@ -5,9 +5,13 @@ import { useEffect, useRef, useState } from "react";
 
 import styles from "./InternalNotice.module.css";
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function InternalNotice() {
   const [isOpen, setIsOpen] = useState(true);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -15,7 +19,32 @@ export function InternalNotice() {
     closeButtonRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusables =
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (active === last || !panel.contains(active))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
 
@@ -42,6 +71,7 @@ export function InternalNotice() {
         aria-modal="true"
         className={styles.panel}
         onClick={(event) => event.stopPropagation()}
+        ref={panelRef}
         role="dialog"
       >
         <h2 className={styles.title} id="internal-notice-title">
