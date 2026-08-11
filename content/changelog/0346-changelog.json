@@ -1,5 +1,5 @@
 {
-  "title": "adding an overlay warning to guide to the proper page",
-  "description": "TODO",
+  "title": "外部抽選ページの改善",
+  "description": "外部の方に向けた抽選ページにて、生徒・教員が開いたときに表示される案内ダイアログを追加しました。",
   "credits": ["@rotarymars"]
 }
