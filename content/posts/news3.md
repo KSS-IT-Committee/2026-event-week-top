@@ -3,6 +3,7 @@ id: "news3"
 date: 2026-06-08
 title: "予備大サッカー決勝延期"
 tag: "sport"
+internal: true
 ---
 
 # サッカーの決勝が延期されました
