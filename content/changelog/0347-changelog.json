@@ -1,5 +1,5 @@
 {
-  "title": "removing comment",
-  "description": "TODO",
+  "title": "不要なコードの削除",
+  "description": "内部で不要となったコードを削除しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
