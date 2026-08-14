@@ -1,0 +1,5 @@
+{
+  "title": "Bump next from 16.2.12 to 16.3.0",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
