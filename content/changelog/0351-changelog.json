@@ -1,0 +1,5 @@
+{
+  "title": "Bump docker/login-action from 4.5.2 to 4.6.0",
+  "description": "Actionのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
