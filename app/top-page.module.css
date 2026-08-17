@@ -239,6 +239,7 @@
   gap: 20px;
   margin-top: 10px;
 }
+.sportsSite,
 .rentalSite,
 .informationSite {
   width: 250px;
@@ -258,6 +259,10 @@
   color: #ffffff;
 }
 
+.sportsSite {
+  background-color: #71757b;
+  cursor: default;
+}
 .rentalSite,
 .informationSite {
   background-color: #2a6cca;

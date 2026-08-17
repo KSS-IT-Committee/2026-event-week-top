@@ -196,6 +196,26 @@ export default async function Toppage() {
               </ul>
             )}
           </div>
+          <Internal role={INTERNAL_ROLES}>
+            <div className={styles.lead}>
+              <p>↓体育祭サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
+              <div className={styles.sportsSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  体育祭サイト
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
+            </div>
+          </Internal>
         </div>
 
         {/* 創作展 */}
