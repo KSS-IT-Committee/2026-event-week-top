@@ -216,52 +216,6 @@ export default async function Toppage() {
               </div>
             </div>
           </Internal>
-
-          {/* <div className={styles.sportsGrid}>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>サッカー</h2>
-              <Schedule
-                subject="サッカー"
-                items={[
-                  { label: "予選AB", date: "2026/05/28" },
-                  { label: "予選CD", date: "2026/06/01" },
-                  { label: "三位決定戦", date: "2026/06/04" },
-                  { label: "決勝", date: "2026/06/08" },
-                  { label: "予備", date: "2026/06/11", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>ドッヂボール</h2>
-              <Schedule
-                subject="ドッヂボール"
-                items={[
-                  { label: "試合", date: "2026/05/29" },
-                  { label: "予備", date: "2026/06/05", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バスケットボール</h2>
-              <Schedule
-                subject="バスケットボール"
-                items={[
-                  { label: "予選AB", date: "2026/06/02" },
-                  { label: "予選CD", date: "2026/06/15" },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バレーボール</h2>
-              <Schedule
-                subject="バレーボール"
-                items={[
-                  { label: "予選", date: "2026/06/16" },
-                  { label: "決勝", date: "2026/06/17" },
-                ]}
-              />
-            </section>
-          </div> */}
         </div>
 
         {/* 創作展 */}
