@@ -305,6 +305,12 @@
   text-align: left;
   padding: 15px;
 }
+.endanTitle {
+  font-size: 2rem;
+  font-family: "Yu Mincho", serif;
+  color: rgb(49, 108, 184);
+  text-align: left;
+}
 .endanGrid,
 .sportsGrid {
   display: grid;
@@ -318,6 +324,12 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+.endanPlace {
+  font-family: "Yu Mincho", serif;
+  font-size: 1.2rem;
+  margin: 0 0 6px;
+  color: rgb(49, 108, 184);
 }
 .endanName,
 .sportName {
