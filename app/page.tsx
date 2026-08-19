@@ -251,12 +251,11 @@ export default async function Toppage() {
             )}
             <br />
           </div>
-
-          <div className={styles.lead}>
-            <p>↓創作展の関連サイトはこちらからアクセス</p>
-          </div>
-          <div className={styles.linkContainer}>
-            <Internal role={INTERNAL_ROLES}>
+          <Internal role={INTERNAL_ROLES}>
+            <div className={styles.lead}>
+              <p>↓創作展の関連サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
               <a
                 className={styles.rentalSite}
                 href="https://equipment.2026.kss-it.com"
@@ -271,23 +270,23 @@ export default async function Toppage() {
                   工具貸出・減点管理サイト
                 </p>
               </a>
-            </Internal>
 
-            <a
-              className={styles.informationSite}
-              href="https://sousakuten-info.2026.kss-it.com"
-            >
-              <p
-                style={{
-                  color: "#fff",
-                  WebkitTextFillColor: "#fff",
-                  opacity: 1,
-                }}
+              <a
+                className={styles.informationSite}
+                href="https://sousakuten-info.2026.kss-it.com"
               >
-                情報発信サイト
-              </p>
-            </a>
-          </div>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  情報発信サイト
+                </p>
+              </a>
+            </div>
+          </Internal>
         </div>
 
         {/* 後夜祭 */}
