@@ -370,3 +370,9 @@
     padding: 24px 20px;
   }
 }
+
+.descriptionLink {
+  color: #0b69eb;
+  text-decoration: underline;
+  transition: opacity 0.15s ease;
+}
