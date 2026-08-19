@@ -90,7 +90,7 @@ async function LotteryIndex() {
             );
           })}
           <p>
-            創作点部門の劇内容は
+            創作部門の劇内容は
             <Link className={styles.descriptionLink} href="/sousaku-list">
               こちら
             </Link>

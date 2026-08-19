@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { parseMarkdown } from "@/lib/markdown";
 
-import styles from "./sousaku-list.module.css";
+import styles from "@/app/sousaku-list/sousaku-list.module.css";
 
 export default async function SousakuListPage() {
   const content = await readFile(
