@@ -3,9 +3,8 @@ import path from "node:path";
 
 import Link from "next/link";
 
-import { parseMarkdown } from "@/lib/markdown";
-
 import styles from "@/app/sousaku-list/sousaku-list.module.css";
+import { parseMarkdown } from "@/lib/markdown";
 
 export default async function SousakuListPage() {
   const content = await readFile(
