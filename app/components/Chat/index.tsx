@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import markdownStyles from "@/app/news/markdown.module.css";
 import { CHAT_RESET_SIGNAL } from "@/lib/chat-protocol";
 // Type-only import: erased at compile time, so it never pulls the
 // server-only knowledge module into this client bundle.
 import type { KnowledgeSource } from "@/lib/knowledge";
+import { parseMarkdown } from "@/lib/markdown";
 
 import styles from "./Chat.module.css";
 
@@ -43,6 +45,26 @@ async function readError(response: Response): Promise<string> {
     // fall through
   }
   return "エラーが発生しました。時間をおいて再度お試しください。";
+}
+
+function ModelBubble({ text }: { text: string }) {
+  const [htmlContent, setHtmlContent] = useState("");
+  useEffect(() => {
+    let active = true;
+    parseMarkdown(text).then((res) => {
+      if (active) setHtmlContent(res);
+    });
+    return () => {
+      active = false;
+    };
+  }, [text]);
+  return (
+    <div
+      className={markdownStyles.markdown}
+      style={{ whiteSpace: "normal", padding: 0 }}
+      dangerouslySetInnerHTML={{ __html: htmlContent }}
+    />
+  );
 }
 
 export function Chat({
@@ -193,8 +215,10 @@ export function Chat({
               >
                 {message.text === "" ? (
                   <span className={styles.typing}>…</span>
-                ) : (
+                ) : message.role === "user" ? (
                   message.text
+                ) : (
+                  <ModelBubble text={message.text} />
                 )}
               </div>
             </div>

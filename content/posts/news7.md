@@ -2,6 +2,7 @@
 date: 2026-07-16
 title: "２学期の合同援ダン日程が公開されました"
 tag: "sport"
+internal: true
 ---
 
 # 合同援ダン練習の日程
