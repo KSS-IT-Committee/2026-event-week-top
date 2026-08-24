@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { Internal } from "@/app/components/Internal";
 import { TimeGuard } from "@/app/components/TimeGuard";
 import { PartySizeGuide } from "@/app/lottery/[lotteryId]/PartySizeGuide";
 import {
@@ -13,7 +14,9 @@ import {
   RESULT_ANNOUNCEMENT,
   RESULT_PAGE_URL,
 } from "@/app/lottery-external/formConfig";
+import { InternalNotice } from "@/app/lottery-external/InternalNotice";
 import styles from "@/app/lottery-external/lottery-external.module.css";
+import { INTERNAL_ROLES } from "@/lib/access";
 
 /**
  * 外部の方向けの観覧抽選 案内ページ。
@@ -49,6 +52,9 @@ const PERFORMANCE_SLOTS = [
 export default function LotteryExternalPage() {
   return (
     <>
+      <Internal role={INTERNAL_ROLES}>
+        <InternalNotice />
+      </Internal>
       <div className={styles.main}>
         <article className={styles.card}>
           <h1 className={styles.title}>公演観覧抽選（外部の方向け）</h1>
