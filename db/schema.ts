@@ -183,9 +183,18 @@ export const lotteryResults = pgTable(
     lotteryId: varchar("lottery_id", { length: 64 }).notNull(),
     slotId: varchar("slot_id", { length: 64 }).notNull(),
     // Parents watch on their child's account, exactly as in lottery_entries.
-    username: varchar("username", { length: 32 })
-      .notNull()
-      .references(() => users.username, { onDelete: "cascade" }),
+    //
+    // Deliberately NOT a foreign key to `users`, unlike lottery_entries: no
+    // app ever writes this table — the draw (2026-lottery) emits the INSERTs
+    // out of band, the same way 2026-account-generator's users.sql is loaded
+    // — and every username in it is copied from an already-FK-checked
+    // lottery_entries row. A key here would only break the schema-only PR
+    // preview clones, whose `users` table is empty, in exchange for
+    // protection the loader already provides. An orphan row is inert: the
+    // page reads results by session username, so a row nobody can log in as
+    // is simply never shown. The generated SQL reports orphans as a NOTICE
+    // after loading, which is what the constraint was really for.
+    username: varchar("username", { length: 32 }).notNull(),
     applicantType: lotteryApplicantTypeEnum("applicant_type").notNull(),
     // The act won — a class code for sousaku, a performance id for kaitaku.
     actId: varchar("act_id", { length: 64 }).notNull(),

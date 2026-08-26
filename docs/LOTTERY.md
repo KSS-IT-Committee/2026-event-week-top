@@ -89,6 +89,10 @@ ORDER BY slot_id, first_choice;
 
 ## PR previews
 
+Preview clones are schema-only (`pr-db.sh`), so `users` is empty there —
+which is why `lottery_results` carries no FK to it, and why loading the draw's
+SQL works on a preview as-is. `lottery_entries` is the one that needs help:
+
 VPS previews run against a schema-only clone of `appdata` (empty `users`)
 while the login cookie is vouched for by the production auth host, so a
 save would normally fail the `lottery_entries.username → users.username`
@@ -111,9 +115,17 @@ applicant_type)` is unique — nobody can be in two rooms at once — plus the
   `is_priority` for a 保護者 seat granted by the child's-class guarantee.
   **A missing row is a loss, not an error**: `/lottery/results` joins against
   `lottery_entries` to tell "applied and lost" from "never applied".
-- **External applicants are deliberately absent.** They have no `users` row to
-  reference and hear their result from the form provider. Covering them later
-  is an additive table, not a change to this one.
+- **`username` is not a foreign key here** (unlike `lottery_entries`). No app
+  writes this table, the loader copies usernames straight off already-checked
+  entry rows, and the schema-only PR preview clones have an empty `users`
+  table — a key would break every preview to re-check something the loader
+  already guarantees. The generated SQL ends with a `DO $$` block that reports
+  any username missing from `users` as a NOTICE, which is what the constraint
+  was actually for. Trade-off: deleting a `users` row leaves its results
+  behind, and they are unreadable rather than harmful.
+- **External applicants are deliberately absent.** They hear their result from
+  the form provider. Covering them later is an additive table, not a change to
+  this one.
 - **Publishing is a config switch, not a deploy of data.** Each lottery's
   `resultsAnnouncedAt` (`lib/lotteries.ts`) gates the page; it is `null` by
   default, which hides every result **however many rows are already loaded**.

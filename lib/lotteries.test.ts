@@ -185,13 +185,25 @@ describe("lottery result announcement", () => {
     return { ...lottery, resultsAnnouncedAt: at };
   }
 
+  // The configured instant is committee policy and changes when they
+  // announce, so these pin the BEHAVIOUR, never the value in LOTTERIES.
   it("hides results while no announcement time is configured", () => {
-    expect(kaitaku.resultsAnnouncedAt).toBeNull();
-    expect(sousaku.resultsAnnouncedAt).toBeNull();
     for (const lottery of LOTTERIES) {
-      expect(areLotteryResultsAnnounced(lottery, new Date("2099-01-01"))).toBe(
-        false,
-      );
+      expect(
+        areLotteryResultsAnnounced(
+          withAnnouncement(lottery, null),
+          new Date("2099-01-01"),
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it("gives every lottery an announcement field to switch on", () => {
+    for (const lottery of LOTTERIES) {
+      expect(
+        lottery.resultsAnnouncedAt === null ||
+          lottery.resultsAnnouncedAt instanceof Date,
+      ).toBe(true);
     }
   });
 
@@ -216,7 +228,9 @@ describe("lottery result announcement", () => {
     expect(described).toContain("2026");
     expect(described).toContain("9月8日");
     expect(described).toContain("10:00");
-    expect(describeResultsAnnouncement(sousaku)).toBeNull();
+    expect(describeResultsAnnouncement(withAnnouncement(sousaku, null))).toBe(
+      null,
+    );
   });
 });
 
