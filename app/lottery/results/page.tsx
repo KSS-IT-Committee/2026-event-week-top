@@ -3,6 +3,7 @@ import { unauthorized } from "next/navigation";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import styles from "@/app/lottery/results/results.module.css";
 import { getLotteryEntries } from "@/db/getLotteryEntries";
 import { getLotteryResults } from "@/db/getLotteryResults";
 import type { LotteryApplicantType } from "@/db/schema";
@@ -19,8 +20,6 @@ import {
   type Lottery,
 } from "@/lib/lotteries";
 import { getCurrentUser, type SessionUser } from "@/lib/session";
-
-import styles from "./results.module.css";
 
 export const metadata: Metadata = {
   title: "公演観覧抽選 結果 | 行事週間2026",
