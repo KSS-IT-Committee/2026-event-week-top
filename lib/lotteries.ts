@@ -72,6 +72,12 @@ export type Lottery = {
   // shift the deadline by the server's timezone.
   opensAt: Date | null;
   closesAt: Date | null;
+  // When the drawn result becomes visible on /lottery/results. null (the
+  // default until the committee announces a time) hides every result, even
+  // after the draw has been loaded into `lottery_results` — so loading the
+  // rows early can never leak them. Construct with an explicit offset for the
+  // same reason opensAt/closesAt do: the server does not run in JST.
+  resultsAnnouncedAt: Date | null;
 };
 
 // Population roles → class code parts. Must stay in lockstep with the
@@ -174,6 +180,9 @@ export const LOTTERIES: readonly Lottery[] = [
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
+    // TODO(committee): set this to the announced 当選発表 time to publish the
+    // results, e.g. new Date("2026-09-08T10:00:00+09:00").
+    resultsAnnouncedAt: null,
   },
   {
     id: "sousaku-performance",
@@ -206,6 +215,9 @@ export const LOTTERIES: readonly Lottery[] = [
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
+    // TODO(committee): set this to the announced 当選発表 time to publish the
+    // results, e.g. new Date("2026-09-08T10:00:00+09:00").
+    resultsAnnouncedAt: null,
   },
 ];
 
@@ -227,6 +239,59 @@ export const MAX_PARTY_SIZE_BY_APPLICANT_TYPE: Record<
   student: 1,
   parent: 2,
 };
+
+/**
+ * Whether this lottery's drawn results may be shown yet. Deny-by-default: a
+ * lottery with no announcement time keeps its results hidden however many
+ * rows sit in `lottery_results`.
+ */
+export function areLotteryResultsAnnounced(
+  lottery: Lottery,
+  now: Date,
+): boolean {
+  if (lottery.resultsAnnouncedAt === null) return false;
+  return now.getTime() >= lottery.resultsAnnouncedAt.getTime();
+}
+
+/**
+ * 「2026年9月8日（火）10:00」 — when the results go up, or null when no time
+ * is configured. Rendered in JST so the page can never disagree with what was
+ * announced.
+ */
+export function describeResultsAnnouncement(lottery: Lottery): string | null {
+  if (lottery.resultsAnnouncedAt === null) return null;
+  const date = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    dateStyle: "long",
+  }).format(lottery.resultsAnnouncedAt);
+  const weekday = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    weekday: "short",
+  }).format(lottery.resultsAnnouncedAt);
+  const time = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(lottery.resultsAnnouncedAt);
+  return `${date}（${weekday}）${time}`;
+}
+
+/**
+ * Human labels for stored ids. `lottery_results` holds the opaque slot/act
+ * ids, so a result row is rendered through these; an id the definition no
+ * longer knows falls back to itself rather than rendering blank.
+ */
+export function getSlotLabel(lottery: Lottery, slotId: string): string {
+  return lottery.slots.find((slot) => slot.id === slotId)?.label ?? slotId;
+}
+
+export function getSlotTime(lottery: Lottery, slotId: string): string | null {
+  return lottery.slots.find((slot) => slot.id === slotId)?.time ?? null;
+}
+
+export function getActLabel(lottery: Lottery, actId: string): string {
+  return lottery.acts.find((act) => act.id === actId)?.label ?? actId;
+}
 
 export function getLottery(lotteryId: string): Lottery | null {
   return LOTTERIES.find((lottery) => lottery.id === lotteryId) ?? null;

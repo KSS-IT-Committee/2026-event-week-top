@@ -98,12 +98,34 @@ the session's username — the stub's password hash is a discarded random
 secret, so it can never be logged in with. Production and local runs skip
 this entirely; the FK stays fully enforced there.
 
+## The result side
+
+- **The draw runs outside this app.** `2026-lottery` reads the exported
+  entries, draws the winners, and emits the `lottery_results` INSERTs
+  (`./scripts/generate-sql.sh`). Nothing in this app writes that table; the
+  app only reads it.
+- **`lottery_results`** (`db/schema.ts`, canonical copy in `2026-db`) holds one
+  row per seat awarded to a school account: `(lottery_id, slot_id, username,
+applicant_type)` is unique — nobody can be in two rooms at once — plus the
+  `act_id` won, the `party_size` admitted, the `choice_rank` that won, and
+  `is_priority` for a 保護者 seat granted by the child's-class guarantee.
+  **A missing row is a loss, not an error**: `/lottery/results` joins against
+  `lottery_entries` to tell "applied and lost" from "never applied".
+- **External applicants are deliberately absent.** They have no `users` row to
+  reference and hear their result from the form provider. Covering them later
+  is an additive table, not a change to this one.
+- **Publishing is a config switch, not a deploy of data.** Each lottery's
+  `resultsAnnouncedAt` (`lib/lotteries.ts`) gates the page; it is `null` by
+  default, which hides every result **however many rows are already loaded**.
+  So the SQL can be applied early and safely, and announcing is a one-line
+  edit. Construct the date with an explicit `+09:00` offset, as with
+  `opensAt` / `closesAt`.
+
 ## Not included (yet)
 
-- **The draw itself.** Winner selection needs per-venue capacities, which are
-  not decided; the schema anticipates a future `lottery_results` table
-  (additive) once they are.
-- **Results announcement / per-user result pages.**
+- **Per-class attendee lists** (who to expect at each room's reception desk).
+  The data is in `lottery_results`; only the page is missing.
+- **Results for external applicants.**
 
 ## Deploy order
 
