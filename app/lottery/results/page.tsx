@@ -128,7 +128,7 @@ async function LotteryResultCard({
             lottery={lottery}
             username={user.username}
             applicantType={applicantType}
-            showHeading={usableTypes.length > 1}
+            hasMultipleApplicantTypes={usableTypes.length > 1}
           />
         ))
       )}
@@ -140,12 +140,12 @@ async function ApplicantTypeResult({
   lottery,
   username,
   applicantType,
-  showHeading,
+  hasMultipleApplicantTypes,
 }: {
   lottery: Lottery;
   username: string;
   applicantType: LotteryApplicantType;
-  showHeading: boolean;
+  hasMultipleApplicantTypes: boolean;
 }) {
   const [results, entries] = await Promise.all([
     getLotteryResults(username, lottery.id, applicantType),
@@ -165,7 +165,7 @@ async function ApplicantTypeResult({
 
   return (
     <section className={styles.applicantSection}>
-      {showHeading && (
+      {hasMultipleApplicantTypes && (
         <h3 className={styles.applicantTitle}>
           {APPLICANT_TYPE_LABELS[applicantType]}
         </h3>
