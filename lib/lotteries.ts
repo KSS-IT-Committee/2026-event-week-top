@@ -180,9 +180,7 @@ export const LOTTERIES: readonly Lottery[] = [
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
-    // TODO(committee): set this to the announced 当選発表 time to publish the
-    // results, e.g. new Date("2026-09-08T10:00:00+09:00").
-    resultsAnnouncedAt: new Date("2026-08-27T06:33:00+09:00"),
+    resultsAnnouncedAt: new Date("2026-08-27T12:30:00+09:00"),
   },
   {
     id: "sousaku-performance",
@@ -215,9 +213,7 @@ export const LOTTERIES: readonly Lottery[] = [
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
-    // TODO(committee): set this to the announced 当選発表 time to publish the
-    // results, e.g. new Date("2026-09-08T10:00:00+09:00").
-    resultsAnnouncedAt: new Date("2026-08-27T06:33:00+09:00"),
+    resultsAnnouncedAt: new Date("2026-08-27T12:30:00+09:00"),
   },
 ];
 
