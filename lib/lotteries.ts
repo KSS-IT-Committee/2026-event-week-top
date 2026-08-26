@@ -182,7 +182,7 @@ export const LOTTERIES: readonly Lottery[] = [
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
     // TODO(committee): set this to the announced 当選発表 time to publish the
     // results, e.g. new Date("2026-09-08T10:00:00+09:00").
-    resultsAnnouncedAt: null,
+    resultsAnnouncedAt: new Date("2026-08-26T00:00:00+09:00"),
   },
   {
     id: "sousaku-performance",
@@ -217,7 +217,7 @@ export const LOTTERIES: readonly Lottery[] = [
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
     // TODO(committee): set this to the announced 当選発表 time to publish the
     // results, e.g. new Date("2026-09-08T10:00:00+09:00").
-    resultsAnnouncedAt: null,
+    resultsAnnouncedAt: new Date("2026-08-26T00:00:00+09:00"),
   },
 ];
 
