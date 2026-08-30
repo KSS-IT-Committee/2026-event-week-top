@@ -241,7 +241,8 @@
 }
 .sportsSite,
 .rentalSite,
-.informationSite {
+.informationSite,
+.sousakutenSite {
   width: 250px;
   padding: 10px 0;
   text-align: center;
@@ -255,11 +256,13 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .rentalSite p,
-.informationSite p {
+.informationSite p,
+.sousakutenSite p {
   color: #ffffff;
 }
 
-.sportsSite {
+.sportsSite,
+.sousakutenSite {
   background-color: #71757b;
   cursor: default;
 }

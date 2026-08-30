@@ -287,6 +287,20 @@ export default async function Toppage() {
                 情報発信サイト
               </p>
             </a>
+
+            <div className={styles.sousakutenSite}>
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
+              >
+                創作展ホームページ
+                <br />
+                （Coming Soon）
+              </p>
+            </div>
           </div>
         </div>
 
