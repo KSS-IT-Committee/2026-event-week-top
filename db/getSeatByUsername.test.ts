@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getSeatByUsername } from "@/db/getSeatByUsername";
+import { getSeatByUsername, getSeatsByUsername } from "@/db/getSeatByUsername";
 import { db } from "@/lib/db";
 
 const { rowsHolder, callsHolder } = vi.hoisted(() => ({
@@ -93,5 +93,26 @@ describe("getSeatByUsername", () => {
     rowsHolder.rows = [first, second];
 
     await expect(getSeatByUsername("3A05")).resolves.toBe(first);
+  });
+});
+
+describe("getSeatsByUsername", () => {
+  beforeEach(() => {
+    rowsHolder.rows = [];
+    callsHolder.calls = [];
+  });
+
+  it("returns every matching seat", async () => {
+    const seats = [
+      makeSeat({ performance: "A", seat: "A-12" }),
+      makeSeat({ id: 2, performance: "C", seat: "C-03" }),
+    ];
+    rowsHolder.rows = seats;
+
+    await expect(getSeatsByUsername("3A05")).resolves.toBe(seats);
+  });
+
+  it("returns an empty array when the user has no seats", async () => {
+    await expect(getSeatsByUsername("3A05")).resolves.toEqual([]);
   });
 });

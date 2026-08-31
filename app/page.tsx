@@ -383,7 +383,7 @@ export default async function Toppage() {
         <FloatingMenu
           items={[
             { label: "芸能祭", href: "#performance" },
-            { label: "芸能祭座席", href: "/seat" },
+            { label: "芸能祭座席", href: "/seat", isInternal: true },
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },

@@ -20,50 +20,56 @@
   margin-left: 20px;
   margin-top: 20px;
 }
-
-.adminpanel {
+.switchButtons {
   display: flex;
-  border-bottom: 1px solid #88888894;
-}
-
-.adminpanelTitle {
+  align-items: center;
+  gap: 10px;
   margin: 20px;
 }
 
-.editSite {
-  width: 250px;
-  padding: 10px 0;
-  margin: 10px;
+.switchButton {
+  width: 150px;
+  padding: 10px 5px;
   text-align: center;
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 15px;
   font-size: 1.1rem;
-  font-family: "Yu Mincho";
-  font-weight: bold;
   transition: 0.25s ease;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: 2px solid #2a6cca;
+}
+
+.active {
   background-color: #2a6cca;
 }
 
-.username {
+.inactive {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.registerPageTitle {
   font-size: 2rem;
   color: rgb(255, 255, 255);
   margin-left: 20px;
   margin-top: 20px;
 }
 
-.seatList {
-  max-width: 480px;
-  padding: 0;
-  margin: 20px;
-  list-style: none;
+.registerForm {
+  padding: 30px;
 }
 
-.seatItem {
+.idFormGroup {
   display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #88888894;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.formStatus {
+  margin: 0 0 16px;
+}
+
+.submitButton {
+  padding: 10px 24px;
 }

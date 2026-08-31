@@ -1,7 +1,7 @@
 import { performanceEnum, Seats } from "@/db/schema";
 import { db } from "@/lib/db";
 
-type Performance = (typeof performanceEnum.enumValues)[number];
+export type Performance = (typeof performanceEnum.enumValues)[number];
 
 export async function addSeat(
   username: string,
