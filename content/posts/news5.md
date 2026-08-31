@@ -3,6 +3,7 @@ id: "news5"
 date: 2026-07-10
 title: "前期予備大の日程が公開されました"
 tag: "sport"
+internal: true
 ---
 
 # 前期予備大の日程

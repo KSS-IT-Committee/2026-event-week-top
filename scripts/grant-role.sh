@@ -8,7 +8,7 @@ set -euo pipefail
 #   ./grant-role.sh <role> <username> [username...]
 #   ./grant-role.sh Sousakuten 3B12 4A05 k0959176
 
-ROLES=(IT Sousakuten Taiikusai)
+ROLES=(IT Sousakuten Taiikusai G1 G2 G3 G4 G5 G6 ClassA ClassB ClassC ClassD Students Teachers SousakutenMain)
 
 die() {
   echo "error: $1" >&2

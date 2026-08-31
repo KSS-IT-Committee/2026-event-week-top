@@ -3,6 +3,7 @@ id: "news1"
 date: 2026-05-24
 title: "予備大の日程が公開されました"
 tag: "sport"
+internal: true
 ---
 
 # 予備大の日程は以下の通りです。

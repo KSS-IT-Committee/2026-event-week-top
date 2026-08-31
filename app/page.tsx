@@ -213,51 +213,26 @@ export default async function Toppage() {
               </ul>
             )}
           </div>
-          {/* <div className={styles.sportsGrid}>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>サッカー</h2>
-              <Schedule
-                subject="サッカー"
-                items={[
-                  { label: "予選AB", date: "2026/05/28" },
-                  { label: "予選CD", date: "2026/06/01" },
-                  { label: "三位決定戦", date: "2026/06/04" },
-                  { label: "決勝", date: "2026/06/08" },
-                  { label: "予備", date: "2026/06/11", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>ドッヂボール</h2>
-              <Schedule
-                subject="ドッヂボール"
-                items={[
-                  { label: "試合", date: "2026/05/29" },
-                  { label: "予備", date: "2026/06/05", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バスケットボール</h2>
-              <Schedule
-                subject="バスケットボール"
-                items={[
-                  { label: "予選AB", date: "2026/06/02" },
-                  { label: "予選CD", date: "2026/06/15" },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バレーボール</h2>
-              <Schedule
-                subject="バレーボール"
-                items={[
-                  { label: "予選", date: "2026/06/16" },
-                  { label: "決勝", date: "2026/06/17" },
-                ]}
-              />
-            </section>
-          </div> */}
+          <Internal role={INTERNAL_ROLES}>
+            <div className={styles.lead}>
+              <p>↓体育祭サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
+              <div className={styles.sportsSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  体育祭サイト
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
+            </div>
+          </Internal>
         </div>
 
         {/* 創作展 */}
@@ -329,6 +304,20 @@ export default async function Toppage() {
                 情報発信サイト
               </p>
             </a>
+
+            <div className={styles.sousakutenSite}>
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
+              >
+                創作展ホームページ
+                <br />
+                （Coming Soon）
+              </p>
+            </div>
           </div>
         </div>
 

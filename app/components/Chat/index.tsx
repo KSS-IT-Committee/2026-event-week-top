@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import markdownStyles from "@/app/news/markdown.module.css";
 import { CHAT_RESET_SIGNAL } from "@/lib/chat-protocol";
+// Type-only import: erased at compile time, so it never pulls the
+// server-only knowledge module into this client bundle.
+import type { KnowledgeSource } from "@/lib/knowledge";
+import { parseMarkdown } from "@/lib/markdown";
 
 import styles from "./Chat.module.css";
 
@@ -10,6 +15,15 @@ type Message = {
   role: "user" | "model";
   text: string;
 };
+
+// Human-readable labels for the live-data tools in lib/chat-tools.ts. Keep in
+// sync when a tool is added or removed there.
+const LIVE_DATA_SOURCES = [
+  "伝達事項（自分のクラス向けと全体向け）",
+  "備品の在庫・貸出状況",
+  "減点記録（自分のクラス分のみ）",
+  "サイトのニュース",
+];
 
 const SUGGESTIONS = [
   "創作展はいつ開催されますか？",
@@ -33,7 +47,31 @@ async function readError(response: Response): Promise<string> {
   return "エラーが発生しました。時間をおいて再度お試しください。";
 }
 
-export function Chat() {
+function ModelBubble({ text }: { text: string }) {
+  const [htmlContent, setHtmlContent] = useState("");
+  useEffect(() => {
+    let active = true;
+    parseMarkdown(text).then((res) => {
+      if (active) setHtmlContent(res);
+    });
+    return () => {
+      active = false;
+    };
+  }, [text]);
+  return (
+    <div
+      className={markdownStyles.markdown}
+      style={{ whiteSpace: "normal", padding: 0 }}
+      dangerouslySetInnerHTML={{ __html: htmlContent }}
+    />
+  );
+}
+
+export function Chat({
+  knowledgeSources,
+}: {
+  knowledgeSources: KnowledgeSource[];
+}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -177,8 +215,10 @@ export function Chat() {
               >
                 {message.text === "" ? (
                   <span className={styles.typing}>…</span>
-                ) : (
+                ) : message.role === "user" ? (
                   message.text
+                ) : (
+                  <ModelBubble text={message.text} />
                 )}
               </div>
             </div>
@@ -223,6 +263,30 @@ export function Chat() {
             個人情報と思われるものが出てきたらIT委員会に連絡してください。
           </li>
         </ul>
+      </details>
+      <details className={styles.notes}>
+        <summary className={styles.noteSummary}>AIが参照できる情報</summary>
+        <div className={styles.sources}>
+          {knowledgeSources.length > 0 && (
+            <>
+              <p className={styles.sourcesHeading}>資料</p>
+              <ul>
+                {knowledgeSources.map((source) => (
+                  <li key={source.source}>
+                    {source.title}
+                    {source.isReference && "（昨年度の参考資料）"}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <p className={styles.sourcesHeading}>サイト内の最新情報</p>
+          <ul>
+            {LIVE_DATA_SOURCES.map((label) => (
+              <li key={label}>{label}</li>
+            ))}
+          </ul>
+        </div>
       </details>
     </div>
   );

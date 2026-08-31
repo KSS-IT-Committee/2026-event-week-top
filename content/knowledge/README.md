@@ -22,6 +22,11 @@ can match a PDF page (cross-modal retrieval).
 ## Notes
 
 - `README.md` and files starting with `_` are ignored by the indexer.
+- When a source document contains an apparent mistake, **keep the original text
+  verbatim** and append an inline `（※編注：…）` note on the same line (so the
+  note stays in the same chunk as the claim it qualifies). Say what the original
+  says, why it looks wrong, and who to confirm with — never silently "fix" the
+  document.
 - PDFs require the multimodal embedding model (the default); a text-only
   `GEMINI_EMBED_MODEL` override will make the build fail loudly if any PDF is
   present.

@@ -239,9 +239,11 @@
   gap: 20px;
   margin-top: 10px;
 }
+.sportsSite,
 .rentalSite,
 .informationSite,
 .seatSite {
+.sousakutenSite {
   width: 250px;
   padding: 10px 0;
   text-align: center;
@@ -257,9 +259,15 @@
 .rentalSite p,
 .informationSite p,
 .seatSite p {
+.sousakutenSite p {
   color: #ffffff;
 }
 
+.sportsSite,
+.sousakutenSite {
+  background-color: #71757b;
+  cursor: default;
+}
 .rentalSite,
 .informationSite,
 .seatSite {
