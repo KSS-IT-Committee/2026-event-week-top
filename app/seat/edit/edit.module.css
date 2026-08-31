@@ -68,8 +68,33 @@
 
 .formStatus {
   margin: 0 0 16px;
+  margin-top: 20px;
 }
 
 .submitButton {
   padding: 10px 24px;
+  background-color: #2a6cca;
+  color: #ffffff;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  transition: 0.25s ease;
+  cursor: pointer;
+}
+
+.formSelect,
+.formInput {
+  border: solid 0.5px #ccc;
+  margin: 0 5px;
+  @media (prefers-color-scheme: dark) {
+    border: solid 0.5px #666;
+  }
+}
+
+.registerPageNote {
+  margin: 30px;
+}
+
+.noteTitle {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
 }

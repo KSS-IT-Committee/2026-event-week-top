@@ -8,5 +8,12 @@ export async function addSeat(
   performance: Performance,
   seat: string,
 ) {
-  await db.insert(Seats).values({ username, performance, seat }).returning();
+  await db
+    .insert(Seats)
+    .values({ username, performance, seat })
+    .onConflictDoUpdate({
+      target: [Seats.username, Seats.performance],
+      set: { seat },
+    })
+    .returning();
 }

@@ -288,12 +288,23 @@ export const Borrowings = pgTable(
 );
 
 // 芸能祭座席DB
-export const Seats = pgTable("seats", {
-  id: serial("id").primaryKey(),
-  username: varchar("username", { length: 32 })
-    .notNull()
-    .references(() => users.username, { onDelete: "cascade" }),
-  performance: performanceEnum("performance").notNull(),
-  addedAt: timestamp("added_at", { withTimezone: true }).defaultNow().notNull(),
-  seat: text("seat").notNull(),
-});
+export const Seats = pgTable(
+  "seats",
+  {
+    id: serial("id").primaryKey(),
+    username: varchar("username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
+    performance: performanceEnum("performance").notNull(),
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    seat: text("seat").notNull(),
+  },
+  (table) => [
+    unique("seats_username_performance_unique").on(
+      table.username,
+      table.performance,
+    ),
+  ],
+);

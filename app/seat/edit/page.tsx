@@ -68,5 +68,9 @@ export default async function SeatEditPage({
 }
 
 function ListPage() {
-  return <></>;
+  return (
+    <>
+      <h1 className={styles.registerPageTitle}>まだ公開されていません</h1>
+    </>
+  );
 }

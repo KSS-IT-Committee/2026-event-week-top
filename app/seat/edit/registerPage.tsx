@@ -163,6 +163,14 @@ export default function RegisterPage() {
             </select>
           </div>
         </div>
+
+        <button
+          className={styles.submitButton}
+          type="submit"
+          disabled={isPending}
+        >
+          {isPending ? "登録中…" : "登録"}
+        </button>
         {state.error !== null && (
           <p className={styles.formStatus} role="alert">
             {state.error}
@@ -173,14 +181,22 @@ export default function RegisterPage() {
             座席を登録しました。
           </p>
         )}
-        <button
-          className={styles.submitButton}
-          type="submit"
-          disabled={isPending}
-        >
-          {isPending ? "登録中…" : "登録"}
-        </button>
       </form>
+      <div className={styles.registerPageNote}>
+        <h3 className={styles.noteTitle}>座席登録について</h3>
+        <p className={styles.noteText}>
+          このページは芸能祭委員会用の座席登録ページです。
+          <br />
+          座席登録は、クラス・出席番号・公演・座席の列・座席番号を指定して行います。
+          <br />
+          現在、この登録ページと、確認ページのみが利用可能です。委員会向けの登録済み座席や各生徒の登録情報一覧ページは今後公開されます。{" "}
+          <br />
+          現在他人に登録された座席は委員会側でも確認できませんので、間違えたと思われる場合は、再度正しい情報を登録すれば更新されます。
+          <br />
+          席番号が登録されていないなどのバグがありましたらIT委員会までご連絡ください。
+          <br />
+        </p>
+      </div>
     </div>
   );
 }
