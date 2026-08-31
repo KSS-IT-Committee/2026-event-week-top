@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Internal } from "@/app/components/Internal";
-import { INTERNAL_ROLES } from "@/lib/access";
-import { getCurrentUser } from "@/lib/session";
-
+import { INTERNAL_ROLES } from "../lib/access";
+import { getCurrentUser } from "../lib/session";
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
+import { Internal } from "./components/Internal";
+import { Schedule } from "./components/Schedule";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
@@ -195,6 +195,69 @@ export default async function Toppage() {
                 ))}
               </ul>
             )}
+            <h2 className={styles.endanTitle}>援ダンスケジュール</h2>
+            <div className={styles.endanGrid}>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>グラウンド</h2>
+                <Schedule
+                  subject="グラウンド"
+                  items={[
+                    { label: "A", date: "2026/09/01" },
+                    { label: "D", date: "2026/09/02" },
+                    { label: "C", date: "2026/09/03" },
+                    { label: "B", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>アリーナ</h2>
+                <Schedule
+                  subject="アリーナ"
+                  items={[
+                    { label: "C", date: "2026/09/01" },
+                    { label: "B", date: "2026/09/02" },
+                    { label: "D", date: "2026/09/03" },
+                    { label: "A", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>柔道場</h2>
+                <Schedule
+                  subject="柔道場"
+                  items={[
+                    { label: "6B", date: "2026/09/01" },
+                    { label: "5C", date: "2026/09/02" },
+                    { label: "6A", date: "2026/09/03" },
+                    { label: "4C", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>剣道場</h2>
+                <Schedule
+                  subject="剣道場"
+                  items={[
+                    { label: "6D", date: "2026/09/01" },
+                    { label: "6C", date: "2026/09/02" },
+                    { label: "4B", date: "2026/09/03" },
+                    { label: "6D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>光庭</h2>
+                <Schedule
+                  subject="光庭"
+                  items={[
+                    { label: "5D", date: "2026/09/01" },
+                    { label: "4,5A", date: "2026/09/02" },
+                    { label: "5,6B", date: "2026/09/03" },
+                    { label: "4,5D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+            </div>
           </div>
           <Internal role={INTERNAL_ROLES}>
             <div className={styles.lead}>
