@@ -347,7 +347,7 @@ export default async function Toppage() {
                   opacity: 1,
                 }}
               >
-                情報発信サイト
+                情報伝達サイト
               </p>
             </a>
 
