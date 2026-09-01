@@ -1,5 +1,5 @@
 {
-  "title": "fix in phrase of info site",
-  "description": "TODO",
+  "title": "情報伝達サイトの表記統一",
+  "description": "ページへ飛ぶボタンを「情報発信サイト」から「情報伝達サイト」に統一しました。",
   "credits": ["@rotarymars"]
 }
