@@ -92,6 +92,12 @@ async function LotteryIndex() {
               </article>
             );
           })}
+          <p>
+            創作部門の劇内容は
+            <Link className={styles.descriptionLink} href="/sousaku-list">
+              こちら
+            </Link>
+          </p>
         </div>
       </section>
     </div>
