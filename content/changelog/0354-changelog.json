@@ -1,0 +1,5 @@
+{
+  "title": "Bump @google/genai from 2.15.0 to 2.16.0",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}

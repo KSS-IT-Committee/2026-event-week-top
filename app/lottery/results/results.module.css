@@ -1,0 +1,159 @@
+.main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 96px 24px;
+  flex: 1;
+}
+
+.card {
+  width: 100%;
+  max-width: 720px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 15%, transparent);
+  border-radius: 12px;
+  padding: 32px 28px;
+  background: color-mix(in oklch, var(--foreground) 3%, var(--background));
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.note {
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+  margin-bottom: 16px;
+}
+
+.notesList {
+  list-style: disc;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+  margin-bottom: 24px;
+}
+
+/* Layered on .notesList for the notice a winner must not miss. */
+.important {
+  color: #d4380d;
+}
+
+.lotteryList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lotteryCard {
+  border: 1px solid color-mix(in oklch, var(--foreground) 15%, transparent);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.lotteryTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.applicantSection + .applicantSection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+}
+
+.applicantTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.won {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #237804;
+  margin-bottom: 12px;
+}
+
+.lost,
+.noEntry {
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+}
+
+.pending {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #d46b08;
+}
+
+.ineligible {
+  font-size: 0.9rem;
+  color: #d4380d;
+}
+
+.seatList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.seat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid color-mix(in oklch, #237804 35%, transparent);
+  background: color-mix(in oklch, #237804 6%, var(--background));
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.seatSlot {
+  font-size: 0.85rem;
+  color: color-mix(in oklch, var(--foreground) 65%, transparent);
+}
+
+.seatTime {
+  margin-left: 8px;
+}
+
+.seatAct {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.seatMeta {
+  font-size: 0.85rem;
+  color: color-mix(in oklch, var(--foreground) 65%, transparent);
+}
+
+.priorityBadge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* #237804 / #d4380d are below WCAG AA contrast on the dark card. */
+  .won {
+    color: #73d13d;
+  }
+
+  .important,
+  .ineligible {
+    color: #ff7a5c;
+  }
+
+  .seat {
+    border-color: color-mix(in oklch, #73d13d 35%, transparent);
+    background: color-mix(in oklch, #73d13d 8%, var(--background));
+  }
+}
