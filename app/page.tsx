@@ -173,8 +173,6 @@ export default async function Toppage() {
                     }}
                   >
                     芸能祭座席サイト
-                    <br />
-                    （後期生のみ）
                   </p>
                 </a>
               </Internal>
