@@ -42,8 +42,20 @@ export const ROLENAMES = [
   "Students",
   "Teachers",
   "SousakutenMain",
+  "Geinousai",
 ] as const;
 export const roleEnum = pgEnum("role", ROLENAMES);
+
+// 芸能祭の公演 (A..E). Lockstep with 2026-db's canonical pgEnum.
+export const PERFORMANCES = ["A", "B", "C", "D", "E"] as const;
+
+export const performanceEnum = pgEnum("performance", PERFORMANCES);
+
+export type Performance = (typeof PERFORMANCES)[number];
+
+export function isPerformance(value: string): value is Performance {
+  return (PERFORMANCES as readonly string[]).includes(value);
+}
 
 export const users = pgTable("users", {
   username: varchar("username", { length: 32 }).primaryKey(),
@@ -166,8 +178,70 @@ export const lotteryEntries = pgTable(
   ],
 );
 
+// 公演観覧抽選 当選DB — one row per seat awarded to a school account: the
+// slot the applicant watches and which act they got. Written in bulk by the
+// draw (2026-lottery emits the INSERTs; nothing in the apps writes here), and
+// read by event-week-top's /lottery/results page.
+//
+// A missing row is a loss, not an error: pair it with `lottery_entries` to
+// tell "applied and lost" from "never applied". External (non-school)
+// applicants are deliberately absent — they have no `users` row to reference
+// and are told their result through the form provider; a later additive
+// table can cover them without touching this one.
+export const lotteryResults = pgTable(
+  "lottery_results",
+  {
+    id: serial("id").primaryKey(),
+    lotteryId: varchar("lottery_id", { length: 64 }).notNull(),
+    slotId: varchar("slot_id", { length: 64 }).notNull(),
+    // Parents watch on their child's account, exactly as in lottery_entries.
+    //
+    // Deliberately NOT a foreign key to `users`, unlike lottery_entries: no
+    // app ever writes this table — the draw (2026-lottery) emits the INSERTs
+    // out of band, the same way 2026-account-generator's users.sql is loaded
+    // — and every username in it is copied from an already-FK-checked
+    // lottery_entries row. A key here would only break the schema-only PR
+    // preview clones, whose `users` table is empty, in exchange for
+    // protection the loader already provides. An orphan row is inert: the
+    // page reads results by session username, so a row nobody can log in as
+    // is simply never shown. The generated SQL reports orphans as a NOTICE
+    // after loading, which is what the constraint was really for.
+    username: varchar("username", { length: 32 }).notNull(),
+    applicantType: lotteryApplicantTypeEnum("applicant_type").notNull(),
+    // The act won — a class code for sousaku, a performance id for kaitaku.
+    actId: varchar("act_id", { length: 64 }).notNull(),
+    // 観覧人数 admitted by this seat; copied from the winning entry.
+    partySize: integer("party_size").notNull().default(1),
+    // Which ranked choice won (1 = 第1希望). Lets the page show 第2希望 etc.
+    choiceRank: integer("choice_rank").notNull(),
+    // True for a 保護者 seat granted by the child's-class guarantee rather
+    // than by the draw proper.
+    isPriority: boolean("is_priority").notNull().default(false),
+    drawnAt: timestamp("drawn_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    // One seat per slot per account per applicant type — nobody can be in two
+    // rooms at the same time, and re-running the draw overwrites in place.
+    unique("lottery_results_slot_applicant_unique").on(
+      table.lotteryId,
+      table.slotId,
+      table.username,
+      table.applicantType,
+    ),
+    index("lottery_results_username_idx").on(table.username),
+    index("lottery_results_lottery_slot_idx").on(table.lotteryId, table.slotId),
+    check("result_party_size_positive", sql`${table.partySize} >= 1`),
+    check("result_choice_rank_range", sql`${table.choiceRank} BETWEEN 1 AND 3`),
+  ],
+);
+
 export type LotteryEntry = typeof lotteryEntries.$inferSelect;
 export type NewLotteryEntry = typeof lotteryEntries.$inferInsert;
+
+export type LotteryResult = typeof lotteryResults.$inferSelect;
+export type NewLotteryResult = typeof lotteryResults.$inferInsert;
 
 /* ─────────────── read-only mirrors for the /chat assistant ───────────────
  *
@@ -283,5 +357,29 @@ export const Borrowings = pgTable(
       "returned_at_after_borrowed_at",
       sql`${table.returnedAt} IS NULL OR ${table.returnedAt} >= ${table.borrowedAt}`,
     ),
+  ],
+);
+
+// 芸能祭座席DB
+export const Seats = pgTable(
+  "seats",
+  {
+    id: serial("id").primaryKey(),
+    username: varchar("username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
+    performance: performanceEnum("performance").notNull(),
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    seat: text("seat").notNull(),
+  },
+  (table) => [
+    unique("seats_username_performance_unique").on(
+      table.username,
+      table.performance,
+    ),
+    // A physical seat holds one person per performance.
+    unique("seats_performance_seat_unique").on(table.performance, table.seat),
   ],
 );

@@ -45,6 +45,9 @@ async function LotteryIndex() {
         <p className={styles.note}>
           開拓部門・創作部門のクラス劇は、観覧希望を集めて抽選を行います。観覧を希望する公演（開拓部門）や観たいクラス（創作部門）を第1〜第3希望まで選んで申し込んでください。保護者の方はお子様のアカウントでログインして申し込めます。
         </p>
+        <Link className={styles.resultsLink} href="/lottery/results">
+          抽選結果を見る
+        </Link>
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => {
             const availability = getLotteryAvailability(lottery, now);
@@ -89,6 +92,12 @@ async function LotteryIndex() {
               </article>
             );
           })}
+          <p>
+            創作部門の劇内容は
+            <Link className={styles.descriptionLink} href="/sousaku-list">
+              こちら
+            </Link>
+          </p>
         </div>
       </section>
     </div>

@@ -2,12 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import { CLASSNAMES } from "@/db/schema";
 import {
+  areLotteryResultsAnnounced,
   canApplyToLottery,
   classFromRoles,
   describeApplicationDeadline,
   describeEligibleGrades,
+  describeResultsAnnouncement,
+  getActLabel,
   getLottery,
   getLotteryAvailability,
+  getSlotLabel,
+  getSlotTime,
   isEligibleForLottery,
   LOTTERIES,
   type Lottery,
@@ -172,6 +177,82 @@ describe("LOTTERIES registry", () => {
     // Kaitaku states that only its own division's parents may apply.
     const kaitakuNotes = (kaitaku.parentNotes ?? []).join("");
     expect(kaitakuNotes).toContain("開拓部門");
+  });
+});
+
+describe("lottery result announcement", () => {
+  function withAnnouncement(lottery: Lottery, at: Date | null): Lottery {
+    return { ...lottery, resultsAnnouncedAt: at };
+  }
+
+  // The configured instant is committee policy and changes when they
+  // announce, so these pin the BEHAVIOUR, never the value in LOTTERIES.
+  it("hides results while no announcement time is configured", () => {
+    for (const lottery of LOTTERIES) {
+      expect(
+        areLotteryResultsAnnounced(
+          withAnnouncement(lottery, null),
+          new Date("2099-01-01"),
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it("gives every lottery an announcement field to switch on", () => {
+    for (const lottery of LOTTERIES) {
+      expect(
+        lottery.resultsAnnouncedAt === null ||
+          lottery.resultsAnnouncedAt instanceof Date,
+      ).toBe(true);
+    }
+  });
+
+  it("publishes from the announced instant onwards, not before", () => {
+    const at = new Date("2026-09-08T10:00:00+09:00");
+    const lottery = withAnnouncement(sousaku, at);
+    expect(
+      areLotteryResultsAnnounced(lottery, new Date(at.getTime() - 1)),
+    ).toBe(false);
+    expect(areLotteryResultsAnnounced(lottery, at)).toBe(true);
+    expect(
+      areLotteryResultsAnnounced(lottery, new Date(at.getTime() + 1)),
+    ).toBe(true);
+  });
+
+  it("describes the announcement in JST regardless of the server clock", () => {
+    const lottery = withAnnouncement(
+      sousaku,
+      new Date("2026-09-08T10:00:00+09:00"),
+    );
+    const described = describeResultsAnnouncement(lottery);
+    expect(described).toContain("2026");
+    expect(described).toContain("9月8日");
+    expect(described).toContain("10:00");
+    expect(describeResultsAnnouncement(withAnnouncement(sousaku, null))).toBe(
+      null,
+    );
+  });
+});
+
+describe("label lookups for stored ids", () => {
+  it("renders a sousaku result's slot and act", () => {
+    expect(getSlotLabel(sousaku, "sep12-slot-1")).toBe("9月12日（土）第一公演");
+    expect(getSlotTime(sousaku, "sep12-slot-1")).toBe("8:45～10:00");
+    expect(getActLabel(sousaku, "6A")).toBe("6年A組");
+  });
+
+  it("renders a kaitaku result's slot and act", () => {
+    expect(getSlotLabel(kaitaku, "sep13")).toBe("9月13日（日）の公演");
+    expect(getSlotTime(kaitaku, "sep13")).toBeNull();
+    expect(getActLabel(kaitaku, "performance-3")).toBe(
+      "第三公演（10:15～10:45）",
+    );
+  });
+
+  it("falls back to the raw id when the definition no longer knows it", () => {
+    expect(getSlotLabel(sousaku, "sep14-slot-9")).toBe("sep14-slot-9");
+    expect(getActLabel(sousaku, "7A")).toBe("7A");
+    expect(getSlotTime(sousaku, "sep14-slot-9")).toBeNull();
   });
 });
 
