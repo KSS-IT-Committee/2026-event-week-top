@@ -12,6 +12,5 @@ export async function addSeat(
     .onConflictDoUpdate({
       target: [Seats.username, Seats.performance],
       set: { seat },
-    })
-    .returning();
+    });
 }
