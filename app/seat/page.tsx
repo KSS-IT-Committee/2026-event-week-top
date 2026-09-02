@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 
-import { getSeatsByUsername } from "@/db/getSeatByUsername";
+import { getSeatsByUsername } from "@/db/getSeatsByUsername";
 import { performanceEnum } from "@/db/schema";
 import { INTERNAL_ROLES } from "@/lib/access";
 import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";

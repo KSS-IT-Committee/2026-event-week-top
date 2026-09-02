@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getSeatByUsername, getSeatsByUsername } from "@/db/getSeatByUsername";
+import { getSeatsByUsername } from "@/db/getSeatsByUsername";
 import { db } from "@/lib/db";
 
 const { rowsHolder, callsHolder } = vi.hoisted(() => ({
@@ -52,14 +52,14 @@ function makeSeat(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("getSeatByUsername", () => {
+describe("getSeatsByUsername", () => {
   beforeEach(() => {
     rowsHolder.rows = [];
     callsHolder.calls = [];
   });
 
   it("awaits connection() before querying", async () => {
-    await getSeatByUsername("3A05");
+    await getSeatsByUsername("3A05");
 
     expect(vi.mocked(connection)).toHaveBeenCalledTimes(1);
     expect(callsHolder.calls.indexOf("connection")).toBeLessThan(
@@ -68,38 +68,12 @@ describe("getSeatByUsername", () => {
   });
 
   it("selects from the seats table with a username filter", async () => {
-    await getSeatByUsername("3A05");
+    await getSeatsByUsername("3A05");
 
     expect(callsHolder.calls).toEqual(
       expect.arrayContaining(["select", "from", "where"]),
     );
     expect(vi.mocked(db.select)).toHaveBeenCalledTimes(1);
-  });
-
-  it("returns the first matching seat", async () => {
-    const seat = makeSeat();
-    rowsHolder.rows = [seat];
-
-    await expect(getSeatByUsername("3A05")).resolves.toBe(seat);
-  });
-
-  it("returns null when the user has no seat", async () => {
-    await expect(getSeatByUsername("3A05")).resolves.toBeNull();
-  });
-
-  it("returns only the first seat when multiple rows are returned", async () => {
-    const first = makeSeat({ performance: "A", seat: "A-12" });
-    const second = makeSeat({ id: 2, performance: "B", seat: "B-03" });
-    rowsHolder.rows = [first, second];
-
-    await expect(getSeatByUsername("3A05")).resolves.toBe(first);
-  });
-});
-
-describe("getSeatsByUsername", () => {
-  beforeEach(() => {
-    rowsHolder.rows = [];
-    callsHolder.calls = [];
   });
 
   it("returns every matching seat", async () => {

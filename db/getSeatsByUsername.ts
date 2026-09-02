@@ -8,8 +8,3 @@ export async function getSeatsByUsername(username: string) {
   await connection();
   return db.select().from(Seats).where(eq(Seats.username, username));
 }
-
-export async function getSeatByUsername(username: string) {
-  const [seat] = await getSeatsByUsername(username);
-  return seat ?? null;
-}
