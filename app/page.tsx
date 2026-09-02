@@ -3,14 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
-import { Internal } from "@/app/components/Internal";
-import { PageLoading } from "@/app/components/PageLoading";
-import { INTERNAL_ROLES } from "@/lib/access";
-import { getCurrentUser } from "@/lib/session";
-
+import { INTERNAL_ROLES } from "../lib/access";
+import { getCurrentUser } from "../lib/session";
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
+import { Internal } from "./components/Internal";
+import { PageLoading } from "./components/PageLoading";
+import { Schedule } from "./components/Schedule";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
@@ -177,6 +177,24 @@ async function TopPageContent() {
                 ))}
               </ul>
             )}
+            {/* Guard wraps the container, as in 体育祭 below: the seat link is
+                its only child, so leaving the container outside would give a
+                logged-out visitor an empty flex row and its margin. */}
+            <Internal role={INTERNAL_ROLES}>
+              <div className={styles.linkContainer}>
+                <Link className={styles.seatSite} href="/seat">
+                  <p
+                    style={{
+                      color: "#fff",
+                      WebkitTextFillColor: "#fff",
+                      opacity: 1,
+                    }}
+                  >
+                    芸能祭座席サイト
+                  </p>
+                </Link>
+              </div>
+            </Internal>
           </div>
         </div>
 
@@ -210,52 +228,90 @@ async function TopPageContent() {
                 ))}
               </ul>
             )}
+            <h2 className={styles.endanTitle}>援ダンスケジュール</h2>
+            <div className={styles.endanGrid}>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>グラウンド</h2>
+                <Schedule
+                  subject="グラウンド"
+                  items={[
+                    { label: "A", date: "2026/09/01" },
+                    { label: "D", date: "2026/09/02" },
+                    { label: "C", date: "2026/09/03" },
+                    { label: "B", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>アリーナ</h2>
+                <Schedule
+                  subject="アリーナ"
+                  items={[
+                    { label: "C", date: "2026/09/01" },
+                    { label: "B", date: "2026/09/02" },
+                    { label: "D", date: "2026/09/03" },
+                    { label: "A", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>柔道場</h2>
+                <Schedule
+                  subject="柔道場"
+                  items={[
+                    { label: "6B", date: "2026/09/01" },
+                    { label: "5C", date: "2026/09/02" },
+                    { label: "6A", date: "2026/09/03" },
+                    { label: "4C", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>剣道場</h2>
+                <Schedule
+                  subject="剣道場"
+                  items={[
+                    { label: "6D", date: "2026/09/01" },
+                    { label: "6C", date: "2026/09/02" },
+                    { label: "4B", date: "2026/09/03" },
+                    { label: "6D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>光庭</h2>
+                <Schedule
+                  subject="光庭"
+                  items={[
+                    { label: "5D", date: "2026/09/01" },
+                    { label: "4,5A", date: "2026/09/02" },
+                    { label: "5,6B", date: "2026/09/03" },
+                    { label: "4,5D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+            </div>
           </div>
-          {/* <div className={styles.sportsGrid}>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>サッカー</h2>
-              <Schedule
-                subject="サッカー"
-                items={[
-                  { label: "予選AB", date: "2026/05/28" },
-                  { label: "予選CD", date: "2026/06/01" },
-                  { label: "三位決定戦", date: "2026/06/04" },
-                  { label: "決勝", date: "2026/06/08" },
-                  { label: "予備", date: "2026/06/11", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>ドッヂボール</h2>
-              <Schedule
-                subject="ドッヂボール"
-                items={[
-                  { label: "試合", date: "2026/05/29" },
-                  { label: "予備", date: "2026/06/05", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バスケットボール</h2>
-              <Schedule
-                subject="バスケットボール"
-                items={[
-                  { label: "予選AB", date: "2026/06/02" },
-                  { label: "予選CD", date: "2026/06/15" },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バレーボール</h2>
-              <Schedule
-                subject="バレーボール"
-                items={[
-                  { label: "予選", date: "2026/06/16" },
-                  { label: "決勝", date: "2026/06/17" },
-                ]}
-              />
-            </section>
-          </div> */}
+          <Internal role={INTERNAL_ROLES}>
+            <div className={styles.lead}>
+              <p>↓体育祭サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
+              <div className={styles.sportsSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  体育祭サイト
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
+            </div>
+          </Internal>
         </div>
 
         {/* 創作展 */}
@@ -327,6 +383,20 @@ async function TopPageContent() {
                 情報発信サイト
               </p>
             </a>
+
+            <div className={styles.sousakutenSite}>
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
+              >
+                創作展ホームページ
+                <br />
+                （Coming Soon）
+              </p>
+            </div>
           </div>
         </div>
 
@@ -381,6 +451,7 @@ async function TopPageContent() {
         <FloatingMenu
           items={[
             { label: "芸能祭", href: "#performance" },
+            { label: "芸能祭座席", href: "/seat", isInternal: true },
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },
