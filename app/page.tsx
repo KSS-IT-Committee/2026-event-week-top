@@ -162,6 +162,24 @@ export default async function Toppage() {
                 ))}
               </ul>
             )}
+            {/* Guard wraps the container, as in 体育祭 below: the seat link is
+                its only child, so leaving the container outside would give a
+                logged-out visitor an empty flex row and its margin. */}
+            <Internal role={INTERNAL_ROLES}>
+              <div className={styles.linkContainer}>
+                <Link className={styles.seatSite} href="/seat">
+                  <p
+                    style={{
+                      color: "#fff",
+                      WebkitTextFillColor: "#fff",
+                      opacity: 1,
+                    }}
+                  >
+                    芸能祭座席サイト
+                  </p>
+                </Link>
+              </div>
+            </Internal>
           </div>
         </div>
 
@@ -314,12 +332,11 @@ export default async function Toppage() {
             )}
             <br />
           </div>
-
-          <div className={styles.lead}>
-            <p>↓創作展の関連サイトはこちらからアクセス</p>
-          </div>
-          <div className={styles.linkContainer}>
-            <Internal role={INTERNAL_ROLES}>
+          <Internal role={INTERNAL_ROLES}>
+            <div className={styles.lead}>
+              <p>↓創作展の関連サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
               <a
                 className={styles.rentalSite}
                 href="https://equipment.2026.kss-it.com"
@@ -334,37 +351,37 @@ export default async function Toppage() {
                   工具貸出・減点管理サイト
                 </p>
               </a>
-            </Internal>
 
-            <a
-              className={styles.informationSite}
-              href="https://sousakuten-info.2026.kss-it.com"
-            >
-              <p
-                style={{
-                  color: "#fff",
-                  WebkitTextFillColor: "#fff",
-                  opacity: 1,
-                }}
+              <a
+                className={styles.informationSite}
+                href="https://sousakuten-info.2026.kss-it.com"
               >
-                情報伝達サイト
-              </p>
-            </a>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  情報伝達サイト
+                </p>
+              </a>
 
-            <div className={styles.sousakutenSite}>
-              <p
-                style={{
-                  color: "#fff",
-                  WebkitTextFillColor: "#fff",
-                  opacity: 1,
-                }}
-              >
-                創作展ホームページ
-                <br />
-                （Coming Soon）
-              </p>
+              <div className={styles.sousakutenSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  創作展ホームページ
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
             </div>
-          </div>
+          </Internal>
         </div>
 
         {/* 後夜祭 */}
@@ -418,6 +435,7 @@ export default async function Toppage() {
         <FloatingMenu
           items={[
             { label: "芸能祭", href: "#performance" },
+            // { label: "芸能祭座席", href: "/seat", isInternal: true },
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },
