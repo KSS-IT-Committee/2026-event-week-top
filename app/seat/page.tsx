@@ -3,7 +3,8 @@ import Link from "next/link";
 
 import { getSeatsByUsername } from "@/db/getSeatByUsername";
 import { performanceEnum } from "@/db/schema";
-import { INTERNAL_ROLES, type Role } from "@/lib/access";
+import { INTERNAL_ROLES } from "@/lib/access";
+import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";
 import { getCurrentUser } from "@/lib/session";
 
 import { AuthGuard } from "../components/AuthGuard";
@@ -30,7 +31,7 @@ export default async function SeatPage() {
         <h1 className={styles.title}>芸能祭座席一覧</h1>
         <p className={styles.intro}>最新の座席情報をご案内します。</p>
       </div>
-      <Internal role={["Geinousai", "IT"] as Role[]}>
+      <Internal role={SEAT_ADMIN_ROLES}>
         <div className={styles.adminpanel}>
           <h2 className={styles.adminpanelTitle}>
             芸能祭委員会用：チケット登録ページ

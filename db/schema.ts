@@ -46,7 +46,16 @@ export const ROLENAMES = [
 ] as const;
 export const roleEnum = pgEnum("role", ROLENAMES);
 
-export const performanceEnum = pgEnum("performance", ["A", "B", "C", "D", "E"]);
+// 芸能祭の公演 (A..E). Lockstep with 2026-db's canonical pgEnum.
+export const PERFORMANCES = ["A", "B", "C", "D", "E"] as const;
+
+export const performanceEnum = pgEnum("performance", PERFORMANCES);
+
+export type Performance = (typeof PERFORMANCES)[number];
+
+export function isPerformance(value: string): value is Performance {
+  return (PERFORMANCES as readonly string[]).includes(value);
+}
 
 export const users = pgTable("users", {
   username: varchar("username", { length: 32 }).primaryKey(),

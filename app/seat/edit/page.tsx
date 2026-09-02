@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
-import { type Role } from "@/lib/access";
+import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";
 
 import styles from "./edit.module.css";
 import { RegisterPage } from "./RegisterPage";
@@ -31,7 +31,7 @@ export default async function SeatEditPage({
     ? (rawPage as EditPage)
     : "register";
   return (
-    <AuthGuard role={["Geinousai", "IT"] as Role[]}>
+    <AuthGuard role={SEAT_ADMIN_ROLES}>
       <div className={styles.header}>
         <h1 className={styles.title}>芸能祭座席登録ページ</h1>
         <p className={styles.intro}>芸能祭委員会用の座席登録ページです。</p>

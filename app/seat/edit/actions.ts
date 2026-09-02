@@ -2,10 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-import { addSeat, Performance } from "@/db/addSeat";
-import { isClassName, performanceEnum } from "@/db/schema";
+import { addSeat } from "@/db/addSeat";
+import { isClassName, isPerformance } from "@/db/schema";
 import { hasAnyRole } from "@/lib/access";
 import { isForeignKeyViolation, isUniqueViolation } from "@/lib/pg-error";
+import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";
 import { isRowInLayout, isSeatInLayout, seatLabel } from "@/lib/seat-layout";
 import { getCurrentUser } from "@/lib/session";
 
@@ -29,7 +30,7 @@ export async function submitSeatAction(
   formData: FormData,
 ): Promise<SeatRegistrationState> {
   const operator = await getCurrentUser();
-  if (operator === null || !hasAnyRole(operator, ["Geinousai", "IT"])) {
+  if (operator === null || !hasAnyRole(operator, SEAT_ADMIN_ROLES)) {
     return { error: "座席を登録する権限がありません。", success: false };
   }
 
@@ -52,11 +53,7 @@ export async function submitSeatAction(
       success: false,
     };
   }
-  if (
-    !performanceEnum.enumValues.includes(
-      performance as "A" | "B" | "C" | "D" | "E",
-    )
-  ) {
+  if (!isPerformance(performance)) {
     return { error: "公演を選択してください。", success: false };
   }
   if (column === null || !isRowInLayout(column)) {
@@ -69,7 +66,7 @@ export async function submitSeatAction(
   const seat = seatLabel(column, seatNumber);
   const username = `${className}${String(attendanceNumber).padStart(2, "0")}`;
   try {
-    await addSeat(username, performance as Performance, seat);
+    await addSeat(username, performance, seat);
   } catch (error) {
     // addSeat upserts on (username, performance), so the row the operator is
     // editing never conflicts with itself. The two failures that do get here
