@@ -63,9 +63,14 @@ export const RESULT_ANNOUNCEMENT: string | null = "8月27日（木）以降";
 /**
  * 当選者一覧ページのURL（抽選後に公開する場合）。
  * 未公開のうちは null にしておくと、当選発表の節にリンクが出ません。
- * 例: "/lottery-external/results" や外部URL。
+ *
+ * 外部の方向けの当落発表は、このアプリではなく創作展トップ
+ * （2026-sousakuten-top）が持っています。抽選番号で検索できる
+ * /lottery ページがそれで、当選番号の一覧もそこにあります。
+ * 別アプリなので相対パスでは届きません — 絶対URLで書いてください。
  */
-export const RESULT_PAGE_URL: string | null = null;
+export const RESULT_PAGE_URL: string | null =
+  "https://sousakuten-top.2026.kss-it.com/lottery";
 
 /**
  * ページ上部に出すお知らせ（追記）。新しいものを先頭に足してください。
