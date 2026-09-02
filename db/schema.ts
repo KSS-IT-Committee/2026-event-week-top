@@ -370,5 +370,7 @@ export const Seats = pgTable(
       table.username,
       table.performance,
     ),
+    // A physical seat holds one person per performance.
+    unique("seats_performance_seat_unique").on(table.performance, table.seat),
   ],
 );
