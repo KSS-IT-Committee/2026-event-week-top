@@ -66,6 +66,13 @@
   gap: 10px;
 }
 
+/* One label paired with its control, inside an .idFormGroup row. */
+.field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .formStatus {
   margin: 0 0 16px;
   margin-top: 20px;

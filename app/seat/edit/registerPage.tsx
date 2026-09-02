@@ -43,7 +43,7 @@ export default function RegisterPage() {
     : 0;
 
   return (
-    <div className={styles.registerPage}>
+    <>
       <h2 className={styles.registerPageTitle}>指定して登録</h2>
       <form
         action={formAction}
@@ -51,10 +51,8 @@ export default function RegisterPage() {
         onSubmit={handleSubmit}
       >
         <div className={styles.idFormGroup}>
-          <div className={styles.classForm}>
-            <label htmlFor="class" className={styles.classFormLabel}>
-              クラス:
-            </label>
+          <div className={styles.field}>
+            <label htmlFor="class">クラス:</label>
             <select
               id="class"
               name="class"
@@ -73,10 +71,8 @@ export default function RegisterPage() {
               ))}
             </select>
           </div>
-          <div className={styles.numberForm}>
-            <label htmlFor="number" className={styles.numberFormLabel}>
-              出席番号:
-            </label>
+          <div className={styles.field}>
+            <label htmlFor="number">出席番号:</label>
             <input
               id="number"
               type="number"
@@ -93,9 +89,7 @@ export default function RegisterPage() {
           </div>
         </div>
         <div className={styles.idFormGroup}>
-          <label htmlFor="performance" className={styles.performanceFormLabel}>
-            公演:
-          </label>
+          <label htmlFor="performance">公演:</label>
           <select
             id="performance"
             name="performance"
@@ -115,10 +109,8 @@ export default function RegisterPage() {
           </select>
         </div>
         <div className={styles.idFormGroup}>
-          <div className={styles.columnForm}>
-            <label htmlFor="column" className={styles.columnFormLabel}>
-              座席　列:
-            </label>
+          <div className={styles.field}>
+            <label htmlFor="column">座席　列:</label>
             <select
               id="column"
               name="column"
@@ -140,10 +132,8 @@ export default function RegisterPage() {
               ))}
             </select>
           </div>
-          <div className={styles.seatForm}>
-            <label htmlFor="seat" className={styles.seatFormLabel}>
-              番号:
-            </label>
+          <div className={styles.field}>
+            <label htmlFor="seat">番号:</label>
             <select
               id="seat"
               name="seat"
@@ -185,7 +175,7 @@ export default function RegisterPage() {
       </form>
       <div className={styles.registerPageNote}>
         <h3 className={styles.noteTitle}>座席登録について</h3>
-        <p className={styles.noteText}>
+        <p>
           このページは芸能祭委員会用の座席登録ページです。
           <br />
           座席登録は、クラス・出席番号・公演・座席の列・座席番号を指定して行います。
@@ -198,6 +188,6 @@ export default function RegisterPage() {
           <br />
         </p>
       </div>
-    </div>
+    </>
   );
 }

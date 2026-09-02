@@ -32,29 +32,25 @@ export default async function SeatEditPage({
     : "register";
   return (
     <AuthGuard role={["Geinousai", "IT"] as Role[]}>
-      <div className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>芸能祭座席登録ページ</h1>
-          <p className={styles.intro}>芸能祭委員会用の座席登録ページです。</p>
-        </div>
-        <div className={styles.switchButtons}>
-          {EDIT_PAGES.map((item) => (
-            <Link
-              key={item.id}
-              href={`/seat/edit?page=${item.id}`}
-              className={`${styles.switchButton} ${
-                page === item.id ? styles.active : styles.inactive
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
-        <div className={styles.content}>
-          {page === "register" && <RegisterPage />}
-          {page === "list" && <ListPage />}
-        </div>
+      <div className={styles.header}>
+        <h1 className={styles.title}>芸能祭座席登録ページ</h1>
+        <p className={styles.intro}>芸能祭委員会用の座席登録ページです。</p>
       </div>
+      <div className={styles.switchButtons}>
+        {EDIT_PAGES.map((item) => (
+          <Link
+            key={item.id}
+            href={`/seat/edit?page=${item.id}`}
+            className={`${styles.switchButton} ${
+              page === item.id ? styles.active : styles.inactive
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
+      {page === "register" && <RegisterPage />}
+      {page === "list" && <ListPage />}
       <FloatingMenu
         items={[
           {
