@@ -162,8 +162,11 @@ export default async function Toppage() {
                 ))}
               </ul>
             )}
-            <div className={styles.linkContainer}>
-              <Internal role={INTERNAL_ROLES}>
+            {/* Guard wraps the container, as in 体育祭 below: the seat link is
+                its only child, so leaving the container outside would give a
+                logged-out visitor an empty flex row and its margin. */}
+            <Internal role={INTERNAL_ROLES}>
+              <div className={styles.linkContainer}>
                 <a className={styles.seatSite} href="/seat">
                   <p
                     style={{
@@ -175,8 +178,8 @@ export default async function Toppage() {
                     芸能祭座席サイト
                   </p>
                 </a>
-              </Internal>
-            </div>
+              </div>
+            </Internal>
           </div>
         </div>
 
