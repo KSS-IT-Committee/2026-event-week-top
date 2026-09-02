@@ -3,14 +3,15 @@
 import { startTransition, useActionState, useState } from "react";
 
 import { CLASSNAMES, performanceEnum } from "@/db/schema";
+import {
+  isRowInLayout,
+  ROW_COUNT,
+  rowLabel,
+  SEAT_COUNT_BY_ROW,
+} from "@/lib/seat-layout";
 
 import { type SeatRegistrationState, submitSeatAction } from "./actions";
 import styles from "./edit.module.css";
-
-const SEAT_COUNT_BY_ROW = [
-  12, 16, 26, 26, 26, 32, 32, 32, 26, 26, 26, 26, 34, 34, 34, 34, 34, 34, 34,
-  34, 34, 34, 34,
-] as const;
 
 const INITIAL_STATE: SeatRegistrationState = {
   error: null,
@@ -37,7 +38,7 @@ export default function RegisterPage() {
   }
 
   const selectedColumnIndex = Number(selectedColumn);
-  const seatCount = Number.isInteger(selectedColumnIndex)
+  const seatCount = isRowInLayout(selectedColumnIndex)
     ? SEAT_COUNT_BY_ROW[selectedColumnIndex]
     : 0;
 
@@ -132,9 +133,9 @@ export default function RegisterPage() {
               <option value="" disabled>
                 列を選択
               </option>
-              {Array.from({ length: 23 }, (_, i) => (
-                <option key={i + 1} value={i}>
-                  {String.fromCharCode(65 + i)}
+              {Array.from({ length: ROW_COUNT }, (_, index) => (
+                <option key={index} value={index}>
+                  {rowLabel(index)}
                 </option>
               ))}
             </select>

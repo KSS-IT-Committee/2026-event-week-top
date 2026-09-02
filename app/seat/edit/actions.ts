@@ -6,17 +6,13 @@ import { addSeat, Performance } from "@/db/addSeat";
 import { isClassName, performanceEnum } from "@/db/schema";
 import { hasAnyRole } from "@/lib/access";
 import { isForeignKeyViolation, isUniqueViolation } from "@/lib/pg-error";
+import { isRowInLayout, isSeatInLayout, seatLabel } from "@/lib/seat-layout";
 import { getCurrentUser } from "@/lib/session";
 
 export type SeatRegistrationState = {
   error: string | null;
   success: boolean;
 };
-
-const SEAT_COUNT_BY_ROW = [
-  12, 16, 26, 26, 26, 32, 32, 32, 26, 26, 26, 26, 34, 34, 34, 34, 34, 34, 34,
-  34, 34, 34, 34,
-] as const;
 
 function normalizeInput(value: FormDataEntryValue | null): string {
   return typeof value === "string" ? value.normalize("NFKC").trim() : "";
@@ -63,18 +59,14 @@ export async function submitSeatAction(
   ) {
     return { error: "公演を選択してください。", success: false };
   }
-  if (column === null || column < 0 || column >= SEAT_COUNT_BY_ROW.length) {
+  if (column === null || !isRowInLayout(column)) {
     return { error: "座席の列を選択してください。", success: false };
   }
-  if (
-    seatNumber === null ||
-    seatNumber < 1 ||
-    seatNumber > SEAT_COUNT_BY_ROW[column]
-  ) {
+  if (seatNumber === null || !isSeatInLayout(column, seatNumber)) {
     return { error: "選択した列に存在しない座席番号です。", success: false };
   }
 
-  const seat = `${String.fromCharCode(65 + column)}-${seatNumber}`;
+  const seat = seatLabel(column, seatNumber);
   const username = `${className}${String(attendanceNumber).padStart(2, "0")}`;
   try {
     await addSeat(username, performance as Performance, seat);
