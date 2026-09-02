@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 
 import { getSeatsByUsername } from "@/db/getSeatByUsername";
 import { performanceEnum } from "@/db/schema";
@@ -34,7 +35,7 @@ export default async function SeatPage() {
           <h2 className={styles.adminpanelTitle}>
             芸能祭委員会用：チケット登録ページ
           </h2>
-          <a className={styles.editSite} href="/seat/edit">
+          <Link className={styles.editSite} href="/seat/edit">
             <p
               style={{
                 color: "#fff",
@@ -44,7 +45,7 @@ export default async function SeatPage() {
             >
               芸能祭座席登録サイト
             </p>
-          </a>
+          </Link>
         </div>
       </Internal>
       <h2 className={styles.username}>{user?.username}の芸能祭チケット</h2>

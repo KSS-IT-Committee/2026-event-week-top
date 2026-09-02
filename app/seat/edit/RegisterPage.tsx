@@ -18,7 +18,7 @@ const INITIAL_STATE: SeatRegistrationState = {
   success: false,
 };
 
-export default function RegisterPage() {
+export function RegisterPage() {
   const [state, formAction, isPending] = useActionState(
     submitSeatAction,
     INITIAL_STATE,

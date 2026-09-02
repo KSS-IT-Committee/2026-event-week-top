@@ -167,7 +167,7 @@ export default async function Toppage() {
                 logged-out visitor an empty flex row and its margin. */}
             <Internal role={INTERNAL_ROLES}>
               <div className={styles.linkContainer}>
-                <a className={styles.seatSite} href="/seat">
+                <Link className={styles.seatSite} href="/seat">
                   <p
                     style={{
                       color: "#fff",
@@ -177,7 +177,7 @@ export default async function Toppage() {
                   >
                     芸能祭座席サイト
                   </p>
-                </a>
+                </Link>
               </div>
             </Internal>
           </div>

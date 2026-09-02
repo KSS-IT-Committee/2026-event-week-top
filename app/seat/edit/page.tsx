@@ -6,7 +6,7 @@ import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { type Role } from "@/lib/access";
 
 import styles from "./edit.module.css";
-import RegisterPage from "./registerPage";
+import { RegisterPage } from "./RegisterPage";
 export const metadata: Metadata = {
   title: "Seat edit",
   description: "2026年度行事週間 芸能祭座席登録ページ",
