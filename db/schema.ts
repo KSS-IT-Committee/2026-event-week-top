@@ -42,8 +42,20 @@ export const ROLENAMES = [
   "Students",
   "Teachers",
   "SousakutenMain",
+  "Geinousai",
 ] as const;
 export const roleEnum = pgEnum("role", ROLENAMES);
+
+// 芸能祭の公演 (A..E). Lockstep with 2026-db's canonical pgEnum.
+export const PERFORMANCES = ["A", "B", "C", "D", "E"] as const;
+
+export const performanceEnum = pgEnum("performance", PERFORMANCES);
+
+export type Performance = (typeof PERFORMANCES)[number];
+
+export function isPerformance(value: string): value is Performance {
+  return (PERFORMANCES as readonly string[]).includes(value);
+}
 
 export const users = pgTable("users", {
   username: varchar("username", { length: 32 }).primaryKey(),
@@ -345,5 +357,29 @@ export const Borrowings = pgTable(
       "returned_at_after_borrowed_at",
       sql`${table.returnedAt} IS NULL OR ${table.returnedAt} >= ${table.borrowedAt}`,
     ),
+  ],
+);
+
+// 芸能祭座席DB
+export const Seats = pgTable(
+  "seats",
+  {
+    id: serial("id").primaryKey(),
+    username: varchar("username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
+    performance: performanceEnum("performance").notNull(),
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    seat: text("seat").notNull(),
+  },
+  (table) => [
+    unique("seats_username_performance_unique").on(
+      table.username,
+      table.performance,
+    ),
+    // A physical seat holds one person per performance.
+    unique("seats_performance_seat_unique").on(table.performance, table.seat),
   ],
 );

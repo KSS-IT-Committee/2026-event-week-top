@@ -242,6 +242,7 @@
 .sportsSite,
 .rentalSite,
 .informationSite,
+.seatSite,
 .sousakutenSite {
   width: 250px;
   padding: 10px 0;
@@ -257,6 +258,7 @@
 }
 .rentalSite p,
 .informationSite p,
+.seatSite p,
 .sousakutenSite p {
   color: #ffffff;
 }
@@ -267,7 +269,8 @@
   cursor: default;
 }
 .rentalSite,
-.informationSite {
+.informationSite,
+.seatSite {
   background-color: #2a6cca;
 }
 
