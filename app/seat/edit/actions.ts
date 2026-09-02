@@ -75,7 +75,6 @@ export async function submitSeatAction(
 
   const seat = `${String.fromCharCode(65 + column)}-${seatNumber}`;
   const username = `${className}${String(attendanceNumber).padStart(2, "0")}`;
-  console.log(username, performance, seat);
   try {
     await addSeat(username, performance as Performance, seat);
   } catch {
