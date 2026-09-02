@@ -30,7 +30,16 @@ export function AccountNavLink({
     }
     event.preventDefault();
     const next = encodeURIComponent(window.location.href);
-    window.location.href = `${loginBaseUrl}?next=${next}`;
+    // Resolve against the current origin so the destination is absolute either
+    // way: loginBaseUrl is a cross-origin URL in production (the shared /login
+    // on the namespace apex) but the relative "/login" in local dev and vvps.
+    // Assigning it is a full page load on purpose — the login handoff must
+    // leave this app rather than client-route within it.
+    const target = new URL(
+      `${loginBaseUrl}?next=${next}`,
+      window.location.href,
+    );
+    window.location.assign(target.toString());
   }
 
   const isLoggedIn = username !== null;
