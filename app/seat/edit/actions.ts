@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { addSeat, Performance } from "@/db/addSeat";
 import { isClassName, performanceEnum } from "@/db/schema";
 import { hasAnyRole } from "@/lib/access";
+import { isForeignKeyViolation, isUniqueViolation } from "@/lib/pg-error";
 import { getCurrentUser } from "@/lib/session";
 
 export type SeatRegistrationState = {
@@ -77,7 +78,23 @@ export async function submitSeatAction(
   const username = `${className}${String(attendanceNumber).padStart(2, "0")}`;
   try {
     await addSeat(username, performance as Performance, seat);
-  } catch {
+  } catch (error) {
+    // addSeat upserts on (username, performance), so the row the operator is
+    // editing never conflicts with itself. The two failures that do get here
+    // are both actionable, and the committee has no seat list yet to diagnose
+    // them from — say which one happened instead of one generic message.
+    if (isUniqueViolation(error, "seats_performance_seat_unique")) {
+      return {
+        error: "その座席はすでに別の生徒に登録されています。",
+        success: false,
+      };
+    }
+    if (isForeignKeyViolation(error)) {
+      return {
+        error: "そのクラス・出席番号の生徒は存在しません。",
+        success: false,
+      };
+    }
     return { error: "座席の登録に失敗しました。", success: false };
   }
 
