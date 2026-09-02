@@ -3,13 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { addSeat } from "@/db/addSeat";
 import { Seats } from "@/db/schema";
 
-const { insertSpy, valuesSpy, returningSpy } = vi.hoisted(() => {
-  const returningSpy = vi.fn(async () => []);
-  const valuesSpy = vi.fn(() => ({ returning: returningSpy }));
-  const insertSpy = vi.fn(() => ({ values: valuesSpy }));
+const { insertSpy, valuesSpy, onConflictDoUpdateSpy, returningSpy } =
+  vi.hoisted(() => {
+    const returningSpy = vi.fn(async () => []);
+    const onConflictDoUpdateSpy = vi.fn(() => ({ returning: returningSpy }));
+    const valuesSpy = vi.fn(() => ({
+      onConflictDoUpdate: onConflictDoUpdateSpy,
+    }));
+    const insertSpy = vi.fn(() => ({ values: valuesSpy }));
 
-  return { insertSpy, valuesSpy, returningSpy };
-});
+    return { insertSpy, valuesSpy, onConflictDoUpdateSpy, returningSpy };
+  });
 
 vi.mock("@/lib/db", () => ({
   db: { insert: insertSpy },
@@ -30,6 +34,11 @@ describe("addSeat", () => {
       username: "3A05",
       performance: "A",
       seat: "A-12",
+    });
+    expect(onConflictDoUpdateSpy).toHaveBeenCalledTimes(1);
+    expect(onConflictDoUpdateSpy).toHaveBeenCalledWith({
+      target: [Seats.username, Seats.performance],
+      set: { seat: "A-12" },
     });
     expect(returningSpy).toHaveBeenCalledTimes(1);
   });
