@@ -1,0 +1,5 @@
+{
+  "title": "loading画面の作り直し",
+  "description": "loading.tsxをやめ、Suspenseによる読み込み表示に置き換えました。これにより、ログインや権限が必要なページで401・403・404が正しいステータスコードで返るようになりました。",
+  "credits": ["@rotarymars"]
+}

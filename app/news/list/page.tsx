@@ -1,6 +1,8 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { PageLoading } from "@/app/components/PageLoading";
 import styles from "@/app/news/list/news-page.module.css";
 import { getNews } from "@/app/news/newsData";
 import { NewsItem } from "@/app/news/newsItem";
@@ -12,8 +14,18 @@ export const metadata: Metadata = {
 };
 
 // The list is filtered per viewer (getNews needs the session), so this page
-// renders dynamically — it can no longer be force-static.
-export default async function NewsListPage() {
+// renders dynamically — it can no longer be force-static. The page shell is
+// synchronous so the loading UI streams first; the session read happens
+// behind the boundary.
+export default function NewsListPage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <NewsList />
+    </Suspense>
+  );
+}
+
+async function NewsList() {
   const user = await getCurrentUser();
   const sorted = getNews(user);
 

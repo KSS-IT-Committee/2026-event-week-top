@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { INTERNAL_ROLES } from "../lib/access";
 import { getCurrentUser } from "../lib/session";
@@ -8,6 +9,7 @@ import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
 import { Internal } from "./components/Internal";
+import { PageLoading } from "./components/PageLoading";
 import { Schedule } from "./components/Schedule";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
@@ -18,7 +20,20 @@ export const metadata: Metadata = {
   description: "2026年度行事週間 トップページ",
 };
 
-export default async function Toppage() {
+// The page itself is synchronous, so it becomes the static shell and the
+// loading UI streams immediately; the session-dependent body renders behind
+// the boundary. This page has no status interrupt to protect, but keeping the
+// shell/boundary split explicit (rather than reintroducing app/loading.tsx)
+// is what stops a route-wide boundary from freezing sibling routes at 200.
+export default function Toppage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <TopPageContent />
+    </Suspense>
+  );
+}
+
+async function TopPageContent() {
   // News is filtered per viewer, so it is derived inside the request instead
   // of at module scope. getNews returns newest-first already.
   const news = getNews(await getCurrentUser());

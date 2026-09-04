@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, unauthorized } from "next/navigation";
+import { Suspense } from "react";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { PageLoading } from "@/app/components/PageLoading";
 import { getLotteryEntries } from "@/db/getLotteryEntries";
 import { isLotteryApplicantType, type LotteryApplicantType } from "@/db/schema";
 import { INTERNAL_ROLES } from "@/lib/access";
@@ -42,11 +44,16 @@ export default async function LotteryDetailPage({
   if (lottery === null) notFound();
 
   return (
+    // notFound() above and AuthGuard below both run in the static shell, so
+    // the 404/401/403 status is decided before anything streams. Only the
+    // DB-backed detail sits inside the Suspense boundary.
     <AuthGuard role={INTERNAL_ROLES}>
-      <LotteryDetail
-        lottery={lottery}
-        requestedType={typeof as === "string" ? as : undefined}
-      />
+      <Suspense fallback={<PageLoading />}>
+        <LotteryDetail
+          lottery={lottery}
+          requestedType={typeof as === "string" ? as : undefined}
+        />
+      </Suspense>
       <FloatingMenu
         items={[
           { label: "観覧抽選トップ", href: "/lottery" },
@@ -66,7 +73,10 @@ async function LotteryDetail({
 }) {
   const user = await getCurrentUser();
   // AuthGuard already 401s before children render; the re-check narrows the
-  // type (getCurrentUser is request-cached, so it costs nothing).
+  // type (getCurrentUser is request-cached, so it costs nothing). It cannot
+  // actually fire here: this component renders inside a Suspense boundary, and
+  // the shell only flushes once AuthGuard — which resolved the same cached
+  // user — has passed. Keep new status interrupts out of this component.
   if (user === null) unauthorized();
 
   // The applicant types THIS viewer can use (e.g. staff never get 保護者).
