@@ -101,6 +101,7 @@ async function validateSessionTokenViaAuthHost(
         "x-preview-auth-secret": secret,
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(5000), // 5s timeout, so a misconfigured preview doesn't hang the whole page
     });
   } catch {
     return null;

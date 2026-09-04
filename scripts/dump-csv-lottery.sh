@@ -1,0 +1,1 @@
+docker exec postgres psql -U postgres -d appdata -c "COPY (SELECT id, lottery_id, slot_id, username, applicant_type, first_choice, second_choice, third_choice, party_size, created_at FROM lottery_entries ORDER BY id) TO STDOUT WITH (FORMAT csv, HEADER)"

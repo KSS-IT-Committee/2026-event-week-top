@@ -3,6 +3,7 @@ id: "news4"
 date: 2026-06-21
 title: "予備大結果まとめ"
 tag: "sport"
+internal: true
 ---
 
 # アルティメット

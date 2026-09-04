@@ -22,8 +22,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@google/genai": "^2.15.0",
-    "@next/third-parties": "^16.2.10",
+    "@google/genai": "^2.19.0",
+    "@next/third-parties": "^16.3.1",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",
     "gray-matter": "^4.0.3",
@@ -44,7 +44,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "^16.3.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-unused-imports": "^4.0.0",
@@ -52,7 +52,7 @@
     "prettier": "^3.9.6",
     "tailwindcss": "^4",
     "typescript": "^6",
-    "unpdf": "^1.6.2",
+    "unpdf": "^1.8.1",
     "vitest": "^4.1.10"
   },
   "overrides": {

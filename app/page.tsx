@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
-import { Internal } from "@/app/components/Internal";
-import { INTERNAL_ROLES } from "@/lib/access";
-import { getCurrentUser } from "@/lib/session";
-
+import { INTERNAL_ROLES } from "../lib/access";
+import { getCurrentUser } from "../lib/session";
 import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
+import { Internal } from "./components/Internal";
+import { PageLoading } from "./components/PageLoading";
+import { Schedule } from "./components/Schedule";
 import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
@@ -18,7 +20,20 @@ export const metadata: Metadata = {
   description: "2026年度行事週間 トップページ",
 };
 
-export default async function Toppage() {
+// The page itself is synchronous, so it becomes the static shell and the
+// loading UI streams immediately; the session-dependent body renders behind
+// the boundary. This page has no status interrupt to protect, but keeping the
+// shell/boundary split explicit (rather than reintroducing app/loading.tsx)
+// is what stops a route-wide boundary from freezing sibling routes at 200.
+export default function Toppage() {
+  return (
+    <Suspense fallback={<PageLoading />}>
+      <TopPageContent />
+    </Suspense>
+  );
+}
+
+async function TopPageContent() {
   // News is filtered per viewer, so it is derived inside the request instead
   // of at module scope. getNews returns newest-first already.
   const news = getNews(await getCurrentUser());
@@ -162,6 +177,24 @@ export default async function Toppage() {
                 ))}
               </ul>
             )}
+            {/* Guard wraps the container, as in 体育祭 below: the seat link is
+                its only child, so leaving the container outside would give a
+                logged-out visitor an empty flex row and its margin. */}
+            <Internal role={INTERNAL_ROLES}>
+              <div className={styles.linkContainer}>
+                <Link className={styles.seatSite} href="/seat">
+                  <p
+                    style={{
+                      color: "#fff",
+                      WebkitTextFillColor: "#fff",
+                      opacity: 1,
+                    }}
+                  >
+                    芸能祭座席サイト
+                  </p>
+                </Link>
+              </div>
+            </Internal>
           </div>
         </div>
 
@@ -195,6 +228,69 @@ export default async function Toppage() {
                 ))}
               </ul>
             )}
+            <h2 className={styles.endanTitle}>援ダンスケジュール</h2>
+            <div className={styles.endanGrid}>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>グラウンド</h2>
+                <Schedule
+                  subject="グラウンド"
+                  items={[
+                    { label: "A", date: "2026/09/01" },
+                    { label: "D", date: "2026/09/02" },
+                    { label: "C", date: "2026/09/03" },
+                    { label: "B", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>アリーナ</h2>
+                <Schedule
+                  subject="アリーナ"
+                  items={[
+                    { label: "C", date: "2026/09/01" },
+                    { label: "B", date: "2026/09/02" },
+                    { label: "D", date: "2026/09/03" },
+                    { label: "A", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>柔道場</h2>
+                <Schedule
+                  subject="柔道場"
+                  items={[
+                    { label: "6B", date: "2026/09/01" },
+                    { label: "5C", date: "2026/09/02" },
+                    { label: "6A", date: "2026/09/03" },
+                    { label: "4C", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>剣道場</h2>
+                <Schedule
+                  subject="剣道場"
+                  items={[
+                    { label: "6D", date: "2026/09/01" },
+                    { label: "6C", date: "2026/09/02" },
+                    { label: "4B", date: "2026/09/03" },
+                    { label: "6D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+              <section className={styles.endanItem}>
+                <h2 className={styles.endanPlace}>光庭</h2>
+                <Schedule
+                  subject="光庭"
+                  items={[
+                    { label: "5D", date: "2026/09/01" },
+                    { label: "4,5A", date: "2026/09/02" },
+                    { label: "5,6B", date: "2026/09/03" },
+                    { label: "4,5D", date: "2026/09/04" },
+                  ]}
+                />
+              </section>
+            </div>
           </div>
           <Internal role={INTERNAL_ROLES}>
             <div className={styles.lead}>
@@ -216,52 +312,6 @@ export default async function Toppage() {
               </div>
             </div>
           </Internal>
-
-          {/* <div className={styles.sportsGrid}>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>サッカー</h2>
-              <Schedule
-                subject="サッカー"
-                items={[
-                  { label: "予選AB", date: "2026/05/28" },
-                  { label: "予選CD", date: "2026/06/01" },
-                  { label: "三位決定戦", date: "2026/06/04" },
-                  { label: "決勝", date: "2026/06/08" },
-                  { label: "予備", date: "2026/06/11", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>ドッヂボール</h2>
-              <Schedule
-                subject="ドッヂボール"
-                items={[
-                  { label: "試合", date: "2026/05/29" },
-                  { label: "予備", date: "2026/06/05", muted: true },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バスケットボール</h2>
-              <Schedule
-                subject="バスケットボール"
-                items={[
-                  { label: "予選AB", date: "2026/06/02" },
-                  { label: "予選CD", date: "2026/06/15" },
-                ]}
-              />
-            </section>
-            <section className={styles.sportItem}>
-              <h2 className={styles.sportName}>バレーボール</h2>
-              <Schedule
-                subject="バレーボール"
-                items={[
-                  { label: "予選", date: "2026/06/16" },
-                  { label: "決勝", date: "2026/06/17" },
-                ]}
-              />
-            </section>
-          </div> */}
         </div>
 
         {/* 創作展 */}
@@ -297,12 +347,11 @@ export default async function Toppage() {
             )}
             <br />
           </div>
-
-          <div className={styles.lead}>
-            <p>↓創作展の関連サイトはこちらからアクセス</p>
-          </div>
-          <div className={styles.linkContainer}>
-            <Internal role={INTERNAL_ROLES}>
+          <Internal role={INTERNAL_ROLES}>
+            <div className={styles.lead}>
+              <p>↓創作展の関連サイトはこちらからアクセス</p>
+            </div>
+            <div className={styles.linkContainer}>
               <a
                 className={styles.rentalSite}
                 href="https://equipment.2026.kss-it.com"
@@ -317,23 +366,37 @@ export default async function Toppage() {
                   工具貸出・減点管理サイト
                 </p>
               </a>
-            </Internal>
 
-            <a
-              className={styles.informationSite}
-              href="https://sousakuten-info.2026.kss-it.com"
-            >
-              <p
-                style={{
-                  color: "#fff",
-                  WebkitTextFillColor: "#fff",
-                  opacity: 1,
-                }}
+              <a
+                className={styles.informationSite}
+                href="https://sousakuten-info.2026.kss-it.com"
               >
-                情報発信サイト
-              </p>
-            </a>
-          </div>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  情報伝達サイト
+                </p>
+              </a>
+
+              <div className={styles.sousakutenSite}>
+                <p
+                  style={{
+                    color: "#fff",
+                    WebkitTextFillColor: "#fff",
+                    opacity: 1,
+                  }}
+                >
+                  創作展ホームページ
+                  <br />
+                  （Coming Soon）
+                </p>
+              </div>
+            </div>
+          </Internal>
         </div>
 
         {/* 後夜祭 */}
@@ -387,6 +450,7 @@ export default async function Toppage() {
         <FloatingMenu
           items={[
             { label: "芸能祭", href: "#performance" },
+            // { label: "芸能祭座席", href: "/seat", isInternal: true },
             { label: "体育祭", href: "#sports" },
             { label: "創作展", href: "#create" },
             { label: "後夜祭", href: "#ceremony" },

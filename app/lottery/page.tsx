@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { unauthorized } from "next/navigation";
+import { Suspense } from "react";
 
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { PageLoading } from "@/app/components/PageLoading";
 import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
@@ -24,8 +26,12 @@ export const metadata: Metadata = {
 
 export default function LotteryIndexPage() {
   return (
+    // AuthGuard stays in the static shell so its 401/403 is still a real
+    // status code; only the listing streams behind the boundary.
     <AuthGuard role={INTERNAL_ROLES}>
-      <LotteryIndex />
+      <Suspense fallback={<PageLoading />}>
+        <LotteryIndex />
+      </Suspense>
       <FloatingMenu items={[{ label: "Top", href: "/" }]} />
     </AuthGuard>
   );
@@ -34,7 +40,10 @@ export default function LotteryIndexPage() {
 async function LotteryIndex() {
   const user = await getCurrentUser();
   // AuthGuard already 401s before children render; the re-check narrows the
-  // type (getCurrentUser is request-cached, so it costs nothing).
+  // type (getCurrentUser is request-cached, so it costs nothing). It cannot
+  // actually fire here: this component renders inside a Suspense boundary, and
+  // the shell only flushes once AuthGuard — which resolved the same cached
+  // user — has passed. Keep new status interrupts out of this component.
   if (user === null) unauthorized();
   const now = new Date();
 
@@ -45,6 +54,9 @@ async function LotteryIndex() {
         <p className={styles.note}>
           開拓部門・創作部門のクラス劇は、観覧希望を集めて抽選を行います。観覧を希望する公演（開拓部門）や観たいクラス（創作部門）を第1〜第3希望まで選んで申し込んでください。保護者の方はお子様のアカウントでログインして申し込めます。
         </p>
+        <Link className={styles.resultsLink} href="/lottery/results">
+          抽選結果を見る
+        </Link>
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => {
             const availability = getLotteryAvailability(lottery, now);
@@ -89,6 +101,12 @@ async function LotteryIndex() {
               </article>
             );
           })}
+          <p>
+            創作部門の劇内容は
+            <Link className={styles.descriptionLink} href="/sousaku-list">
+              こちら
+            </Link>
+          </p>
         </div>
       </section>
     </div>

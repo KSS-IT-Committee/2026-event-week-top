@@ -44,6 +44,20 @@
   color: #d4380d;
 }
 
+.resultsLink {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.resultsLink:hover {
+  background: color-mix(in oklch, var(--foreground) 8%, transparent);
+}
+
 .lotteryList {
   display: flex;
   flex-direction: column;
@@ -369,4 +383,10 @@
   .card {
     padding: 24px 20px;
   }
+}
+
+.descriptionLink {
+  color: #0b69eb;
+  text-decoration: underline;
+  transition: opacity 0.15s ease;
 }

@@ -1,0 +1,1 @@
+docker exec postgres psql -U postgres -d appdata -c "SELECT count(DISTINCT username) FROM lottery_entries;"
