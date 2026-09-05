@@ -17,6 +17,7 @@ import {
   type Lottery,
 } from "@/lib/lotteries";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { parseRowId } from "@/lib/row-id";
 import { getCurrentUser } from "@/lib/session";
 
 /**
@@ -78,11 +79,8 @@ async function loadOwnedTicket(
   const user = await getCurrentUser();
   if (user === null) return { error: SESSION_EXPIRED };
 
-  const ticketIdValue = formData.get("ticketId");
-  const ticketId = Number(ticketIdValue);
-  if (typeof ticketIdValue !== "string" || !Number.isInteger(ticketId)) {
-    return { error: TICKET_MISSING };
-  }
+  const ticketId = parseRowId(formData.get("ticketId"));
+  if (ticketId === null) return { error: TICKET_MISSING };
 
   const ticket = await getLotteryTicket(ticketId, user.username);
   if (ticket === null) return { error: TICKET_MISSING };
@@ -240,9 +238,8 @@ export async function cancelTicketTransferAction(
   const user = await getCurrentUser();
   if (user === null) return { error: SESSION_EXPIRED, success: false };
 
-  const transferIdValue = formData.get("transferId");
-  const transferId = Number(transferIdValue);
-  if (typeof transferIdValue !== "string" || !Number.isInteger(transferId)) {
+  const transferId = parseRowId(formData.get("transferId"));
+  if (transferId === null) {
     return { error: "この譲渡申請は見つかりません。", success: false };
   }
 

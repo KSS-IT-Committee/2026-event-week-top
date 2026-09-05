@@ -11,6 +11,7 @@ import {
   getLottery,
 } from "@/lib/lotteries";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { parseRowId } from "@/lib/row-id";
 import { getCurrentUser } from "@/lib/session";
 
 /**
@@ -46,11 +47,8 @@ async function authorizeInboxAction(
   const user = await getCurrentUser();
   if (user === null) return { error: SESSION_EXPIRED };
 
-  const transferIdValue = formData.get("transferId");
-  const transferId = Number(transferIdValue);
-  if (typeof transferIdValue !== "string" || !Number.isInteger(transferId)) {
-    return { error: TRANSFER_MISSING };
-  }
+  const transferId = parseRowId(formData.get("transferId"));
+  if (transferId === null) return { error: TRANSFER_MISSING };
 
   const attempt = checkRateLimit(
     `ticket-write:${user.username}`,

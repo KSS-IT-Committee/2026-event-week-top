@@ -17,6 +17,7 @@ import {
   getSlotLabel,
   getSlotTime,
 } from "@/lib/lotteries";
+import { parseRowId } from "@/lib/row-id";
 import { getCurrentUser } from "@/lib/session";
 
 import { DiscardPanel } from "./DiscardPanel";
@@ -59,12 +60,15 @@ async function TicketDetail({ rawTicketId }: { rawTicketId: string }) {
   // type (getCurrentUser is request-cached, so it costs nothing).
   if (user === null) unauthorized();
 
-  // Only a plain decimal id addresses a ticket — Number() alone would accept
-  // "1e3" and " 12 " as the same seat under three different URLs.
-  if (!/^\d+$/.test(rawTicketId)) notFound();
+  // Only a plain decimal id inside `serial` range addresses a ticket. Number()
+  // alone would accept "1e3" and " 12 " as the same seat under three different
+  // URLs, and anything past 2147483647 would reach Postgres as an out-of-range
+  // int4 parameter — a 500 where a 404 belongs.
+  const ticketId = parseRowId(rawTicketId);
+  if (ticketId === null) notFound();
   // Scoped to the holder inside the query: somebody else's ticket and a
   // non-existent one are the same 404, so sequential ids disclose nothing.
-  const ticket = await getLotteryTicket(Number(rawTicketId), user.username);
+  const ticket = await getLotteryTicket(ticketId, user.username);
   if (ticket === null) notFound();
 
   const lottery = getLottery(ticket.lotteryId);
