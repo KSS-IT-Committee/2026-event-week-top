@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/session";
 import { AuthGuard } from "../components/AuthGuard";
 import { FloatingMenu } from "../components/FloatingMenu";
 import { Internal } from "../components/Internal";
+import { SeatTicket } from "../components/SeatTicket";
 import styles from "./seat.module.css";
 
 export const metadata: Metadata = {
@@ -53,8 +54,10 @@ export default async function SeatPage() {
       <ul className={styles.seatList}>
         {performanceEnum.enumValues.map((performance, index) => (
           <li key={performance} className={styles.seatItem}>
-            <span>{performance}公演</span>
-            <span>{seatNumbers[index] ?? "—"}</span>
+            <SeatTicket
+              performance={performance}
+              seat={seatNumbers[index] ?? null}
+            />
           </li>
         ))}
       </ul>
