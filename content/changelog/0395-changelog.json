@@ -1,5 +1,5 @@
 {
-  "title": "adding seat field in menu",
-  "description": "TODO",
+  "title": "座席へのリンクを追加",
+  "description": "フローティングメニューに座席へのリンクを追加しました。",
   "credits": ["@rotarymars"]
 }
