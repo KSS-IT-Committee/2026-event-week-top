@@ -197,6 +197,22 @@ describe("claimTicketTransferAction", () => {
     expect(getIncomingTicketTransfers).not.toHaveBeenCalled();
   });
 
+  it("refuses an account that no longer holds a school role", async () => {
+    // /lottery/results is gated AuthGuard role={INTERNAL_ROLES}; the action
+    // re-derives that gate because it is independently invocable.
+    vi.mocked(getCurrentUser).mockResolvedValue({
+      username: "4D11",
+      roles: ["IT"],
+    });
+    const state = await claimTicketTransferAction(
+      PREV,
+      fd({ transferId: "31" }),
+    );
+    expect(state.success).toBe(false);
+    expect(getIncomingTicketTransfers).not.toHaveBeenCalled();
+    expect(claimTicketTransfer).not.toHaveBeenCalled();
+  });
+
   it("is rate limited per account", async () => {
     vi.mocked(checkRateLimit).mockReturnValue({
       ok: false,

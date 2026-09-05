@@ -76,8 +76,16 @@ async function loadOwnedTicket(
   formData: FormData,
   now: Date,
 ): Promise<OwnedTicket | { error: string }> {
+  // Identity is not authorization. The pages hosting these actions are gated
+  // `AuthGuard role={INTERNAL_ROLES}`, and an action is independently
+  // invocable, so it re-derives that gate rather than inheriting it — an
+  // account whose school roles were revoked must not still be able to move or
+  // destroy the seats it happens to hold. Same bar the recipient is held to
+  // below.
   const user = await getCurrentUser();
-  if (user === null) return { error: SESSION_EXPIRED };
+  if (user === null || !hasAnyRole(user, INTERNAL_ROLES)) {
+    return { error: SESSION_EXPIRED };
+  }
 
   const ticketId = parseRowId(formData.get("ticketId"));
   if (ticketId === null) return { error: TICKET_MISSING };
@@ -235,8 +243,11 @@ export async function cancelTicketTransferAction(
   _prevState: TicketActionState,
   formData: FormData,
 ): Promise<TicketActionState> {
+  // Role-gated like loadOwnedTicket; see the note there.
   const user = await getCurrentUser();
-  if (user === null) return { error: SESSION_EXPIRED, success: false };
+  if (user === null || !hasAnyRole(user, INTERNAL_ROLES)) {
+    return { error: SESSION_EXPIRED, success: false };
+  }
 
   const transferId = parseRowId(formData.get("transferId"));
   if (transferId === null) {

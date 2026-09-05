@@ -5,6 +5,7 @@ import { refresh } from "next/cache";
 import { claimTicketTransfer } from "@/db/claimTicketTransfer";
 import { getIncomingTicketTransfers } from "@/db/getIncomingTicketTransfers";
 import { resolveTicketTransfer } from "@/db/resolveTicketTransfer";
+import { hasAnyRole, INTERNAL_ROLES } from "@/lib/access";
 import {
   areLotteryResultsAnnounced,
   describeTicketTransferBlock,
@@ -44,8 +45,13 @@ export type TicketTransferInboxState = {
 async function authorizeInboxAction(
   formData: FormData,
 ): Promise<{ username: string; transferId: number } | { error: string }> {
+  // Identity is not authorization: /lottery/results is gated
+  // `AuthGuard role={INTERNAL_ROLES}` and these actions are independently
+  // invocable, so they re-derive that gate instead of inheriting it.
   const user = await getCurrentUser();
-  if (user === null) return { error: SESSION_EXPIRED };
+  if (user === null || !hasAnyRole(user, INTERNAL_ROLES)) {
+    return { error: SESSION_EXPIRED };
+  }
 
   const transferId = parseRowId(formData.get("transferId"));
   if (transferId === null) return { error: TRANSFER_MISSING };

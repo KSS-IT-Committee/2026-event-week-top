@@ -354,6 +354,74 @@ describe("offerTicketTransferAction", () => {
     expect(createTicketTransfer).not.toHaveBeenCalled();
   });
 
+  it("requires a session", async () => {
+    vi.mocked(getCurrentUser).mockResolvedValue(null);
+    const state = await offerTicketTransferAction(
+      ACTION_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.error).toContain("セッション");
+    expect(createTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("refuses an account that no longer holds a school role", async () => {
+    // The page is gated AuthGuard role={INTERNAL_ROLES}; the action is
+    // independently invocable, so it must re-derive that gate rather than
+    // settle for "has a session".
+    asUser("5B21", ["IT"]);
+    recipientExists("4D11", ["Students"]);
+    const state = await offerTicketTransferAction(
+      ACTION_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.success).toBe(false);
+    expect(getLotteryTicket).not.toHaveBeenCalled();
+    expect(createTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("never offers a ticket the caller does not hold", async () => {
+    vi.mocked(getLotteryTicket).mockResolvedValue(null);
+    recipientExists("4D11", ["Students"]);
+    const state = await offerTicketTransferAction(
+      ACTION_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.error).toContain("チケットが見つかりません");
+    expect(createTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("is rate limited per account", async () => {
+    recipientExists("4D11", ["Students"]);
+    vi.mocked(checkRateLimit).mockReturnValue({
+      ok: false,
+      retryAfterSeconds: 30,
+    });
+    const state = await offerTicketTransferAction(
+      ACTION_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.error).toContain("試行回数");
+    expect(checkRateLimit).toHaveBeenCalledWith(
+      "ticket-write:5B21",
+      expect.any(Number),
+      expect.any(Number),
+    );
+    expect(createTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("reports a seat the sender lost between render and submit", async () => {
+    recipientExists("4D11", ["Students"]);
+    vi.mocked(createTicketTransfer).mockResolvedValue({
+      ok: false,
+      reason: "not-owned",
+    });
+    const state = await offerTicketTransferAction(
+      ACTION_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.error).toContain("チケットが見つかりません");
+  });
+
   it("survives a database failure with a retry message", async () => {
     recipientExists("4D11", ["Students"]);
     vi.mocked(createTicketTransfer).mockRejectedValue(new Error("down"));
@@ -404,6 +472,16 @@ describe("cancelTicketTransferAction", () => {
       fd({ transferId: "31" }),
     );
     expect(state.error).toContain("セッション");
+    expect(resolveTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("refuses an account that no longer holds a school role", async () => {
+    asUser("5B21", ["IT"]);
+    const state = await cancelTicketTransferAction(
+      ACTION_STATE,
+      fd({ transferId: "31" }),
+    );
+    expect(state.success).toBe(false);
     expect(resolveTicketTransfer).not.toHaveBeenCalled();
   });
 
@@ -469,6 +547,16 @@ describe("discardTicketAction", () => {
       fd({ ticketId: "42" }),
     );
     expect(state.error).toContain("セッション");
+    expect(deleteLotteryTicket).not.toHaveBeenCalled();
+  });
+
+  it("refuses an account that no longer holds a school role", async () => {
+    asUser("5B21", ["IT"]);
+    const state = await discardTicketAction(
+      ACTION_STATE,
+      fd({ ticketId: "42" }),
+    );
+    expect(state.success).toBe(false);
     expect(deleteLotteryTicket).not.toHaveBeenCalled();
   });
 });
