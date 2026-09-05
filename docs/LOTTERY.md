@@ -89,18 +89,23 @@ ORDER BY slot_id, first_choice;
 
 ## PR previews
 
-Preview clones are schema-only (`pr-db.sh`), so `users` is empty there —
-which is why `lottery_results` carries no FK to it, and why loading the draw's
-SQL works on a preview as-is. `lottery_entries` is the one that needs help:
+VPS previews run against a clone of `appdata` while the login cookie is
+vouched for by the production auth host, so the account a tester is logged in
+as has to exist in the clone for `lottery_entries.username → users.username`
+(and now `lottery_results`' key) to pass on a save.
 
-VPS previews run against a schema-only clone of `appdata` (empty `users`)
-while the login cookie is vouched for by the production auth host, so a
-save would normally fail the `lottery_entries.username → users.username`
-foreign key. `db/ensurePreviewUser.ts` handles this: on `IS_PR_PREVIEW`
-(and only there) the save transaction first upserts a stub `users` row for
-the session's username — the stub's password hash is a discarded random
-secret, so it can never be logged in with. Production and local runs skip
-this entirely; the FK stays fully enforced there.
+`pr-db.sh` (2026-server-ansible) makes that true: clones are schema-only
+except for the `users` roster, which is copied in with every credential
+column replaced by an unusable stub hash and re-seeded on each preview
+deploy. Previews therefore behave like production for anything keyed to
+`users`, while still being unable to mint their own logins.
+
+`db/ensurePreviewUser.ts` remains as the backstop for what seeding misses — a
+clone made before it existed, or an account created since this preview's last
+deploy: on `IS_PR_PREVIEW` (and only there) the save transaction first upserts
+a stub `users` row for the session's username, with the same unusable hash.
+Production and local runs skip it entirely; the FK is fully enforced
+everywhere.
 
 ## The result side
 
@@ -115,14 +120,17 @@ applicant_type)` is unique — nobody can be in two rooms at once — plus the
   `is_priority` for a 保護者 seat granted by the child's-class guarantee.
   **A missing row is a loss, not an error**: `/lottery/results` joins against
   `lottery_entries` to tell "applied and lost" from "never applied".
-- **`username` is not a foreign key here** (unlike `lottery_entries`). No app
-  writes this table, the loader copies usernames straight off already-checked
-  entry rows, and the schema-only PR preview clones have an empty `users`
-  table — a key would break every preview to re-check something the loader
-  already guarantees. The generated SQL ends with a `DO $$` block that reports
-  any username missing from `users` as a NOTICE, which is what the constraint
-  was actually for. Trade-off: deleting a `users` row leaves its results
-  behind, and they are unreadable rather than harmful.
+- **`username` is a foreign key to `users`**, like `lottery_entries`. No app
+  writes this table — the loader copies usernames off already-checked entry
+  rows — so the key is a check on the loader, not on the app: a typo'd or
+  stale username fails the load instead of writing a seat that can never be
+  shown (the page reads by session username, so an orphan is invisible, not
+  loud), and deleting a `users` row now takes its seats with it. Load
+  `users.sql` before the draw's SQL, and re-run the draw after a roster
+  reload. The generated SQL still ends with a `DO $$` block reporting missing
+  usernames as a NOTICE; it is now belt-and-braces ahead of the constraint.
+  Adding the key to an already-populated `lottery_results` validates the rows
+  in it — see 2026-db's README for the orphan check to run first.
 - **External applicants are deliberately absent.** They hear their result from
   the form provider. Covering them later is an additive table, not a change to
   this one.

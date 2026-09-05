@@ -196,17 +196,21 @@ export const lotteryResults = pgTable(
     slotId: varchar("slot_id", { length: 64 }).notNull(),
     // Parents watch on their child's account, exactly as in lottery_entries.
     //
-    // Deliberately NOT a foreign key to `users`, unlike lottery_entries: no
-    // app ever writes this table — the draw (2026-lottery) emits the INSERTs
-    // out of band, the same way 2026-account-generator's users.sql is loaded
-    // — and every username in it is copied from an already-FK-checked
-    // lottery_entries row. A key here would only break the schema-only PR
-    // preview clones, whose `users` table is empty, in exchange for
-    // protection the loader already provides. An orphan row is inert: the
-    // page reads results by session username, so a row nobody can log in as
-    // is simply never shown. The generated SQL reports orphans as a NOTICE
-    // after loading, which is what the constraint was really for.
-    username: varchar("username", { length: 32 }).notNull(),
+    // Keyed to `users` like every other username column here. No app writes
+    // this table — the draw (2026-lottery) emits the INSERTs out of band, the
+    // same way 2026-account-generator's users.sql is loaded — so the key is
+    // what makes "every winner is a real account" a fact rather than an
+    // intention: a typo'd or stale username fails the load instead of writing
+    // a seat nobody can ever be shown (this page reads results by session
+    // username, so an orphan row is invisible, not loud).
+    //
+    // This used to be left unkeyed because per-PR previews run on a
+    // schema-only clone with an empty `users` table, which any key to it
+    // would break. 2026-server-ansible's pr-db.sh now seeds that clone with
+    // the roster (credentials redacted), so previews satisfy it too.
+    username: varchar("username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
     applicantType: lotteryApplicantTypeEnum("applicant_type").notNull(),
     // The act won — a class code for sousaku, a performance id for kaitaku.
     actId: varchar("act_id", { length: 64 }).notNull(),
