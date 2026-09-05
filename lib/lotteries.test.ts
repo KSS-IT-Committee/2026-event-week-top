@@ -4,7 +4,6 @@ import { CLASSNAMES } from "@/db/schema";
 import {
   areLotteryResultsAnnounced,
   canApplyToLottery,
-  canTransferTicket,
   classFromRoles,
   describeApplicationDeadline,
   describeEligibleGrades,
@@ -699,6 +698,16 @@ describe("parseLotteryEntries", () => {
     expect(result.error).toContain("観覧人数");
   });
 });
+
+// describeTicketTransferBlock returns the sentence to show; these cases only
+// care whether it refuses, so they read it through this.
+function canTransferTicket(
+  lottery: Lottery,
+  ticket: TransferableTicket,
+  now: Date,
+): boolean {
+  return describeTicketTransferBlock(lottery, ticket, now) === null;
+}
 
 // A 本人 seat, the only 区分 that may change hands. Tests that care about a
 // different slot/act override those fields.

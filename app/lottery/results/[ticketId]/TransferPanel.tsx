@@ -28,7 +28,7 @@ type TransferPanelProps = {
   // given — the wording lives in lib/lotteries so both ends of a transfer
   // explain the rule identically.
   transferBlockReason: string | null;
-  // 「2026年9月12日（土）08:40」 — the last moment it can be handed over.
+  // 「2026年9月12日（土）08:35」 — the last moment it can be handed over.
   transferDeadline: string | null;
 };
 

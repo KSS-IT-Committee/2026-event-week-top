@@ -436,17 +436,8 @@ export function describeTicketTransferBlock(
   return "この公演の譲渡受付は終了しました。公演開始10分前を過ぎたチケットは、譲渡も受け取りもできません。";
 }
 
-/** Whether this seat may still change hands. */
-export function canTransferTicket(
-  lottery: Lottery,
-  ticket: TransferableTicket,
-  now: Date,
-): boolean {
-  return describeTicketTransferBlock(lottery, ticket, now) === null;
-}
-
 /**
- * 「2026年9月12日（土）08:40」 — the last moment this seat can be handed over,
+ * 「2026年9月12日（土）08:35」 — the last moment this seat can be handed over,
  * or null when its performance has no configured time (= no deadline).
  */
 export function describeTicketTransferDeadline(

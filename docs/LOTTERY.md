@@ -89,9 +89,11 @@ ORDER BY slot_id, first_choice;
 
 ## PR previews
 
-Preview clones are schema-only (`pr-db.sh`), so `users` is empty there —
-which is why `lottery_results` carries no FK to it, and why loading the draw's
-SQL works on a preview as-is. `lottery_entries` is the one that needs help:
+Preview clones are schema-only (`pr-db.sh`) with one exception: the `users`
+roster IS copied, credentials redacted, because app tables key their rows to
+`users(username)` with real foreign keys — `lottery_results` included (see
+"The result side"). Loading the draw's SQL therefore works on a preview as-is.
+`lottery_entries` still needs help, for a different reason:
 
 VPS previews run against a schema-only clone of `appdata` (empty `users`)
 while the login cookie is vouched for by the production auth host, so a
