@@ -178,9 +178,10 @@ place an app writes `lottery_results` — the draw still creates every row.
   race fails identically.
 - **The deadline is per ticket, not per lottery**
   (`describeTicketTransferBlock`, the second of its two rules): a seat stops
-  being transferable `TICKET_TRANSFER_CLOSES_BEFORE_START_MS` (5 min)
-  before its own performance starts — the same moment the 受付 closes, so a
-  seat can never arrive too late to use. That needs a machine-readable start
+  being transferable `TICKET_TRANSFER_CLOSES_BEFORE_START_MS` (10 min)
+  before its own performance starts — five minutes ahead of the 受付 deadline
+  (「公演開始5分前まで」), so a seat handed over at the last moment still leaves
+  its new holder time to reach the desk. That needs a machine-readable start
   time, which is why slots carry `startsAt` (創作: the slot IS the performance)
   or `date` alongside an act's `startTime` (開拓: the slot is a day, the ACT is
   the performance). A definition with neither imposes no deadline, exactly as a

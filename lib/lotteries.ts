@@ -374,12 +374,15 @@ export function getTicketStartsAt(
   return new Date(`${slot.date}T${act.startTime}:00+09:00`);
 }
 
-// 受付 closes 5 minutes before a performance starts — /lottery/results says
-// so in red, and a seat that reaches its new holder after that can no longer
-// be used. Transfers of a ticket therefore close at the same moment. 破棄 is
-// deliberately NOT bounded: throwing away a ticket you can no longer use
-// harms nobody, and refusing to would just leave dead rows around.
-export const TICKET_TRANSFER_CLOSES_BEFORE_START_MS = 5 * 60 * 1000;
+// A seat stops being transferable 10 minutes before its performance starts.
+// Deliberately EARLIER than the 受付 deadline (5 minutes before, stated in red
+// on /lottery/results): a seat handed over at the very last moment would reach
+// someone with no time to reach the desk, so the extra 5 minutes is the new
+// holder's margin to actually get there. Raising this only ever closes
+// transfers sooner, so it is safe to tune. 破棄 is deliberately NOT bounded by
+// it: throwing away a ticket you can no longer use harms nobody, and refusing
+// to would just leave dead rows around.
+export const TICKET_TRANSFER_CLOSES_BEFORE_START_MS = 10 * 60 * 1000;
 
 /**
  * The 区分 whose seats may change hands at all.
@@ -430,7 +433,7 @@ export function describeTicketTransferBlock(
   ) {
     return null;
   }
-  return "この公演の譲渡受付は終了しました。公演開始5分前を過ぎたチケットは、譲渡も受け取りもできません。";
+  return "この公演の譲渡受付は終了しました。公演開始10分前を過ぎたチケットは、譲渡も受け取りもできません。";
 }
 
 /** Whether this seat may still change hands. */

@@ -807,8 +807,10 @@ describe("当選チケットの譲渡期限", () => {
     expect(getTicketStartsAt(kaitaku, "sep12", "performance-99")).toBeNull();
   });
 
-  it("closes transfers 5 minutes before the performance — when 受付 closes", () => {
-    expect(TICKET_TRANSFER_CLOSES_BEFORE_START_MS).toBe(5 * 60 * 1000);
+  it("closes transfers 10 minutes before the performance, ahead of 受付", () => {
+    // Earlier than the 5-minute 受付 deadline on purpose, so a seat handed
+    // over at the last moment still leaves its new holder time to arrive.
+    expect(TICKET_TRANSFER_CLOSES_BEFORE_START_MS).toBe(10 * 60 * 1000);
     const startsAt = new Date("2026-09-12T10:20:00+09:00");
     const deadline = new Date(
       startsAt.getTime() - TICKET_TRANSFER_CLOSES_BEFORE_START_MS,
@@ -873,10 +875,12 @@ describe("当選チケットの譲渡期限", () => {
 
   it("describes the deadline in JST, whatever the server's timezone", () => {
     expect(describeTicketTransferDeadline(sousaku, "sep12-slot-1", "6A")).toBe(
-      "2026年9月12日（土）08:40",
+      // 8:45 start − 10 min.
+      "2026年9月12日（土）08:35",
     );
     expect(
+      // 10:15 start − 10 min.
       describeTicketTransferDeadline(kaitaku, "sep13", "performance-3"),
-    ).toBe("2026年9月13日（日）10:10");
+    ).toBe("2026年9月13日（日）10:05");
   });
 });
