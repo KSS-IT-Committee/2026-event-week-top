@@ -11,6 +11,12 @@ function pgError(code: string, constraintName?: string) {
   });
 }
 
+// What actually reaches a catch block: Drizzle wraps the driver error rather
+// than rethrowing it, so the SQLSTATE fields sit on `cause`.
+function drizzleWrapped(error: unknown) {
+  return new Error("Failed query: insert into …", { cause: error });
+}
+
 describe("isUniqueViolation", () => {
   it("matches SQLSTATE 23505 when no constraint is named", () => {
     expect(isUniqueViolation(pgError("23505"))).toBe(true);
@@ -55,5 +61,38 @@ describe("isForeignKeyViolation", () => {
     expect(isForeignKeyViolation(pgError("23505"))).toBe(false);
     expect(isForeignKeyViolation(null)).toBe(false);
     expect(isForeignKeyViolation({})).toBe(false);
+  });
+});
+
+describe("errors wrapped by Drizzle", () => {
+  it("finds a unique violation on the cause chain", () => {
+    const error = drizzleWrapped(
+      pgError("23505", "seats_performance_seat_unique"),
+    );
+
+    expect(isUniqueViolation(error)).toBe(true);
+    expect(isUniqueViolation(error, "seats_performance_seat_unique")).toBe(
+      true,
+    );
+    expect(isUniqueViolation(error, "some_other_unique")).toBe(false);
+  });
+
+  it("finds a foreign-key violation on the cause chain", () => {
+    expect(isForeignKeyViolation(drizzleWrapped(pgError("23503")))).toBe(true);
+  });
+
+  it("looks through more than one link", () => {
+    const error = drizzleWrapped(drizzleWrapped(pgError("23505")));
+    expect(isUniqueViolation(error)).toBe(true);
+  });
+
+  it("stops rather than looping on a self-referential chain", () => {
+    const looping: { cause?: unknown } = {};
+    looping.cause = looping;
+    expect(isUniqueViolation(looping)).toBe(false);
+  });
+
+  it("ignores a wrapper carrying no driver error at all", () => {
+    expect(isUniqueViolation(drizzleWrapped(new Error("boom")))).toBe(false);
   });
 });

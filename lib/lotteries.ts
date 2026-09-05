@@ -29,11 +29,25 @@ export type LotterySlot = {
   // Time range shown next to the label (e.g. 「8:45～9:15」). Omit when the
   // slot is a question rather than one timed performance (see kaitaku).
   time?: string;
+  // When this slot's performance begins — set on slots that ARE one timed
+  // performance (創作部門). Slots that stand for a whole festival day
+  // (開拓部門) leave it undefined and set `date` instead, because there it is
+  // the ACT that picks the time. Read through getTicketStartsAt(), which is
+  // what decides a won seat's transfer deadline. Construct with an explicit
+  // +09:00 offset, like opensAt/closesAt.
+  startsAt?: Date;
+  // 「2026-09-12」 — the festival day a day-slot covers, combined with the
+  // act's `startTime` by getTicketStartsAt(). Omit on timed slots.
+  date?: string;
 };
 
 export type LotteryAct = {
   id: string;
   label: string;
+  // 「08:45」 JST — when this act begins, for lotteries whose acts are the
+  // timed performances (開拓部門). Meaningless (and omitted) where the acts
+  // are class plays, because there every act in a slot starts together.
+  startTime?: string;
 };
 
 export type Lottery = {
@@ -129,29 +143,53 @@ const SOUSAKU_CLASSES = classesInGrades(["5", "6"]);
 
 // 創作展 runs two days; both divisions repeat the same program each day.
 const FESTIVAL_DAYS = [
-  { id: "sep12", label: "9月12日（土）" },
-  { id: "sep13", label: "9月13日（日）" },
+  { id: "sep12", label: "9月12日（土）", date: "2026-09-12" },
+  { id: "sep13", label: "9月13日（日）", date: "2026-09-13" },
 ] as const;
 
 // 開拓部門: a parent ranks WHICH performance (time slot) to attend on a
 // given day, not which class — so the ranked choices are the performances
 // themselves, asked once per festival day (one slot per day).
 const KAITAKU_PERFORMANCES: LotteryAct[] = [
-  { id: "performance-1", label: "第一公演（8:45～9:15）" },
-  { id: "performance-2", label: "第二公演（9:30～10:00）" },
-  { id: "performance-3", label: "第三公演（10:15～10:45）" },
-  { id: "performance-4", label: "第四公演（11:00～11:30）" },
-  { id: "performance-5", label: "第五公演（12:30～13:00）" },
-  { id: "performance-6", label: "第六公演（13:15～13:45）" },
-  { id: "performance-7", label: "第七公演（14:00～14:30）" },
-  { id: "performance-8", label: "第八公演（14:45～15:15）" },
+  { id: "performance-1", label: "第一公演（8:45～9:15）", startTime: "08:45" },
+  { id: "performance-2", label: "第二公演（9:30～10:00）", startTime: "09:30" },
+  {
+    id: "performance-3",
+    label: "第三公演（10:15～10:45）",
+    startTime: "10:15",
+  },
+  {
+    id: "performance-4",
+    label: "第四公演（11:00～11:30）",
+    startTime: "11:00",
+  },
+  {
+    id: "performance-5",
+    label: "第五公演（12:30～13:00）",
+    startTime: "12:30",
+  },
+  {
+    id: "performance-6",
+    label: "第六公演（13:15～13:45）",
+    startTime: "13:15",
+  },
+  {
+    id: "performance-7",
+    label: "第七公演（14:00～14:30）",
+    startTime: "14:00",
+  },
+  {
+    id: "performance-8",
+    label: "第八公演（14:45～15:15）",
+    startTime: "14:45",
+  },
 ];
 
 const SOUSAKU_PERFORMANCE_TIMES = [
-  { label: "第一公演", time: "8:45～10:00" },
-  { label: "第二公演", time: "10:20～11:35" },
-  { label: "第三公演", time: "12:30～13:45" },
-  { label: "第四公演", time: "14:05～15:20" },
+  { label: "第一公演", time: "8:45～10:00", startTime: "08:45" },
+  { label: "第二公演", time: "10:20～11:35", startTime: "10:20" },
+  { label: "第三公演", time: "12:30～13:45", startTime: "12:30" },
+  { label: "第四公演", time: "14:05～15:20", startTime: "14:05" },
 ] as const;
 
 export const LOTTERIES: readonly Lottery[] = [
@@ -173,9 +211,12 @@ export const LOTTERIES: readonly Lottery[] = [
     eligibleClasses: KAITAKU_CLASSES,
     canStaffApply: false,
     acts: KAITAKU_PERFORMANCES,
+    // A day-slot, not a timed one: the ACT (which performance) carries the
+    // time, so the day's date is what getTicketStartsAt() combines it with.
     slots: FESTIVAL_DAYS.map((day) => ({
       id: day.id,
       label: `${day.label}の公演`,
+      date: day.date,
     })),
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
     // Exclusive bound: the whole of Aug 25 JST is accepted (8月25日まで).
@@ -208,6 +249,7 @@ export const LOTTERIES: readonly Lottery[] = [
         id: `${day.id}-slot-${index + 1}`,
         label: `${day.label}${performance.label}`,
         time: performance.time,
+        startsAt: new Date(`${day.date}T${performance.startTime}:00+09:00`),
       })),
     ),
     opensAt: new Date("2026-07-17T00:00:00+09:00"),
@@ -249,27 +291,32 @@ export function areLotteryResultsAnnounced(
   return now.getTime() >= lottery.resultsAnnouncedAt.getTime();
 }
 
-/**
- * 「2026年9月8日（火）10:00」 — when the results go up, or null when no time
- * is configured. Rendered in JST so the page can never disagree with what was
- * announced.
- */
-export function describeResultsAnnouncement(lottery: Lottery): string | null {
-  if (lottery.resultsAnnouncedAt === null) return null;
+// 「2026年9月8日（火）10:00」 — always JST, whatever the server's timezone
+// is, so a rendered instant can never disagree with what was announced.
+function describeJstDateTime(instant: Date): string {
   const date = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
     dateStyle: "long",
-  }).format(lottery.resultsAnnouncedAt);
+  }).format(instant);
   const weekday = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
     weekday: "short",
-  }).format(lottery.resultsAnnouncedAt);
+  }).format(instant);
   const time = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(lottery.resultsAnnouncedAt);
+  }).format(instant);
   return `${date}（${weekday}）${time}`;
+}
+
+/**
+ * 「2026年9月8日（火）10:00」 — when the results go up, or null when no time
+ * is configured.
+ */
+export function describeResultsAnnouncement(lottery: Lottery): string | null {
+  if (lottery.resultsAnnouncedAt === null) return null;
+  return describeJstDateTime(lottery.resultsAnnouncedAt);
 }
 
 /**
@@ -291,6 +338,118 @@ export function getActLabel(lottery: Lottery, actId: string): string {
 
 export function getLottery(lotteryId: string): Lottery | null {
   return LOTTERIES.find((lottery) => lottery.id === lotteryId) ?? null;
+}
+
+/* ─────────────────────── 当選チケットの譲渡・破棄 ───────────────────────
+ *
+ * A won seat (one `lottery_results` row) can be handed to another school
+ * account or thrown away by its holder. Both are pure-config decisions about
+ * WHEN that is still allowed; who may do it is authorization, and lives in
+ * the server actions.
+ */
+
+/**
+ * When the performance a won seat admits to actually begins, or null when the
+ * definition carries no clock for it. Two shapes, both already in LOTTERIES:
+ *
+ *  - the slot IS one timed performance (創作部門) — it carries `startsAt`;
+ *  - the slot is a whole festival day and the ACT is the timed performance
+ *    (開拓部門) — the day's `date` and the act's `startTime` combine here.
+ *
+ * Returns null for ids the current definitions no longer know (a renamed
+ * slot leaves old rows behind) and for a future lottery that simply has no
+ * times — callers treat that as "no deadline", the same way a null
+ * opensAt/closesAt means "no bound".
+ */
+export function getTicketStartsAt(
+  lottery: Lottery,
+  slotId: string,
+  actId: string,
+): Date | null {
+  const slot = lottery.slots.find((candidate) => candidate.id === slotId);
+  if (slot === undefined) return null;
+  if (slot.startsAt !== undefined) return slot.startsAt;
+  const act = lottery.acts.find((candidate) => candidate.id === actId);
+  if (slot.date === undefined || act?.startTime === undefined) return null;
+  return new Date(`${slot.date}T${act.startTime}:00+09:00`);
+}
+
+// A seat stops being transferable 10 minutes before its performance starts.
+// Deliberately EARLIER than the 受付 deadline (5 minutes before, stated in red
+// on /lottery/results): a seat handed over at the very last moment would reach
+// someone with no time to reach the desk, so the extra 5 minutes is the new
+// holder's margin to actually get there. Raising this only ever closes
+// transfers sooner, so it is safe to tune. 破棄 is deliberately NOT bounded by
+// it: throwing away a ticket you can no longer use harms nobody, and refusing
+// to would just leave dead rows around.
+export const TICKET_TRANSFER_CLOSES_BEFORE_START_MS = 10 * 60 * 1000;
+
+/**
+ * The 区分 whose seats may change hands at all.
+ *
+ * 保護者 seats are excluded by policy, not by mechanism: a 保護者 ticket
+ * admits somebody's parents, and handing those seats around between families
+ * is not something the committee wants to invite. That rule alone makes the
+ * whole 開拓部門 lottery non-transferable, since it only ever issues 保護者
+ * seats. 破棄 stays open for them — a parent who cannot come should still be
+ * able to release the seat to the キャンセル待ち列.
+ */
+export const TRANSFERABLE_APPLICANT_TYPES: readonly LotteryApplicantType[] = [
+  "student",
+];
+
+// The parts of a won seat that decide whether it may be handed on. Any
+// `lottery_results`-shaped object satisfies it (db/getLotteryTickets.ts).
+export type TransferableTicket = {
+  slotId: string;
+  actId: string;
+  applicantType: LotteryApplicantType;
+};
+
+/**
+ * Why this seat cannot change hands, as the sentence to show, or null when it
+ * can. One message per reason, worded to fit BOTH ends of a transfer, so the
+ * sender's page and the recipient's inbox can never disagree about the rule.
+ *
+ * The deadline half is per ticket, not per lottery: the festival's
+ * performances start at different times, so a 9月12日第一公演 seat closes
+ * while a 9月13日第四公演 one is still freely transferable.
+ */
+export function describeTicketTransferBlock(
+  lottery: Lottery,
+  ticket: TransferableTicket,
+  now: Date,
+): string | null {
+  if (!TRANSFERABLE_APPLICANT_TYPES.includes(ticket.applicantType)) {
+    return `${APPLICANT_TYPE_LABELS[ticket.applicantType]}のチケットは譲渡できません。ご覧になれない場合は、チケットの破棄をご検討ください。`;
+  }
+  const startsAt = getTicketStartsAt(lottery, ticket.slotId, ticket.actId);
+  // No clock in the definition = no deadline, the same way a null
+  // opensAt/closesAt means no bound.
+  if (startsAt === null) return null;
+  if (
+    now.getTime() <
+    startsAt.getTime() - TICKET_TRANSFER_CLOSES_BEFORE_START_MS
+  ) {
+    return null;
+  }
+  return "この公演の譲渡受付は終了しました。公演開始10分前を過ぎたチケットは、譲渡も受け取りもできません。";
+}
+
+/**
+ * 「2026年9月12日（土）08:35」 — the last moment this seat can be handed over,
+ * or null when its performance has no configured time (= no deadline).
+ */
+export function describeTicketTransferDeadline(
+  lottery: Lottery,
+  slotId: string,
+  actId: string,
+): string | null {
+  const startsAt = getTicketStartsAt(lottery, slotId, actId);
+  if (startsAt === null) return null;
+  return describeJstDateTime(
+    new Date(startsAt.getTime() - TICKET_TRANSFER_CLOSES_BEFORE_START_MS),
+  );
 }
 
 // 「2026年8月30日（日）まで」 — the last day applications are accepted, or

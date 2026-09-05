@@ -1,0 +1,265 @@
+.main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 96px 24px;
+  flex: 1;
+}
+
+.card {
+  width: 100%;
+  max-width: 640px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 15%, transparent);
+  border-radius: 12px;
+  padding: 32px 28px;
+  background: color-mix(in oklch, var(--foreground) 3%, var(--background));
+}
+
+.backLink {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0b69eb;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* The seat itself, styled like the winning card on /lottery/results so the
+   page you tapped through to is recognisably the same ticket. */
+.ticket {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid color-mix(in oklch, #237804 35%, transparent);
+  background: color-mix(in oklch, #237804 6%, var(--background));
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.ticketLottery {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+}
+
+.ticketSlot {
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 70%, transparent);
+}
+
+.ticketTime {
+  margin-left: 8px;
+}
+
+.ticketAct {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.ticketMeta {
+  font-size: 0.85rem;
+  color: color-mix(in oklch, var(--foreground) 65%, transparent);
+}
+
+.ticketHolder {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-family: var(--font-geist-mono, monospace);
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+}
+
+.priorityBadge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+}
+
+.important {
+  font-size: 0.9rem;
+  color: #d4380d;
+  margin: 16px 0 8px;
+}
+
+.panel {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.panelTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.note {
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: color-mix(in oklch, var(--foreground) 55%, transparent);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.input:focus-visible {
+  outline: 2px solid #0b69eb;
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #0b69eb;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.buttonSecondary {
+  border: 1px solid color-mix(in oklch, var(--foreground) 30%, transparent);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.buttonDanger {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #d4380d;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.button:hover,
+.buttonSecondary:hover,
+.buttonDanger:hover {
+  opacity: 0.85;
+}
+
+.button:disabled,
+.buttonSecondary:disabled,
+.buttonDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 破棄 is irreversible, so its confirmation is a boxed warning rather than a
+   line of body text. */
+.caution {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #d4380d;
+  border: 1px solid color-mix(in oklch, #d4380d 45%, transparent);
+  background: color-mix(in oklch, #d4380d 8%, var(--background));
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.pendingNotice {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #d46b08;
+  border: 1px solid color-mix(in oklch, #d46b08 45%, transparent);
+  background: color-mix(in oklch, #d46b08 8%, var(--background));
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.closedNotice {
+  font-size: 0.9rem;
+  color: color-mix(in oklch, var(--foreground) 60%, transparent);
+}
+
+.error {
+  font-size: 0.9rem;
+  color: #d4380d;
+}
+
+.success {
+  font-size: 0.9rem;
+  color: #237804;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* #237804 / #d4380d are below WCAG AA contrast on the dark card. */
+  .success {
+    color: #95de64;
+  }
+
+  .important,
+  .error,
+  .caution {
+    color: #ff7a5c;
+  }
+
+  .pendingNotice {
+    color: #ffa940;
+    border-color: color-mix(in oklch, #ffa940 45%, transparent);
+    background: color-mix(in oklch, #ffa940 10%, var(--background));
+  }
+
+  .caution {
+    border-color: color-mix(in oklch, #ff7a5c 45%, transparent);
+    background: color-mix(in oklch, #ff7a5c 10%, var(--background));
+  }
+
+  .ticket {
+    border-color: color-mix(in oklch, #73d13d 35%, transparent);
+    background: color-mix(in oklch, #73d13d 8%, var(--background));
+  }
+}
