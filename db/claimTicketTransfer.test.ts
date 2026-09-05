@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { claimTicketTransfer } from "@/db/claimTicketTransfer";
+import { lotteryResults, lotteryTicketTransfers } from "@/db/schema";
 
 const { state } = vi.hoisted(() => ({
   state: {
@@ -10,6 +11,11 @@ const { state } = vi.hoisted(() => ({
     // Every chained call made on a select, so the FOR UPDATE locks can be
     // pinned — they are what makes a double-claim queue instead of racing.
     selectCalls: [] as string[],
+    // One entry per tx.select(), in order: whether it took a row lock, and
+    // the WHERE it was given. The mock replays rows by call order and cannot
+    // otherwise see what was asked for, so without this a deleted predicate —
+    // the ownership scoping this whole function rests on — passes unnoticed.
+    selectLogs: [] as { hasLock: boolean; where: unknown }[],
     // Payload of each tx.update(...).set(...), in order.
     updates: [] as unknown[],
     // Raw SQL run through tx.execute — the deferral the exchange needs.
@@ -20,7 +26,12 @@ const { state } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db", () => {
-  function chain(rows: unknown[], record?: string[], error?: unknown) {
+  function chain(
+    rows: unknown[],
+    record?: string[],
+    error?: unknown,
+    log?: { hasLock: boolean; where: unknown },
+  ) {
     const settled =
       error === undefined || error === null
         ? Promise.resolve(rows)
@@ -37,6 +48,8 @@ vi.mock("@/lib/db", () => {
           if (typeof prop === "string") {
             record?.push(prop);
             if (prop === "set") state.updates.push(args[0]);
+            if (prop === "where" && log !== undefined) log.where = args[0];
+            if (prop === "for" && log !== undefined) log.hasLock = true;
           }
           return proxy;
         };
@@ -47,7 +60,16 @@ vi.mock("@/lib/db", () => {
   }
 
   const tx = {
-    select: () => chain(state.selects.shift() ?? [], state.selectCalls),
+    select: () => {
+      const log = { hasLock: false, where: undefined as unknown };
+      state.selectLogs.push(log);
+      return chain(
+        state.selects.shift() ?? [],
+        state.selectCalls,
+        undefined,
+        log,
+      );
+    },
     update: () => {
       const error = state.updates.length === 0 ? state.updateError : null;
       return chain([], undefined, error);
@@ -86,6 +108,25 @@ const TICKET = [
   },
 ];
 
+// The WHERE is a Drizzle SQL tree. Walk only its `queryChunks` — following
+// arbitrary object properties would wander into a column's back-reference to
+// its table, and from there to every other column, making any assertion
+// vacuously true.
+function leavesOf(node: unknown, out: unknown[] = []): unknown[] {
+  if (node === null || typeof node !== "object") return out;
+  const { queryChunks } = node as { queryChunks?: unknown };
+  if (Array.isArray(queryChunks)) {
+    for (const chunk of queryChunks) leavesOf(chunk, out);
+    return out;
+  }
+  out.push(node);
+  return out;
+}
+
+function mentionsColumn(where: unknown, column: unknown): boolean {
+  return leavesOf(where).includes(column);
+}
+
 function uniqueViolation(constraint: string) {
   return Object.assign(new Error("duplicate key"), {
     code: "23505",
@@ -97,6 +138,7 @@ describe("claimTicketTransfer", () => {
   beforeEach(() => {
     state.selects = [];
     state.selectCalls = [];
+    state.selectLogs = [];
     state.updates = [];
     state.executed = [];
     state.updateError = null;
@@ -137,12 +179,42 @@ describe("claimTicketTransfer", () => {
   it("locks the seat before the offer, matching the order 破棄 forces", async () => {
     state.selects = [PEEK, TICKET, OFFER, []];
     await claimTicketTransfer(7, "4D11");
-    // Peek (no lock) → seat (lock) → offer (lock). Locking the offer first
-    // would invert deleteLotteryTicket's result-then-cascade order.
-    expect(state.selectCalls.filter((call) => call === "for")).toHaveLength(2);
-    expect(state.selectCalls.indexOf("for")).toBeGreaterThan(
-      state.selectCalls.indexOf("from"),
+    // Unlocked peek → seat → offer → conflicting seat. deleteLotteryTicket
+    // takes the seat and cascades into its offers, so anything locking an
+    // offer first would invert that and could deadlock against a 破棄. Moving
+    // the lock onto the peek flips the first two entries and fails here.
+    expect(state.selectLogs.map((log) => log.hasLock)).toEqual([
+      false,
+      true,
+      true,
+      true,
+    ]);
+    expect(mentionsColumn(state.selectLogs[1].where, lotteryResults.id)).toBe(
+      true,
     );
+  });
+
+  it("scopes both reads of the offer to the account claiming it", async () => {
+    // The whole ownership decision is this predicate: without it any logged-in
+    // account could claim any pending transfer id.
+    state.selects = [PEEK, TICKET, OFFER, []];
+    await claimTicketTransfer(7, "4D11");
+    for (const index of [0, 2]) {
+      expect(
+        mentionsColumn(
+          state.selectLogs[index].where,
+          lotteryTicketTransfers.toUsername,
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("looks for a conflicting seat held by the claimer, not by anyone", async () => {
+    state.selects = [PEEK, TICKET, OFFER, []];
+    await claimTicketTransfer(7, "4D11");
+    expect(
+      mentionsColumn(state.selectLogs[3].where, lotteryResults.username),
+    ).toBe(true);
   });
 
   it("re-reads the offer under the lock, so a cancel in between still wins", async () => {
@@ -226,7 +298,7 @@ describe("claimTicketTransfer", () => {
     expect(state.executed).toEqual([]);
   });
 
-  it("locks the counter-offer as well, so a cancel cannot race the exchange", async () => {
+  it("locks every row the exchange touches, in seat-before-offer order", async () => {
     state.selects = [
       PEEK,
       TICKET,
@@ -235,8 +307,34 @@ describe("claimTicketTransfer", () => {
       [{ id: 8, resultId: 99 }],
     ];
     await claimTicketTransfer(7, "4D11");
-    // Offer, seat, and counter-offer: the conflict lookup takes no lock.
-    expect(state.selectCalls.filter((call) => call === "for")).toHaveLength(3);
+    // Peek → seat, offer, counter-seat, counter-offer. Both seats are locked
+    // before their own offers, so a 破棄 racing the exchange queues rather
+    // than deadlocking.
+    expect(state.selectLogs.map((log) => log.hasLock)).toEqual([
+      false,
+      true,
+      true,
+      true,
+      true,
+    ]);
+  });
+
+  it("requires the counter-offer to run back to this offer's sender", async () => {
+    // Mutual consent is the entire justification for forgiving the conflict;
+    // without both predicates any pending offer on the blocking seat would do.
+    state.selects = [
+      PEEK,
+      TICKET,
+      OFFER,
+      [{ id: 99 }],
+      [{ id: 8, resultId: 99 }],
+    ];
+    await claimTicketTransfer(7, "4D11");
+    const where = state.selectLogs[4].where;
+    expect(mentionsColumn(where, lotteryTicketTransfers.fromUsername)).toBe(
+      true,
+    );
+    expect(mentionsColumn(where, lotteryTicketTransfers.toUsername)).toBe(true);
   });
 
   it("turns a lost unique-key race into the same conflict answer", async () => {

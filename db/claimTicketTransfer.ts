@@ -48,7 +48,7 @@ export type ClaimTicketTransferResult =
  * 0018 made the constraint DEFERRABLE for exactly this).
  *
  * Whether the performance is still far enough away to hand the seat over is
- * config, not data — callers check canTransferTicket() first.
+ * config, not data — callers check describeTicketTransferBlock() first.
  */
 export async function claimTicketTransfer(
   transferId: number,
@@ -122,7 +122,12 @@ export async function claimTicketTransfer(
             ne(lotteryResults.id, ticket.id),
           ),
         )
-        .limit(1);
+        .limit(1)
+        // Locked for the same reason the offered seat is: on the exchange
+        // path this row is about to be UPDATEd, and 破棄 of it takes the seat
+        // before cascading into its offers. Taking the offer first here would
+        // invert that and let a discard racing an exchange deadlock.
+        .for("update");
 
       // The blocking seat is only forgiven when it is already promised back to
       // this offer's sender — that mutual consent is the whole justification.

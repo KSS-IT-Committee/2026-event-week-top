@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createTicketTransfer } from "@/db/createTicketTransfer";
+import { lotteryResults } from "@/db/schema";
 
 const { state } = vi.hoisted(() => ({
   state: {
@@ -8,6 +9,11 @@ const { state } = vi.hoisted(() => ({
     ticketRows: [] as unknown[],
     // Every chained call on that SELECT, so the FOR UPDATE lock is pinned.
     selectCalls: [] as string[],
+    // The WHERE the ownership SELECT was given. The mock replays rows by call
+    // order and cannot otherwise see what was asked for, so without this a
+    // deleted ownership predicate — the only thing stopping a caller offering
+    // somebody else's seat — passes unnoticed.
+    selectWhere: undefined as unknown,
     insertValues: [] as unknown[],
     insertError: null as unknown,
   },
@@ -29,6 +35,9 @@ vi.mock("@/lib/db", () => {
           if (typeof prop === "string") {
             record?.push(prop);
             if (prop === "values") state.insertValues.push(args[0]);
+            if (prop === "where" && record !== undefined) {
+              state.selectWhere = args[0];
+            }
           }
           return proxy;
         };
@@ -50,6 +59,24 @@ vi.mock("@/lib/db", () => {
   };
 });
 
+// Walk only the SQL tree's `queryChunks`: following arbitrary properties
+// would reach a column's table and from there every other column, making the
+// assertion vacuously true.
+function leavesOf(node: unknown, out: unknown[] = []): unknown[] {
+  if (node === null || typeof node !== "object") return out;
+  const { queryChunks } = node as { queryChunks?: unknown };
+  if (Array.isArray(queryChunks)) {
+    for (const chunk of queryChunks) leavesOf(chunk, out);
+    return out;
+  }
+  out.push(node);
+  return out;
+}
+
+function mentionsColumn(where: unknown, column: unknown): boolean {
+  return leavesOf(where).includes(column);
+}
+
 function uniqueViolation(constraint: string) {
   return Object.assign(new Error("duplicate key"), {
     code: "23505",
@@ -61,6 +88,7 @@ describe("createTicketTransfer", () => {
   beforeEach(() => {
     state.ticketRows = [{ id: 42 }];
     state.selectCalls = [];
+    state.selectWhere = undefined;
     state.insertValues = [];
     state.insertError = null;
   });
@@ -87,6 +115,16 @@ describe("createTicketTransfer", () => {
   it("locks the seat while re-checking ownership", async () => {
     await createTicketTransfer(42, "5B21", "4D11");
     expect(state.selectCalls).toContain("for");
+  });
+
+  it("re-checks ownership against the sender, not just the seat id", async () => {
+    // Without this predicate any caller could offer any seat: the id alone
+    // would match, and the insert would go through.
+    await createTicketTransfer(42, "5B21", "4D11");
+    expect(mentionsColumn(state.selectWhere, lotteryResults.username)).toBe(
+      true,
+    );
+    expect(mentionsColumn(state.selectWhere, lotteryResults.id)).toBe(true);
   });
 
   it("refuses a seat the sender no longer holds", async () => {

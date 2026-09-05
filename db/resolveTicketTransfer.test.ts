@@ -80,6 +80,18 @@ describe("resolveTicketTransfer", () => {
     ).toBe(false);
   });
 
+  it("targets one pending offer, not every row the actor owns", async () => {
+    // Without the id and status predicates this UPDATE is a mass-cancel: it
+    // would resolve every offer the actor has ever made or received.
+    await resolveTicketTransfer(7, "5B21", "cancelled");
+    expect(mentionsColumn(state.whereArgs[0], lotteryTicketTransfers.id)).toBe(
+      true,
+    );
+    expect(
+      mentionsColumn(state.whereArgs[0], lotteryTicketTransfers.status),
+    ).toBe(true);
+  });
+
   it("stamps resolved_at, which the schema ties to leaving 'pending'", async () => {
     await resolveTicketTransfer(7, "5B21", "cancelled");
     expect(
