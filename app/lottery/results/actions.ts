@@ -7,7 +7,7 @@ import { getIncomingTicketTransfers } from "@/db/getIncomingTicketTransfers";
 import { resolveTicketTransfer } from "@/db/resolveTicketTransfer";
 import {
   areLotteryResultsAnnounced,
-  canTransferTicket,
+  describeTicketTransferBlock,
   getLottery,
 } from "@/lib/lotteries";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -91,14 +91,12 @@ export async function claimTicketTransferAction(
   if (lottery === null || !areLotteryResultsAnnounced(lottery, now)) {
     return { error: TRANSFER_MISSING, success: false };
   }
-  if (
-    !canTransferTicket(lottery, offer.ticket.slotId, offer.ticket.actId, now)
-  ) {
-    return {
-      error:
-        "この公演の譲渡受付は終了しました。公演開始5分前を過ぎたチケットは受け取れません。",
-      success: false,
-    };
+  // The same rules the sender's page enforced, re-checked against the seat as
+  // stored: a 保護者 seat never changes hands, and no seat does once its
+  // performance is about to start.
+  const transferBlock = describeTicketTransferBlock(lottery, offer.ticket, now);
+  if (transferBlock !== null) {
+    return { error: transferBlock, success: false };
   }
 
   let result;

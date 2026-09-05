@@ -150,6 +150,31 @@ describe("claimTicketTransferAction", () => {
     expect(getIncomingTicketTransfers).toHaveBeenCalledWith("4D11");
   });
 
+  it("refuses a 保護者 seat, so a pre-existing offer cannot slip through", async () => {
+    // No such offer can be created any more, but the recipient's side
+    // enforces the same 区分 rule rather than trusting that.
+    vi.mocked(getIncomingTicketTransfers).mockResolvedValue([
+      { ...OFFER, ticket: { ...TICKET, applicantType: "parent" } },
+    ]);
+    const state = await claimTicketTransferAction(
+      PREV,
+      fd({ transferId: "31" }),
+    );
+    expect(state.error).toContain("保護者");
+    expect(claimTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("lets the recipient decline a seat they are not allowed to claim", async () => {
+    vi.mocked(getIncomingTicketTransfers).mockResolvedValue([
+      { ...OFFER, ticket: { ...TICKET, applicantType: "parent" } },
+    ]);
+    const state = await declineTicketTransferAction(
+      PREV,
+      fd({ transferId: "31" }),
+    );
+    expect(state.success).toBe(true);
+  });
+
   it("hides an offer whose lottery is not announced yet", async () => {
     if (SOUSAKU.resultsAnnouncedAt === null) return;
     vi.setSystemTime(new Date(SOUSAKU.resultsAnnouncedAt.getTime() - 1));

@@ -10,7 +10,7 @@ import { INTERNAL_ROLES } from "@/lib/access";
 import {
   APPLICANT_TYPE_LABELS,
   areLotteryResultsAnnounced,
-  canTransferTicket,
+  describeTicketTransferBlock,
   describeTicketTransferDeadline,
   getActLabel,
   getLottery,
@@ -115,10 +115,9 @@ async function TicketDetail({ rawTicketId }: { rawTicketId: string }) {
           ticketId={ticket.id}
           pendingTransferId={pendingTransfer?.id ?? null}
           pendingToUsername={pendingTransfer?.toUsername ?? null}
-          canTransfer={canTransferTicket(
+          transferBlockReason={describeTicketTransferBlock(
             lottery,
-            ticket.slotId,
-            ticket.actId,
+            ticket,
             now,
           )}
           transferDeadline={describeTicketTransferDeadline(

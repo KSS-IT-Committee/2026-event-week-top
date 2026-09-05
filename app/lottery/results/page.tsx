@@ -14,8 +14,8 @@ import {
   APPLICANT_TYPE_LABELS,
   areLotteryResultsAnnounced,
   canApplyToLottery,
-  canTransferTicket,
   describeResultsAnnouncement,
+  describeTicketTransferBlock,
   getActLabel,
   getLottery,
   getSlotLabel,
@@ -116,9 +116,8 @@ function describeClaimBlock(
   tickets: readonly LotteryTicket[],
   now: Date,
 ): string | null {
-  if (!canTransferTicket(lottery, offered.slotId, offered.actId, now)) {
-    return "この公演の譲渡受付は終了しました。公演開始5分前を過ぎたチケットは受け取れません。";
-  }
+  const transferBlock = describeTicketTransferBlock(lottery, offered, now);
+  if (transferBlock !== null) return transferBlock;
   // Same 区分 only: a 本人 席 and a 保護者 席 for one performance are two
   // different people, which one account may legitimately hold.
   const hasSameSlotTicket = tickets.some(

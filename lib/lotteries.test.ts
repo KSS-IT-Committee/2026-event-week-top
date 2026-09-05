@@ -9,6 +9,7 @@ import {
   describeApplicationDeadline,
   describeEligibleGrades,
   describeResultsAnnouncement,
+  describeTicketTransferBlock,
   describeTicketTransferDeadline,
   getActLabel,
   getLottery,
@@ -23,6 +24,8 @@ import {
   MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
   parseLotteryEntries,
   TICKET_TRANSFER_CLOSES_BEFORE_START_MS,
+  TRANSFERABLE_APPLICANT_TYPES,
+  type TransferableTicket,
 } from "@/lib/lotteries";
 
 // Role sets as 2026-account-generator's users.sql grants them: students get
@@ -697,6 +700,73 @@ describe("parseLotteryEntries", () => {
   });
 });
 
+// A 本人 seat, the only 区分 that may change hands. Tests that care about a
+// different slot/act override those fields.
+function studentTicket(
+  overrides: Partial<TransferableTicket> = {},
+): TransferableTicket {
+  return {
+    slotId: "sep12-slot-1",
+    actId: "6A",
+    applicantType: "student",
+    ...overrides,
+  };
+}
+
+describe("当選チケットの譲渡可否", () => {
+  it("lets a 本人 seat change hands and never a 保護者 one", () => {
+    expect(TRANSFERABLE_APPLICANT_TYPES).toEqual(["student"]);
+    const now = new Date("2026-09-01T12:00:00+09:00");
+
+    expect(canTransferTicket(sousaku, studentTicket(), now)).toBe(true);
+    expect(
+      canTransferTicket(
+        sousaku,
+        studentTicket({ applicantType: "parent" }),
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("makes the whole 開拓部門 lottery non-transferable, since it is parent-only", () => {
+    expect(kaitaku.applicantTypes).toEqual(["parent"]);
+    const now = new Date("2026-09-01T12:00:00+09:00");
+    for (const act of kaitaku.acts) {
+      for (const slot of kaitaku.slots) {
+        expect(
+          canTransferTicket(
+            kaitaku,
+            { slotId: slot.id, actId: act.id, applicantType: "parent" },
+            now,
+          ),
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("says which 区分 is refused, and points at 破棄 instead", () => {
+    const blocked = describeTicketTransferBlock(
+      sousaku,
+      studentTicket({ applicantType: "parent" }),
+      new Date("2026-09-01T12:00:00+09:00"),
+    );
+    expect(blocked).toContain("保護者");
+    expect(blocked).toContain("破棄");
+  });
+
+  it("refuses a 保護者 seat on the 区分 rule even long before the performance", () => {
+    // The two rules are independent: the 区分 one is not a deadline in
+    // disguise, so it holds at any clock reading.
+    expect(
+      canTransferTicket(
+        sousaku,
+        studentTicket({ applicantType: "parent" }),
+        new Date("2026-01-01T00:00:00+09:00"),
+      ),
+    ).toBe(false);
+  });
+});
+
 describe("当選チケットの譲渡期限", () => {
   // 創作部門: the SLOT is one timed performance, so the clock is on the slot
   // and the act (which class) does not move it.
@@ -743,34 +813,58 @@ describe("当選チケットの譲渡期限", () => {
     const deadline = new Date(
       startsAt.getTime() - TICKET_TRANSFER_CLOSES_BEFORE_START_MS,
     );
-    const args = [sousaku, "sep12-slot-2", "6A"] as const;
+    const ticket = studentTicket({ slotId: "sep12-slot-2" });
 
-    expect(canTransferTicket(...args, new Date(deadline.getTime() - 1))).toBe(
-      true,
-    );
-    expect(canTransferTicket(...args, deadline)).toBe(false);
-    expect(canTransferTicket(...args, startsAt)).toBe(false);
+    expect(
+      canTransferTicket(sousaku, ticket, new Date(deadline.getTime() - 1)),
+    ).toBe(true);
+    expect(canTransferTicket(sousaku, ticket, deadline)).toBe(false);
+    expect(canTransferTicket(sousaku, ticket, startsAt)).toBe(false);
   });
 
   it("closes each seat on its own performance, not festival-wide", () => {
     // Mid-morning on day 1: the first performance has been and gone, the
     // fourth (and all of day 2) is still freely transferable.
     const now = new Date("2026-09-12T11:00:00+09:00");
-    expect(canTransferTicket(sousaku, "sep12-slot-1", "6A", now)).toBe(false);
-    expect(canTransferTicket(sousaku, "sep12-slot-4", "6A", now)).toBe(true);
-    expect(canTransferTicket(sousaku, "sep13-slot-1", "6A", now)).toBe(true);
-    expect(canTransferTicket(kaitaku, "sep12", "performance-2", now)).toBe(
-      false,
-    );
-    expect(canTransferTicket(kaitaku, "sep12", "performance-7", now)).toBe(
-      true,
-    );
+    expect(
+      canTransferTicket(
+        sousaku,
+        studentTicket({ slotId: "sep12-slot-1" }),
+        now,
+      ),
+    ).toBe(false);
+    expect(
+      canTransferTicket(
+        sousaku,
+        studentTicket({ slotId: "sep12-slot-4" }),
+        now,
+      ),
+    ).toBe(true);
+    expect(
+      canTransferTicket(
+        sousaku,
+        studentTicket({ slotId: "sep13-slot-1" }),
+        now,
+      ),
+    ).toBe(true);
+    // 開拓部門 is blocked by 区分 anyway; the clock is checked here through a
+    // 本人 seat so the two rules stay separable.
+    expect(
+      getTicketStartsAt(kaitaku, "sep12", "performance-2")!.getTime(),
+    ).toBeLessThan(now.getTime());
+    expect(
+      getTicketStartsAt(kaitaku, "sep12", "performance-7")!.getTime(),
+    ).toBeGreaterThan(now.getTime());
   });
 
   it("imposes no deadline when the definition carries no clock", () => {
     // Same "null means no bound" rule as opensAt / closesAt.
     expect(
-      canTransferTicket(sousaku, "sep12-slot-9", "6A", new Date("2030-01-01")),
+      canTransferTicket(
+        sousaku,
+        studentTicket({ slotId: "sep12-slot-9" }),
+        new Date("2030-01-01"),
+      ),
     ).toBe(true);
     expect(describeTicketTransferDeadline(sousaku, "sep12-slot-9", "6A")).toBe(
       null,

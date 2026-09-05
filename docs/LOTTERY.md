@@ -154,6 +154,15 @@ place an app writes `lottery_results` — the draw still creates every row.
   seat, so re-offering means cancelling first; resolved rows are kept as the
   provenance of a seat that changed hands. Discarding a ticket deletes the row
   and cascades its offers away, which is what 「元に戻せません」 promises.
+- **Only 本人 seats change hands** (`TRANSFERABLE_APPLICANT_TYPES`). A 保護者
+  seat admits somebody's parents, and passing those between families is not
+  something the committee wants to invite — so 譲渡 is refused for every
+  保護者 ticket, which makes the **whole 開拓部門 lottery** non-transferable,
+  since it only ever issues 保護者 seats. 破棄 is deliberately NOT bounded by
+  this: releasing a seat you cannot use is the point, and it is the only way
+  out of a 保護者 ticket. The rule is enforced on both ends (the sender's
+  actions and the recipient's claim), so an offer made before the rule existed
+  still cannot be claimed — only cancelled or declined.
 - **Three steps to send, because usernames are typed by hand.** 譲渡できるか
   確認する only answers "is this a school account other than yours?" — it reads
   `users` and never `lottery_results`, so the box cannot be used to look up
@@ -167,15 +176,18 @@ place an app writes `lottery_results` — the draw still creates every row.
   student and their parents) — a combination one account may already hold. That
   rule is also the DB's `lottery_results_slot_applicant_unique` key, so a lost
   race fails identically.
-- **The deadline is per ticket, not per lottery** (`canTransferTicket`): a seat
-  stops being transferable `TICKET_TRANSFER_CLOSES_BEFORE_START_MS` (5 min)
+- **The deadline is per ticket, not per lottery**
+  (`describeTicketTransferBlock`, the second of its two rules): a seat stops
+  being transferable `TICKET_TRANSFER_CLOSES_BEFORE_START_MS` (5 min)
   before its own performance starts — the same moment the 受付 closes, so a
   seat can never arrive too late to use. That needs a machine-readable start
   time, which is why slots carry `startsAt` (創作: the slot IS the performance)
   or `date` alongside an act's `startTime` (開拓: the slot is a day, the ACT is
   the performance). A definition with neither imposes no deadline, exactly as a
   null `opensAt`/`closesAt` imposes no bound. Cancelling, declining and 破棄
-  stay available afterwards — they only ever give a seat up.
+  stay available afterwards — they only ever give a seat up. Both rules return
+  the sentence to show rather than a bare boolean, so the sender's page and the
+  recipient's inbox can never explain the same refusal differently.
 - **Re-running the draw would clobber transfers.** `lottery_results` rows are
   keyed by (lottery, slot, username, 区分), so a reload of the draw's SQL puts
   seats back with their original owners and leaves the claimed transfer rows

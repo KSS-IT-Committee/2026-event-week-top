@@ -12,7 +12,7 @@ import { resolveTicketTransfer } from "@/db/resolveTicketTransfer";
 import { hasAnyRole, INTERNAL_ROLES } from "@/lib/access";
 import {
   areLotteryResultsAnnounced,
-  canTransferTicket,
+  describeTicketTransferBlock,
   getLottery,
   type Lottery,
 } from "@/lib/lotteries";
@@ -45,8 +45,6 @@ const TICKET_MISSING =
   "チケットが見つかりません。既に譲渡・破棄された可能性があります。";
 const RATE_LIMITED =
   "試行回数が多すぎます。しばらくしてからもう一度お試しください。";
-const TRANSFER_CLOSED =
-  "この公演の譲渡受付は終了しました。公演開始5分前を過ぎたチケットは譲渡できません。";
 const SAVE_FAILED = "処理に失敗しました。時間をおいてもう一度お試しください。";
 
 export type TransferRecipientState = {
@@ -116,15 +114,13 @@ export async function verifyTransferRecipientAction(
     return { error: owned.error, verifiedUsername: null };
   }
 
-  if (
-    !canTransferTicket(
-      owned.lottery,
-      owned.ticket.slotId,
-      owned.ticket.actId,
-      now,
-    )
-  ) {
-    return { error: TRANSFER_CLOSED, verifiedUsername: null };
+  const transferBlock = describeTicketTransferBlock(
+    owned.lottery,
+    owned.ticket,
+    now,
+  );
+  if (transferBlock !== null) {
+    return { error: transferBlock, verifiedUsername: null };
   }
 
   const attempt = checkRateLimit(
@@ -178,15 +174,13 @@ export async function offerTicketTransferAction(
   const owned = await loadOwnedTicket(formData, now);
   if ("error" in owned) return { error: owned.error, success: false };
 
-  if (
-    !canTransferTicket(
-      owned.lottery,
-      owned.ticket.slotId,
-      owned.ticket.actId,
-      now,
-    )
-  ) {
-    return { error: TRANSFER_CLOSED, success: false };
+  const transferBlock = describeTicketTransferBlock(
+    owned.lottery,
+    owned.ticket,
+    now,
+  );
+  if (transferBlock !== null) {
+    return { error: transferBlock, success: false };
   }
 
   const attempt = checkRateLimit(
@@ -304,8 +298,10 @@ export async function discardTicketAction(
   );
   if (!attempt.ok) return { error: RATE_LIMITED, success: false };
 
-  // Not gated on canTransferTicket: throwing away a seat you can no longer
-  // use harms nobody, and refusing would only leave dead rows behind.
+  // Deliberately not gated on describeTicketTransferBlock: 破棄 is open to
+  // every seat, including the 保護者 ones that can never be transferred and
+  // those whose performance has started. Throwing away a seat you cannot use
+  // harms nobody, and refusing would only leave dead rows behind.
   let hasDeleted: boolean;
   try {
     hasDeleted = await deleteLotteryTicket(owned.ticket.id, owned.username);

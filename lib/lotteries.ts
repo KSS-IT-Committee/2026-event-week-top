@@ -382,21 +382,64 @@ export function getTicketStartsAt(
 export const TICKET_TRANSFER_CLOSES_BEFORE_START_MS = 5 * 60 * 1000;
 
 /**
- * Whether this seat may still change hands. Per ticket, not per lottery: the
- * festival's performances start at different times, so a 9月12日第一公演 seat
- * closes while a 9月13日第四公演 one is still freely transferable.
+ * The 区分 whose seats may change hands at all.
+ *
+ * 保護者 seats are excluded by policy, not by mechanism: a 保護者 ticket
+ * admits somebody's parents, and handing those seats around between families
+ * is not something the committee wants to invite. That rule alone makes the
+ * whole 開拓部門 lottery non-transferable, since it only ever issues 保護者
+ * seats. 破棄 stays open for them — a parent who cannot come should still be
+ * able to release the seat to the キャンセル待ち列.
  */
+export const TRANSFERABLE_APPLICANT_TYPES: readonly LotteryApplicantType[] = [
+  "student",
+];
+
+// The parts of a won seat that decide whether it may be handed on. Any
+// `lottery_results`-shaped object satisfies it (db/getLotteryTickets.ts).
+export type TransferableTicket = {
+  slotId: string;
+  actId: string;
+  applicantType: LotteryApplicantType;
+};
+
+/**
+ * Why this seat cannot change hands, as the sentence to show, or null when it
+ * can. One message per reason, worded to fit BOTH ends of a transfer, so the
+ * sender's page and the recipient's inbox can never disagree about the rule.
+ *
+ * The deadline half is per ticket, not per lottery: the festival's
+ * performances start at different times, so a 9月12日第一公演 seat closes
+ * while a 9月13日第四公演 one is still freely transferable.
+ */
+export function describeTicketTransferBlock(
+  lottery: Lottery,
+  ticket: TransferableTicket,
+  now: Date,
+): string | null {
+  if (!TRANSFERABLE_APPLICANT_TYPES.includes(ticket.applicantType)) {
+    return `${APPLICANT_TYPE_LABELS[ticket.applicantType]}のチケットは譲渡できません。ご覧になれない場合は、チケットの破棄をご検討ください。`;
+  }
+  const startsAt = getTicketStartsAt(lottery, ticket.slotId, ticket.actId);
+  // No clock in the definition = no deadline, the same way a null
+  // opensAt/closesAt means no bound.
+  if (startsAt === null) return null;
+  if (
+    now.getTime() <
+    startsAt.getTime() - TICKET_TRANSFER_CLOSES_BEFORE_START_MS
+  ) {
+    return null;
+  }
+  return "この公演の譲渡受付は終了しました。公演開始5分前を過ぎたチケットは、譲渡も受け取りもできません。";
+}
+
+/** Whether this seat may still change hands. */
 export function canTransferTicket(
   lottery: Lottery,
-  slotId: string,
-  actId: string,
+  ticket: TransferableTicket,
   now: Date,
 ): boolean {
-  const startsAt = getTicketStartsAt(lottery, slotId, actId);
-  if (startsAt === null) return true;
-  return (
-    now.getTime() < startsAt.getTime() - TICKET_TRANSFER_CLOSES_BEFORE_START_MS
-  );
+  return describeTicketTransferBlock(lottery, ticket, now) === null;
 }
 
 /**

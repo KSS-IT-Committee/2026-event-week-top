@@ -23,9 +23,12 @@ type TransferPanelProps = {
   // promised to one person at a time, so this is a single offer, not a list.
   pendingTransferId: number | null;
   pendingToUsername: string | null;
-  // Whether the performance is still far enough away to hand the seat over.
-  canTransfer: boolean;
-  // 「2026年9月12日（土）08:40」 — when that stops being true.
+  // Why this seat cannot be handed over (保護者 seats never can; no seat can
+  // once its performance is about to start), or null when it can. Rendered as
+  // given — the wording lives in lib/lotteries so both ends of a transfer
+  // explain the rule identically.
+  transferBlockReason: string | null;
+  // 「2026年9月12日（土）08:40」 — the last moment it can be handed over.
   transferDeadline: string | null;
 };
 
@@ -42,7 +45,7 @@ export function TransferPanel({
   ticketId,
   pendingTransferId,
   pendingToUsername,
-  canTransfer,
+  transferBlockReason,
   transferDeadline,
 }: TransferPanelProps) {
   const [verifyState, verifyAction, isVerifying] = useActionState(
@@ -115,13 +118,11 @@ export function TransferPanel({
     );
   }
 
-  if (!canTransfer) {
+  if (transferBlockReason !== null) {
     return (
       <section className={styles.panel}>
         <h2 className={styles.panelTitle}>チケットの譲渡</h2>
-        <p className={styles.closedNotice}>
-          この公演の譲渡受付は終了しました。公演開始5分前を過ぎたチケットは譲渡できません。
-        </p>
+        <p className={styles.closedNotice}>{transferBlockReason}</p>
       </section>
     );
   }

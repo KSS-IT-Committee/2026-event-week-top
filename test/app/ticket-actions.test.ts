@@ -74,6 +74,14 @@ const TICKET: LotteryTicket = {
   isPriority: false,
 };
 
+// The same seat as a 保護者 one. 保護者 seats admit somebody's parents and
+// are never transferable, whatever the clock says (lib/lotteries.ts).
+const PARENT_TICKET: LotteryTicket = {
+  ...TICKET,
+  applicantType: "parent",
+  partySize: 2,
+};
+
 function ticketStartsAt(): Date {
   const startsAt = getTicketStartsAt(SOUSAKU, TICKET.slotId, TICKET.actId);
   if (startsAt === null) {
@@ -238,6 +246,18 @@ describe("verifyTransferRecipientAction", () => {
     expect(getUserByUsername).not.toHaveBeenCalled();
   });
 
+  it("refuses a 保護者 ticket before it even looks the recipient up", async () => {
+    vi.mocked(getLotteryTicket).mockResolvedValue(PARENT_TICKET);
+    recipientExists("4D11", ["Students"]);
+    const state = await verifyTransferRecipientAction(
+      RECIPIENT_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.verifiedUsername).toBeNull();
+    expect(state.error).toContain("保護者");
+    expect(getUserByUsername).not.toHaveBeenCalled();
+  });
+
   it("throttles lookups so the box cannot enumerate the roster", async () => {
     vi.mocked(checkRateLimit).mockReturnValue({
       ok: false,
@@ -319,6 +339,18 @@ describe("offerTicketTransferAction", () => {
       fd({ ticketId: "42", recipient: "4D11" }),
     );
     expect(state.error).toContain("譲渡受付は終了");
+    expect(createTicketTransfer).not.toHaveBeenCalled();
+  });
+
+  it("never offers a 保護者 ticket, however early it is", async () => {
+    vi.mocked(getLotteryTicket).mockResolvedValue(PARENT_TICKET);
+    recipientExists("4D11", ["Students"]);
+    vi.setSystemTime(new Date(ticketStartsAt().getTime() - 7 * 24 * 3600_000));
+    const state = await offerTicketTransferAction(
+      ACTION_STATE,
+      fd({ ticketId: "42", recipient: "4D11" }),
+    );
+    expect(state.error).toContain("保護者");
     expect(createTicketTransfer).not.toHaveBeenCalled();
   });
 
@@ -409,6 +441,16 @@ describe("discardTicketAction", () => {
     await expect(
       discardTicketAction(ACTION_STATE, fd({ ticketId: "42" })),
     ).rejects.toThrow("NEXT_REDIRECT:/lottery/results");
+  });
+
+  it("still discards a 保護者 ticket, which can never be transferred", async () => {
+    // 破棄 is the only way out of a seat a parent cannot use, so the 区分 rule
+    // must not reach it.
+    vi.mocked(getLotteryTicket).mockResolvedValue(PARENT_TICKET);
+    await expect(
+      discardTicketAction(ACTION_STATE, fd({ ticketId: "42" })),
+    ).rejects.toThrow("NEXT_REDIRECT:/lottery/results");
+    expect(deleteLotteryTicket).toHaveBeenCalledWith(42, "5B21");
   });
 
   it("reports a ticket that vanished between render and submit", async () => {
