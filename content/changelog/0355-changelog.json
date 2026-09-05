@@ -1,5 +1,5 @@
 {
-  "title": "公演観覧抽選の結果ページ",
-  "description": "校内向けの公演観覧抽選について、当選結果を確認できるページ（/lottery/results）を追加しました。ログイン中のアカウントで当選した公演・クラスと観覧人数が表示されます。",
-  "credits": ["@rotarymars"]
+  "title": "Bump next from 16.2.12 to 16.3.0",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
 }
