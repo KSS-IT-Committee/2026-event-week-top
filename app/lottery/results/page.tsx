@@ -5,9 +5,16 @@ import { unauthorized } from "next/navigation";
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import styles from "@/app/lottery/results/results.module.css";
-import { getIncomingTicketTransfers } from "@/db/getIncomingTicketTransfers";
+import {
+  getIncomingTicketTransfers,
+  type IncomingTicketTransfer,
+} from "@/db/getIncomingTicketTransfers";
 import { getLotteryEntries } from "@/db/getLotteryEntries";
 import { getLotteryTickets, type LotteryTicket } from "@/db/getLotteryTickets";
+import {
+  getOutgoingTicketTransfers,
+  type OutgoingTicketTransfer,
+} from "@/db/getOutgoingTicketTransfers";
 import type { LotteryApplicantType } from "@/db/schema";
 import { INTERNAL_ROLES } from "@/lib/access";
 import {
@@ -61,9 +68,13 @@ async function LotteryResults() {
   // Every seat this account holds, in one read: a ticket can arrive by 譲渡
   // from someone else, so the page shows what the account HAS rather than
   // what it could have applied for.
-  const [tickets, offers] = await Promise.all([
+  // Outgoing offers come along so the page can spot a mutual EXCHANGE: a seat
+  // that blocks an incoming offer is not really a block when it is itself
+  // already promised to whoever sent that offer.
+  const [tickets, offers, outgoing] = await Promise.all([
     getLotteryTickets(user.username),
     getIncomingTicketTransfers(user.username),
+    getOutgoingTicketTransfers(user.username),
   ]);
 
   return (
@@ -86,7 +97,12 @@ async function LotteryResults() {
             当選したチケットを選ぶと、詳細ページで他の方への譲渡や、チケットの破棄ができます。
           </li>
         </ul>
-        <TransferInbox offers={offers} tickets={tickets} now={now} />
+        <TransferInbox
+          offers={offers}
+          outgoing={outgoing}
+          tickets={tickets}
+          now={now}
+        />
         <div className={styles.lotteryList}>
           {LOTTERIES.map((lottery) => (
             <LotteryResultCard
@@ -105,39 +121,75 @@ async function LotteryResults() {
   );
 }
 
-/**
- * Why 受け取る is unavailable for one offer, or null when it can be pressed.
- * Advisory only — claimTicketTransferAction re-checks both rules — but it is
- * what turns a dead button into an explanation.
- */
-function describeClaimBlock(
+// What pressing the button on one offer would do. Advisory only —
+// claimTicketTransferAction re-derives all of it — but it is what turns a dead
+// button into an explanation, and a blocked pair into 交換する.
+type OfferOutcome = {
+  // The caller's own seat that would go the other way, when this offer and one
+  // of theirs are a mutual exchange. null for a plain hand-over.
+  swapTicket: LotteryTicket | null;
+  // Why nothing can be pressed, or null when it can.
+  blockedReason: string | null;
+};
+
+function resolveOffer(
   lottery: Lottery,
   offered: LotteryTicket,
   tickets: readonly LotteryTicket[],
+  outgoing: readonly OutgoingTicketTransfer[],
+  fromUsername: string,
   now: Date,
-): string | null {
+): OfferOutcome {
   const transferBlock = describeTicketTransferBlock(lottery, offered, now);
-  if (transferBlock !== null) return transferBlock;
+  if (transferBlock !== null) {
+    return { swapTicket: null, blockedReason: transferBlock };
+  }
+
   // Same 区分 only: a 本人 席 and a 保護者 席 for one performance are two
   // different people, which one account may legitimately hold.
-  const hasSameSlotTicket = tickets.some(
+  const heldForSlot = tickets.find(
     (ticket) =>
       ticket.lotteryId === offered.lotteryId &&
       ticket.slotId === offered.slotId &&
       ticket.applicantType === offered.applicantType,
   );
-  if (hasSameSlotTicket) {
-    return "同じ公演・同じ区分のチケットを既にお持ちのため、このチケットは受け取れません。お持ちのチケットを破棄すると受け取れるようになります。";
+  if (heldForSlot === undefined) {
+    return { swapTicket: null, blockedReason: null };
   }
-  return null;
+
+  // …unless that seat is already promised to the very person offering this
+  // one. Then both sides have pressed 譲渡する and the seats simply cross.
+  const isPromisedBack = outgoing.some(
+    (transfer) =>
+      transfer.ticket.id === heldForSlot.id &&
+      transfer.toUsername === fromUsername,
+  );
+  if (!isPromisedBack) {
+    return {
+      swapTicket: null,
+      blockedReason:
+        "同じ公演・同じ区分のチケットを既にお持ちのため、このチケットは受け取れません。お持ちのチケットをその方に譲渡申請すると交換でき、破棄しても受け取れるようになります。",
+    };
+  }
+
+  // The seat going the other way must itself still be transferable. Same
+  // performance and 区分, so this can only differ for a lottery whose ACTS
+  // carry the clock (開拓) — none of which are transferable today.
+  const returnBlock = describeTicketTransferBlock(lottery, heldForSlot, now);
+  if (returnBlock !== null) {
+    return { swapTicket: null, blockedReason: returnBlock };
+  }
+  return { swapTicket: heldForSlot, blockedReason: null };
 }
 
 function TransferInbox({
   offers,
+  outgoing,
   tickets,
   now,
 }: {
-  offers: Awaited<ReturnType<typeof getIncomingTicketTransfers>>;
+  offers: readonly IncomingTicketTransfer[];
+  outgoing: readonly OutgoingTicketTransfer[];
   tickets: readonly LotteryTicket[];
   now: Date;
 }) {
@@ -161,27 +213,37 @@ function TransferInbox({
         他の方から譲渡されたチケットです。「受け取る」を押すと、あなたのチケットになります。
       </p>
       <ul className={styles.offerList}>
-        {visible.map(({ offer, lottery }) => (
-          <TransferInboxItem
-            key={offer.id}
-            transferId={offer.id}
-            fromUsername={offer.fromUsername}
-            lotteryTitle={lottery.title}
-            slotLabel={getSlotLabel(lottery, offer.ticket.slotId)}
-            slotTime={getSlotTime(lottery, offer.ticket.slotId)}
-            actLabel={getActLabel(lottery, offer.ticket.actId)}
-            applicantTypeLabel={
-              APPLICANT_TYPE_LABELS[offer.ticket.applicantType]
-            }
-            partySize={offer.ticket.partySize}
-            blockedReason={describeClaimBlock(
-              lottery,
-              offer.ticket,
-              tickets,
-              now,
-            )}
-          />
-        ))}
+        {visible.map(({ offer, lottery }) => {
+          const outcome = resolveOffer(
+            lottery,
+            offer.ticket,
+            tickets,
+            outgoing,
+            offer.fromUsername,
+            now,
+          );
+          return (
+            <TransferInboxItem
+              key={offer.id}
+              transferId={offer.id}
+              fromUsername={offer.fromUsername}
+              lotteryTitle={lottery.title}
+              slotLabel={getSlotLabel(lottery, offer.ticket.slotId)}
+              slotTime={getSlotTime(lottery, offer.ticket.slotId)}
+              actLabel={getActLabel(lottery, offer.ticket.actId)}
+              applicantTypeLabel={
+                APPLICANT_TYPE_LABELS[offer.ticket.applicantType]
+              }
+              partySize={offer.ticket.partySize}
+              swapActLabel={
+                outcome.swapTicket === null
+                  ? null
+                  : getActLabel(lottery, outcome.swapTicket.actId)
+              }
+              blockedReason={outcome.blockedReason}
+            />
+          );
+        })}
       </ul>
     </section>
   );

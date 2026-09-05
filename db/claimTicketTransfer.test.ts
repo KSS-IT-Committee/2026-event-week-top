@@ -10,8 +10,10 @@ const { state } = vi.hoisted(() => ({
     // Every chained call made on a select, so the FOR UPDATE locks can be
     // pinned — they are what makes a double-claim queue instead of racing.
     selectCalls: [] as string[],
-    // [table-ish marker, payload] per tx.update(...).set(...).
+    // Payload of each tx.update(...).set(...), in order.
     updates: [] as unknown[],
+    // Raw SQL run through tx.execute — the deferral the exchange needs.
+    executed: [] as string[],
     // Thrown by the first update, to model a unique-constraint race.
     updateError: null as unknown,
   },
@@ -50,6 +52,13 @@ vi.mock("@/lib/db", () => {
       const error = state.updates.length === 0 ? state.updateError : null;
       return chain([], undefined, error);
     },
+    execute: async (query: { queryChunks?: unknown[] }) => {
+      state.executed.push(
+        (query.queryChunks ?? [])
+          .map((chunk) => String((chunk as { value?: unknown }).value ?? ""))
+          .join(""),
+      );
+    },
   };
 
   return {
@@ -87,6 +96,7 @@ describe("claimTicketTransfer", () => {
     state.selects = [];
     state.selectCalls = [];
     state.updates = [];
+    state.executed = [];
     state.updateError = null;
   });
 
@@ -96,6 +106,7 @@ describe("claimTicketTransfer", () => {
 
     expect(result).toEqual({
       ok: true,
+      exchanged: false,
       ticket: {
         id: 42,
         lotteryId: "sousaku-performance",
@@ -147,12 +158,51 @@ describe("claimTicketTransfer", () => {
   });
 
   it("refuses a seat for a performance the recipient already has in that 区分", async () => {
-    state.selects = [OFFER, TICKET, [{ id: 99 }]];
+    // Blocking seat present, and it is NOT promised back to the sender.
+    state.selects = [OFFER, TICKET, [{ id: 99 }], []];
     expect(await claimTicketTransfer(7, "4D11")).toEqual({
       ok: false,
       reason: "conflict",
     });
     expect(state.updates).toEqual([]);
+    expect(state.executed).toEqual([]);
+  });
+
+  it("exchanges instead, when the blocking seat is promised back to the sender", async () => {
+    // 4D11 holds seat 99 for the same performance and has already offered it
+    // to 5B21 — the very account offering seat 42. Both pressed 譲渡する, so
+    // the two seats cross over.
+    state.selects = [OFFER, TICKET, [{ id: 99 }], [{ id: 8, resultId: 99 }]];
+    const result = await claimTicketTransfer(7, "4D11");
+
+    expect(result.ok && result.exchanged).toBe(true);
+    // Incoming seat to the claimer, outgoing seat to the original holder.
+    expect(state.updates[0]).toEqual({ username: "4D11", isPriority: false });
+    expect(state.updates[2]).toEqual({ username: "5B21", isPriority: false });
+    // Both offers close, so neither is left dangling.
+    expect(state.updates[1]).toMatchObject({ status: "claimed" });
+    expect(state.updates[3]).toMatchObject({ status: "claimed" });
+  });
+
+  it("defers the one-seat-per-slot key so the two rows can cross", async () => {
+    state.selects = [OFFER, TICKET, [{ id: 99 }], [{ id: 8, resultId: 99 }]];
+    await claimTicketTransfer(7, "4D11");
+    expect(state.executed.join(" ")).toContain(
+      'SET CONSTRAINTS "lottery_results_slot_applicant_unique" DEFERRED',
+    );
+  });
+
+  it("never defers the key on an ordinary hand-over", async () => {
+    state.selects = [OFFER, TICKET, []];
+    await claimTicketTransfer(7, "4D11");
+    expect(state.executed).toEqual([]);
+  });
+
+  it("locks the counter-offer as well, so a cancel cannot race the exchange", async () => {
+    state.selects = [OFFER, TICKET, [{ id: 99 }], [{ id: 8, resultId: 99 }]];
+    await claimTicketTransfer(7, "4D11");
+    // Offer, seat, and counter-offer: the conflict lookup takes no lock.
+    expect(state.selectCalls.filter((call) => call === "for")).toHaveLength(3);
   });
 
   it("turns a lost unique-key race into the same conflict answer", async () => {

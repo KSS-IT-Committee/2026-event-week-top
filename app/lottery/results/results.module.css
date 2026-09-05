@@ -206,6 +206,14 @@
   color: color-mix(in oklch, var(--foreground) 65%, transparent);
 }
 
+/* A mutual exchange — two seats move, so it is called out before the button. */
+.offerSwap {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #237804;
+  margin-top: 6px;
+}
+
 .offerBlocked {
   font-size: 0.85rem;
   color: #d46b08;
@@ -274,6 +282,11 @@
 
   .offerBlocked {
     color: #ffa940;
+  }
+
+  /* #237804 is below WCAG AA contrast on the dark card. */
+  .offerSwap {
+    color: #73d13d;
   }
 
   .seat:hover {

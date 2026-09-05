@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 
 import type { LotteryTicket } from "@/db/getLotteryTickets";
 import { lotteryResults, lotteryTicketTransfers } from "@/db/schema";
@@ -10,7 +10,8 @@ import { isUniqueViolation } from "@/lib/pg-error";
 const ONE_SEAT_PER_SLOT = "lottery_results_slot_applicant_unique";
 
 export type ClaimTicketTransferResult =
-  | { ok: true; ticket: LotteryTicket }
+  // `exchanged` is true when a second seat went the other way (see below).
+  | { ok: true; ticket: LotteryTicket; exchanged: boolean }
   // No pending offer with that id for this account — already claimed,
   // cancelled, declined, or never theirs.
   | { ok: false; reason: "not-found" }
@@ -33,6 +34,18 @@ export type ClaimTicketTransferResult =
  * the same performance are two different people (the student and their
  * parents), a combination one account can already hold today, so only a
  * second seat of the SAME 区分 is refused.
+ *
+ * EXCHANGE. That conflict has one way out. If the seat blocking the recipient
+ * is itself already offered to the very account making this offer, both people
+ * have pressed 譲渡する and the two seats simply cross over — so this claims
+ * BOTH transfers and moves BOTH rows in one transaction. Nobody is ever short
+ * a ticket in between, which is why an exchange is safe where a general
+ * "release my seat and hope" would not be.
+ *
+ * The crossover needs `lottery_results_slot_applicant_unique` deferred to
+ * COMMIT: each row passes through the other's key on the way, and Postgres
+ * checks a non-deferrable UNIQUE per row as the UPDATE runs (2026-db migration
+ * 0018 made the constraint DEFERRABLE for exactly this).
  *
  * Whether the performance is still far enough away to hand the seat over is
  * config, not data — callers check canTransferTicket() first.
@@ -88,10 +101,42 @@ export async function claimTicketTransfer(
           ),
         )
         .limit(1);
+
+      // The blocking seat is only forgiven when it is already promised back to
+      // this offer's sender — that mutual consent is the whole justification.
+      //
+      // Both people pressing 交換する within the same instant take the two
+      // transfer rows in opposite orders, so Postgres may pick one and abort
+      // it with a deadlock error. That is detected, never a hang: the loser
+      // rolls back untouched and gets the retry message, and by then the
+      // winner has already completed the exchange for both of them.
+      let counterOffer: { id: number; resultId: number } | undefined;
       if (conflict !== undefined) {
-        return { ok: false, reason: "conflict" } as const;
+        [counterOffer] = await tx
+          .select({
+            id: lotteryTicketTransfers.id,
+            resultId: lotteryTicketTransfers.resultId,
+          })
+          .from(lotteryTicketTransfers)
+          .where(
+            and(
+              eq(lotteryTicketTransfers.resultId, conflict.id),
+              eq(lotteryTicketTransfers.fromUsername, username),
+              eq(lotteryTicketTransfers.toUsername, ticket.username),
+              eq(lotteryTicketTransfers.status, "pending"),
+            ),
+          )
+          .for("update");
+        if (counterOffer === undefined) {
+          return { ok: false, reason: "conflict" } as const;
+        }
+        // Both rows are about to hold each other's key until COMMIT.
+        await tx.execute(
+          sql`SET CONSTRAINTS "lottery_results_slot_applicant_unique" DEFERRED`,
+        );
       }
 
+      const previousHolder = ticket.username;
       await tx
         .update(lotteryResults)
         .set({ username, isPriority: false })
@@ -101,8 +146,20 @@ export async function claimTicketTransfer(
         .set({ status: "claimed", resolvedAt: new Date() })
         .where(eq(lotteryTicketTransfers.id, transfer.id));
 
+      if (counterOffer !== undefined) {
+        await tx
+          .update(lotteryResults)
+          .set({ username: previousHolder, isPriority: false })
+          .where(eq(lotteryResults.id, counterOffer.resultId));
+        await tx
+          .update(lotteryTicketTransfers)
+          .set({ status: "claimed", resolvedAt: new Date() })
+          .where(eq(lotteryTicketTransfers.id, counterOffer.id));
+      }
+
       return {
         ok: true,
+        exchanged: counterOffer !== undefined,
         ticket: {
           id: ticket.id,
           lotteryId: ticket.lotteryId,

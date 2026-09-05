@@ -234,6 +234,14 @@ export const lotteryResults = pgTable(
   (table) => [
     // One seat per slot per account per applicant type — nobody can be in two
     // rooms at the same time, and re-running the draw overwrites in place.
+    //
+    // In `appdata` this constraint is DEFERRABLE INITIALLY IMMEDIATE, which
+    // drizzle-kit cannot express (see 2026-db's migration 0018) — so it is
+    // NOT visible in this declaration. It behaves exactly as written for
+    // every reader and writer; only a transaction that explicitly runs
+    // `SET CONSTRAINTS ... DEFERRED` gets the relaxed timing, and exactly one
+    // does: the seat EXCHANGE in event-week-top's claimTicketTransfer, where
+    // two accounts' seats cross over each other's key in one transaction.
     unique("lottery_results_slot_applicant_unique").on(
       table.lotteryId,
       table.slotId,

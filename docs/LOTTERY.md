@@ -176,6 +176,31 @@ place an app writes `lottery_results` — the draw still creates every row.
   student and their parents) — a combination one account may already hold. That
   rule is also the DB's `lottery_results_slot_applicant_unique` key, so a lost
   race fails identically.
+- **Two people wanting each other's seat is an EXCHANGE, not a deadlock.** That
+  conflict rule would otherwise trap a swap: your own seat is exactly what
+  stops you taking theirs, and theirs stops them taking yours, so neither can
+  go first. When the seat blocking a claim is itself already offered to the
+  account making that offer, both people have pressed 譲渡する, so
+  `claimTicketTransfer` completes BOTH transfers and moves BOTH rows in one
+  transaction — the inbox shows 交換する and names both seats. Nobody is short
+  a ticket in between, which is what makes an exchange safe where a general
+  "release my seat and hope someone takes it" would not be. It fixes the
+  two-person cycle only; a three-way ring still deadlocks, and 破棄 (or a third
+  person) remains the way out of that.
+  - The crossover needs the unique key **deferred to COMMIT**: each row passes
+    through the other's key on the way, and Postgres checks a non-deferrable
+    UNIQUE per row as the UPDATE runs — two statements or one `UPDATE … CASE`
+    both raise `duplicate key`. `2026-db` migration **0018** recreates the
+    constraint as `DEFERRABLE INITIALLY IMMEDIATE`, so it still fires per
+    statement for everyone else and only the exchange transaction runs
+    `SET CONSTRAINTS … DEFERRED`. drizzle-kit cannot express deferrability, so
+    that migration is hand-written and `db/schema.ts` carries a comment saying
+    so — `generate` sees no drift, but `push` would.
+  - Both people pressing 交換する in the same instant take the two transfer
+    rows in opposite orders, so Postgres may abort one with a deadlock error.
+    That is detected, never a hang: the loser rolls back untouched and gets the
+    retry message, by which time the winner has completed the exchange for
+    both.
 - **The deadline is per ticket, not per lottery**
   (`describeTicketTransferBlock`, the second of its two rules): a seat stops
   being transferable `TICKET_TRANSFER_CLOSES_BEFORE_START_MS` (10 min)

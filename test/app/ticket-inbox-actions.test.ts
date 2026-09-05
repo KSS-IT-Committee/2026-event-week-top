@@ -90,6 +90,7 @@ beforeEach(() => {
   vi.mocked(claimTicketTransfer).mockResolvedValue({
     ok: true,
     ticket: TICKET,
+    exchanged: false,
   });
   vi.mocked(resolveTicketTransfer).mockResolvedValue(true);
 });
