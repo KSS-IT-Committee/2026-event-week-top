@@ -1,5 +1,5 @@
 {
-  "title": "fix var naming convention",
-  "description": "TODO",
+  "title": "内部コードの修正",
+  "description": "内部のコードを修正しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
