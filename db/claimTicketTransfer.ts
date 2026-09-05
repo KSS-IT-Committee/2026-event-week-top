@@ -56,8 +56,42 @@ export async function claimTicketTransfer(
 ): Promise<ClaimTicketTransferResult> {
   try {
     return await db.transaction(async (tx) => {
-      // Lock the offer first: two clicks on 受け取る, or a cancel racing the
-      // claim, then queue behind each other instead of both winning.
+      // Seats are locked before offers, everywhere. 破棄 has no choice about
+      // that order — deleteLotteryTicket removes the `lottery_results` row and
+      // the foreign key then cascades into `lottery_ticket_transfers` — so a
+      // claim that took the offer first would invert it, and a discard racing
+      // a claim on the same seat could deadlock. Hence: an unlocked peek to
+      // learn WHICH seat this offer names, the seat's lock, and only then the
+      // offer's.
+      const [offer] = await tx
+        .select({ resultId: lotteryTicketTransfers.resultId })
+        .from(lotteryTicketTransfers)
+        .where(
+          and(
+            eq(lotteryTicketTransfers.id, transferId),
+            eq(lotteryTicketTransfers.toUsername, username),
+            eq(lotteryTicketTransfers.status, "pending"),
+          ),
+        );
+      if (offer === undefined) {
+        return { ok: false, reason: "not-found" } as const;
+      }
+
+      const [ticket] = await tx
+        .select()
+        .from(lotteryResults)
+        .where(eq(lotteryResults.id, offer.resultId))
+        .for("update");
+      // The offer's foreign key cascades, so a discard that got here first
+      // takes its offers with it and leaves nothing to claim.
+      if (ticket === undefined) {
+        return { ok: false, reason: "not-found" } as const;
+      }
+
+      // Re-read the offer under a lock now that the seat is held: the peek
+      // above is advisory, and a cancel or 辞退する may have landed in
+      // between. This read is the authoritative one — two clicks on 受け取る,
+      // or a cancel racing the claim, queue behind it instead of both winning.
       const [transfer] = await tx
         .select({
           id: lotteryTicketTransfers.id,
@@ -72,19 +106,7 @@ export async function claimTicketTransfer(
           ),
         )
         .for("update");
-      if (transfer === undefined) {
-        return { ok: false, reason: "not-found" } as const;
-      }
-
-      const [ticket] = await tx
-        .select()
-        .from(lotteryResults)
-        .where(eq(lotteryResults.id, transfer.resultId))
-        .for("update");
-      // The offer's foreign key cascades, so a deleted seat takes its offers
-      // with it and this cannot fire — belt and braces against a future
-      // schema that softens the cascade.
-      if (ticket === undefined) {
+      if (transfer === undefined || transfer.resultId !== ticket.id) {
         return { ok: false, reason: "not-found" } as const;
       }
 
@@ -106,10 +128,11 @@ export async function claimTicketTransfer(
       // this offer's sender — that mutual consent is the whole justification.
       //
       // Both people pressing 交換する within the same instant take the two
-      // transfer rows in opposite orders, so Postgres may pick one and abort
-      // it with a deadlock error. That is detected, never a hang: the loser
-      // rolls back untouched and gets the retry message, and by then the
-      // winner has already completed the exchange for both of them.
+      // SEAT rows in opposite orders (each locks the one being offered to
+      // them first), so Postgres may pick one and abort it with a deadlock
+      // error. That is detected, never a hang: the loser rolls back untouched
+      // and gets the retry message, and by then the winner has already
+      // completed the exchange for both of them.
       let counterOffer: { id: number; resultId: number } | undefined;
       if (conflict !== undefined) {
         [counterOffer] = await tx

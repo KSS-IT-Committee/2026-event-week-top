@@ -209,8 +209,8 @@ place an app writes `lottery_results` — the draw still creates every row.
     `SET CONSTRAINTS … DEFERRED`. drizzle-kit cannot express deferrability, so
     that migration is hand-written and `db/schema.ts` carries a comment saying
     so — `generate` sees no drift, but `push` would.
-  - Both people pressing 交換する in the same instant take the two transfer
-    rows in opposite orders, so Postgres may abort one with a deadlock error.
+  - Both people pressing 交換する in the same instant take the two seat rows
+    in opposite orders, so Postgres may abort one with a deadlock error.
     That is detected, never a hang: the loser rolls back untouched and gets the
     retry message, by which time the winner has completed the exchange for
     both.

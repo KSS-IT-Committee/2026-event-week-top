@@ -69,6 +69,8 @@ vi.mock("@/lib/db", () => {
 });
 
 const OFFER = [{ id: 7, resultId: 42 }];
+// The unlocked peek that now precedes the seat lock.
+const PEEK = [{ resultId: 42 }];
 const TICKET = [
   {
     id: 42,
@@ -101,7 +103,7 @@ describe("claimTicketTransfer", () => {
   });
 
   it("moves the seat to the recipient and resolves the offer", async () => {
-    state.selects = [OFFER, TICKET, []];
+    state.selects = [PEEK, TICKET, OFFER, []];
     const result = await claimTicketTransfer(7, "4D11");
 
     expect(result).toEqual({
@@ -126,21 +128,35 @@ describe("claimTicketTransfer", () => {
   });
 
   it("clears the child's-class guarantee, which was about the old holder", async () => {
-    state.selects = [OFFER, TICKET, []];
+    state.selects = [PEEK, TICKET, OFFER, []];
     const result = await claimTicketTransfer(7, "4D11");
     expect(result.ok && result.ticket.isPriority).toBe(false);
     expect(state.updates[0]).toMatchObject({ isPriority: false });
   });
 
-  it("locks the offer and the seat it names", async () => {
-    state.selects = [OFFER, TICKET, []];
+  it("locks the seat before the offer, matching the order 破棄 forces", async () => {
+    state.selects = [PEEK, TICKET, OFFER, []];
     await claimTicketTransfer(7, "4D11");
-    // Two of the three selects take a row lock; the conflict lookup does not.
+    // Peek (no lock) → seat (lock) → offer (lock). Locking the offer first
+    // would invert deleteLotteryTicket's result-then-cascade order.
     expect(state.selectCalls.filter((call) => call === "for")).toHaveLength(2);
+    expect(state.selectCalls.indexOf("for")).toBeGreaterThan(
+      state.selectCalls.indexOf("from"),
+    );
+  });
+
+  it("re-reads the offer under the lock, so a cancel in between still wins", async () => {
+    // The peek finds it pending; by the time the seat is locked it is gone.
+    state.selects = [PEEK, TICKET, [], []];
+    expect(await claimTicketTransfer(7, "4D11")).toEqual({
+      ok: false,
+      reason: "not-found",
+    });
+    expect(state.updates).toEqual([]);
   });
 
   it("reports not-found when there is no pending offer for this account", async () => {
-    state.selects = [[], TICKET, []];
+    state.selects = [[], TICKET, OFFER, []];
     expect(await claimTicketTransfer(7, "4D11")).toEqual({
       ok: false,
       reason: "not-found",
@@ -149,7 +165,7 @@ describe("claimTicketTransfer", () => {
   });
 
   it("reports not-found when the seat behind the offer is gone", async () => {
-    state.selects = [OFFER, [], []];
+    state.selects = [PEEK, [], OFFER, []];
     expect(await claimTicketTransfer(7, "4D11")).toEqual({
       ok: false,
       reason: "not-found",
@@ -159,7 +175,7 @@ describe("claimTicketTransfer", () => {
 
   it("refuses a seat for a performance the recipient already has in that 区分", async () => {
     // Blocking seat present, and it is NOT promised back to the sender.
-    state.selects = [OFFER, TICKET, [{ id: 99 }], []];
+    state.selects = [PEEK, TICKET, OFFER, [{ id: 99 }], []];
     expect(await claimTicketTransfer(7, "4D11")).toEqual({
       ok: false,
       reason: "conflict",
@@ -172,7 +188,13 @@ describe("claimTicketTransfer", () => {
     // 4D11 holds seat 99 for the same performance and has already offered it
     // to 5B21 — the very account offering seat 42. Both pressed 譲渡する, so
     // the two seats cross over.
-    state.selects = [OFFER, TICKET, [{ id: 99 }], [{ id: 8, resultId: 99 }]];
+    state.selects = [
+      PEEK,
+      TICKET,
+      OFFER,
+      [{ id: 99 }],
+      [{ id: 8, resultId: 99 }],
+    ];
     const result = await claimTicketTransfer(7, "4D11");
 
     expect(result.ok && result.exchanged).toBe(true);
@@ -185,7 +207,13 @@ describe("claimTicketTransfer", () => {
   });
 
   it("defers the one-seat-per-slot key so the two rows can cross", async () => {
-    state.selects = [OFFER, TICKET, [{ id: 99 }], [{ id: 8, resultId: 99 }]];
+    state.selects = [
+      PEEK,
+      TICKET,
+      OFFER,
+      [{ id: 99 }],
+      [{ id: 8, resultId: 99 }],
+    ];
     await claimTicketTransfer(7, "4D11");
     expect(state.executed.join(" ")).toContain(
       'SET CONSTRAINTS "lottery_results_slot_applicant_unique" DEFERRED',
@@ -193,20 +221,26 @@ describe("claimTicketTransfer", () => {
   });
 
   it("never defers the key on an ordinary hand-over", async () => {
-    state.selects = [OFFER, TICKET, []];
+    state.selects = [PEEK, TICKET, OFFER, []];
     await claimTicketTransfer(7, "4D11");
     expect(state.executed).toEqual([]);
   });
 
   it("locks the counter-offer as well, so a cancel cannot race the exchange", async () => {
-    state.selects = [OFFER, TICKET, [{ id: 99 }], [{ id: 8, resultId: 99 }]];
+    state.selects = [
+      PEEK,
+      TICKET,
+      OFFER,
+      [{ id: 99 }],
+      [{ id: 8, resultId: 99 }],
+    ];
     await claimTicketTransfer(7, "4D11");
     // Offer, seat, and counter-offer: the conflict lookup takes no lock.
     expect(state.selectCalls.filter((call) => call === "for")).toHaveLength(3);
   });
 
   it("turns a lost unique-key race into the same conflict answer", async () => {
-    state.selects = [OFFER, TICKET, []];
+    state.selects = [PEEK, TICKET, OFFER, []];
     state.updateError = uniqueViolation(
       "lottery_results_slot_applicant_unique",
     );
@@ -217,7 +251,7 @@ describe("claimTicketTransfer", () => {
   });
 
   it("rethrows anything that is not that race", async () => {
-    state.selects = [OFFER, TICKET, []];
+    state.selects = [PEEK, TICKET, OFFER, []];
     state.updateError = new Error("connection reset");
     await expect(claimTicketTransfer(7, "4D11")).rejects.toThrow(
       "connection reset",
