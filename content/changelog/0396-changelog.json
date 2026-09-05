@@ -1,5 +1,5 @@
 {
-  "title": "adding lottery to menu",
-  "description": "TODO",
+  "title": "抽選ページへのリンクをメニューに追加",
+  "description": "フローティングメニューに抽選ページへのリンクを追加しました。",
   "credits": ["@rotarymars"]
 }
