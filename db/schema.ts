@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -179,9 +180,11 @@ export const lotteryEntries = pgTable(
 );
 
 // 公演観覧抽選 当選DB — one row per seat awarded to a school account: the
-// slot the applicant watches and which act they got. Written in bulk by the
-// draw (2026-lottery emits the INSERTs; nothing in the apps writes here), and
-// read by event-week-top's /lottery/results page.
+// slot the applicant watches and which act they got. Every row is INSERTed in
+// bulk by the draw (2026-lottery emits the SQL; no app creates a seat), and
+// read by event-week-top's /lottery/results page. That app is also the only
+// writer, and only in two ways a holder asks for: 譲渡 moves a row to another
+// account (`username`, see lottery_ticket_transfers) and 破棄 deletes it.
 //
 // A missing row is a loss, not an error: pair it with `lottery_entries` to
 // tell "applied and lost" from "never applied". External (non-school)
@@ -196,17 +199,24 @@ export const lotteryResults = pgTable(
     slotId: varchar("slot_id", { length: 64 }).notNull(),
     // Parents watch on their child's account, exactly as in lottery_entries.
     //
-    // Deliberately NOT a foreign key to `users`, unlike lottery_entries: no
-    // app ever writes this table — the draw (2026-lottery) emits the INSERTs
-    // out of band, the same way 2026-account-generator's users.sql is loaded
-    // — and every username in it is copied from an already-FK-checked
-    // lottery_entries row. A key here would only break the schema-only PR
-    // preview clones, whose `users` table is empty, in exchange for
-    // protection the loader already provides. An orphan row is inert: the
-    // page reads results by session username, so a row nobody can log in as
-    // is simply never shown. The generated SQL reports orphans as a NOTICE
-    // after loading, which is what the constraint was really for.
-    username: varchar("username", { length: 32 }).notNull(),
+    // Keyed to `users` like every other username column here. The draw
+    // (2026-lottery) loads this table out of band, the same way
+    // 2026-account-generator's users.sql is loaded, so the key is what makes
+    // "every winner is a real account" a fact rather than an intention: a
+    // typo'd or stale username fails the load instead of writing a seat
+    // nobody can ever be shown (the page reads results by session username,
+    // so an orphan row is invisible, not loud). Load `users.sql` before the
+    // draw's SQL, and re-run the draw after any roster reload. It holds for
+    // 譲渡 too — the app can only ever move a seat to an account it just
+    // read out of `users`, never to a name typed into a form.
+    //
+    // This used to be left unkeyed because per-PR previews run on a
+    // schema-only clone with an empty `users` table, which any key to it
+    // would break. 2026-server-ansible's pr-db.sh now seeds that clone with
+    // the roster (credentials redacted), so previews satisfy it too.
+    username: varchar("username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
     applicantType: lotteryApplicantTypeEnum("applicant_type").notNull(),
     // The act won — a class code for sousaku, a performance id for kaitaku.
     actId: varchar("act_id", { length: 64 }).notNull(),
@@ -242,6 +252,104 @@ export type NewLotteryEntry = typeof lotteryEntries.$inferInsert;
 
 export type LotteryResult = typeof lotteryResults.$inferSelect;
 export type NewLotteryResult = typeof lotteryResults.$inferInsert;
+
+// 公演観覧抽選 チケット譲渡DB — the hand-over of ONE won seat
+// (`lottery_results` row) from the account that holds it to another school
+// account, as an offer the recipient must accept.
+//
+// Ownership itself is not stored here: claiming REWRITES
+// `lottery_results.username` in place, so the seat is always exactly one row
+// owned by exactly one account and every reader (the results page, the
+// reception desk, a tally query) keeps working unchanged. What this table
+// adds is the offer's lifecycle — who offered what to whom, and how it
+// ended — which doubles as the provenance record for a seat whose
+// `is_priority` flag claiming clears (a transferred seat is no longer held
+// by the child's-class guarantee that granted it).
+//
+// Written by 2026-event-week-top (/lottery/results), the app that owns the
+// viewing lottery. Rows are kept after they resolve: a claimed row is the
+// audit trail for a seat that changed hands.
+export const LOTTERY_TRANSFER_STATUSES = [
+  // Offered, waiting on the recipient. At most one per seat (see the partial
+  // unique index below).
+  "pending",
+  // The recipient took the seat; `lottery_results.username` now names them.
+  "claimed",
+  // Withdrawn by the sender before it was claimed.
+  "cancelled",
+  // Turned down by the recipient.
+  "declined",
+] as const;
+
+export const lotteryTransferStatusEnum = pgEnum(
+  "lottery_transfer_status",
+  LOTTERY_TRANSFER_STATUSES,
+);
+
+export type LotteryTransferStatus = (typeof LOTTERY_TRANSFER_STATUSES)[number];
+
+export function isLotteryTransferStatus(
+  value: string,
+): value is LotteryTransferStatus {
+  return (LOTTERY_TRANSFER_STATUSES as readonly string[]).includes(value);
+}
+
+export const lotteryTicketTransfers = pgTable(
+  "lottery_ticket_transfers",
+  {
+    id: serial("id").primaryKey(),
+    // The seat being handed over. Cascades: discarding a ticket (the app
+    // deletes the row outright) takes its offer history with it, which is
+    // what "破棄すると元に戻せません" promises.
+    resultId: integer("result_id")
+      .notNull()
+      .references(() => lotteryResults.id, { onDelete: "cascade" }),
+    // Who offered it — the account that held the seat when the offer was
+    // made, NOT necessarily its current owner (a claimed row's seat has
+    // since moved on).
+    fromUsername: varchar("from_username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
+    // Who it was offered to.
+    toUsername: varchar("to_username", { length: 32 })
+      .notNull()
+      .references(() => users.username, { onDelete: "cascade" }),
+    status: lotteryTransferStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    // When the offer stopped being pending. NULL exactly while it is.
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  },
+  (table) => [
+    // A seat can only be promised to one person at a time: re-offering it
+    // means cancelling first. Partial, so the resolved history of a seat
+    // that changed hands repeatedly is kept in full.
+    uniqueIndex("lottery_ticket_transfers_one_pending_per_result")
+      .on(table.resultId)
+      .where(sql`${table.status} = 'pending'`),
+    // The recipient's inbox (「受け取り待ちのチケット」) and the sender's
+    // per-ticket lookup.
+    index("lottery_ticket_transfers_to_username_idx").on(table.toUsername),
+    index("lottery_ticket_transfers_from_username_idx").on(table.fromUsername),
+    // "Give it to someone else" is the whole point; a self-offer would also
+    // be a no-op the claim path could not satisfy.
+    check(
+      "transfer_not_to_self",
+      sql`${table.fromUsername} <> ${table.toUsername}`,
+    ),
+    // resolved_at and "no longer pending" are the same fact; keep them from
+    // disagreeing.
+    check(
+      "transfer_resolved_at_matches_status",
+      sql`(${table.status} = 'pending') = (${table.resolvedAt} IS NULL)`,
+    ),
+  ],
+);
+
+export type LotteryTicketTransfer = typeof lotteryTicketTransfers.$inferSelect;
+export type NewLotteryTicketTransfer =
+  typeof lotteryTicketTransfers.$inferInsert;
 
 /* ─────────────── read-only mirrors for the /chat assistant ───────────────
  *

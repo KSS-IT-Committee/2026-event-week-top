@@ -106,8 +106,9 @@ this entirely; the FK stays fully enforced there.
 
 - **The draw runs outside this app.** `2026-lottery` reads the exported
   entries, draws the winners, and emits the `lottery_results` INSERTs
-  (`./scripts/generate-sql.sh`). Nothing in this app writes that table; the
-  app only reads it.
+  (`./scripts/generate-sql.sh`). No seat is ever created by this app; it only
+  reads them, and — once a holder asks — moves one to another account or
+  deletes it (see 譲渡 and 破棄 below).
 - **`lottery_results`** (`db/schema.ts`, canonical copy in `2026-db`) holds one
   row per seat awarded to a school account: `(lottery_id, slot_id, username,
 applicant_type)` is unique — nobody can be in two rooms at once — plus the
@@ -133,14 +134,69 @@ applicant_type)` is unique — nobody can be in two rooms at once — plus the
   edit. Construct the date with an explicit `+09:00` offset, as with
   `opensAt` / `closesAt`.
 
+## Handing a seat on: 譲渡 and 破棄
+
+Once results are announced, `/lottery/results` turns each won seat into a link
+to `/lottery/results/[ticketId]` (the `lottery_results` row id), where its
+holder can give it to another school account or throw it away. This is the one
+place an app writes `lottery_results` — the draw still creates every row.
+
+- **The seat is one row for its whole life.** Claiming a transfer REWRITES
+  `lottery_results.username`; nothing is copied or re-inserted. Every existing
+  reader (the results page, a reception-desk tally, the draw's own unique key)
+  therefore keeps working without knowing transfers exist. `is_priority` is
+  cleared on the way: it recorded that the ORIGINAL holder got the seat through
+  the child's-class guarantee, which says nothing about the new one.
+- **`lottery_ticket_transfers` is the offer, not the ownership.** One row per
+  offer — `result_id`, `from_username`, `to_username`, and a status of
+  `pending` / `claimed` / `cancelled` / `declined`. A partial unique index on
+  `result_id where status = 'pending'` allows exactly one outstanding offer per
+  seat, so re-offering means cancelling first; resolved rows are kept as the
+  provenance of a seat that changed hands. Discarding a ticket deletes the row
+  and cascades its offers away, which is what 「元に戻せません」 promises.
+- **Three steps to send, because usernames are typed by hand.** 譲渡できるか
+  確認する only answers "is this a school account other than yours?" — it reads
+  `users` and never `lottery_results`, so the box cannot be used to look up
+  somebody else's seats; it is rate-limited per account for the same reason.
+  The confirmation is pinned to the exact username that was checked, so editing
+  the box afterwards disarms 譲渡する.
+- **Whether the recipient can take it is decided on their screen**, where the
+  answer is about their own tickets: 受け取る is blocked when they already hold
+  a seat for that performance **in the same 区分**. Same 区分 only, because a
+  本人 seat and a 保護者 seat for one performance are two different people (the
+  student and their parents) — a combination one account may already hold. That
+  rule is also the DB's `lottery_results_slot_applicant_unique` key, so a lost
+  race fails identically.
+- **The deadline is per ticket, not per lottery** (`canTransferTicket`): a seat
+  stops being transferable `TICKET_TRANSFER_CLOSES_BEFORE_START_MS` (5 min)
+  before its own performance starts — the same moment the 受付 closes, so a
+  seat can never arrive too late to use. That needs a machine-readable start
+  time, which is why slots carry `startsAt` (創作: the slot IS the performance)
+  or `date` alongside an act's `startTime` (開拓: the slot is a day, the ACT is
+  the performance). A definition with neither imposes no deadline, exactly as a
+  null `opensAt`/`closesAt` imposes no bound. Cancelling, declining and 破棄
+  stay available afterwards — they only ever give a seat up.
+- **Re-running the draw would clobber transfers.** `lottery_results` rows are
+  keyed by (lottery, slot, username, 区分), so a reload of the draw's SQL puts
+  seats back with their original owners and leaves the claimed transfer rows
+  pointing at seats their recipients no longer hold. Once transfers are live,
+  treat the loaded draw as final.
+
 ## Not included (yet)
 
 - **Per-class attendee lists** (who to expect at each room's reception desk).
   The data is in `lottery_results`; only the page is missing.
 - **Results for external applicants.**
+- **Any notice that a ticket was offered to you.** The inbox sits at the top of
+  `/lottery/results`, so the recipient has to look. A push of some kind (mail,
+  the top page) is the obvious next step.
 
 ## Deploy order
 
-The `lottery_entries` table ships as a `2026-db` migration. Merge and migrate
-`2026-db` **first**, then deploy this app (the poll loop redeploys on merge) —
-until the migrator has run, `/lottery` pages will error on the missing table.
+The `lottery_entries` and `lottery_ticket_transfers` tables ship as `2026-db`
+migrations. Merge and migrate `2026-db` **first**, then deploy this app (the
+poll loop redeploys on merge) — until the migrator has run, `/lottery` pages
+will error on the missing table. `lottery_ticket_transfers` is migration
+`0017`, and it is purely additive (a new enum, a new table), so migrating ahead
+of the app deploy is safe: the table simply sits empty until the app that
+writes it ships.

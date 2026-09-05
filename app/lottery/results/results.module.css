@@ -104,6 +104,7 @@
   gap: 10px;
 }
 
+/* A whole seat card is one link to /lottery/results/[ticketId]. */
 .seat {
   display: flex;
   flex-direction: column;
@@ -112,6 +113,25 @@
   background: color-mix(in oklch, #237804 6%, var(--background));
   border-radius: 8px;
   padding: 12px 14px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.seat:hover {
+  background: color-mix(in oklch, #237804 12%, var(--background));
+}
+
+.seat:focus-visible {
+  outline: 2px solid #0b69eb;
+  outline-offset: 2px;
+}
+
+.seatLinkHint {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0b69eb;
 }
 
 .seatSlot {
@@ -141,6 +161,105 @@
   border: 1px solid color-mix(in oklch, var(--foreground) 25%, transparent);
 }
 
+/* ─────────── 受け取り待ちのチケット (incoming 譲渡 offers) ─────────── */
+
+.inbox {
+  border: 1px solid color-mix(in oklch, #0b69eb 40%, transparent);
+  background: color-mix(in oklch, #0b69eb 6%, var(--background));
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+
+.inboxTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.offerList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.offer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid color-mix(in oklch, var(--foreground) 15%, transparent);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--background);
+}
+
+.offerFrom {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0b69eb;
+}
+
+.offerSlot {
+  font-size: 0.85rem;
+  color: color-mix(in oklch, var(--foreground) 65%, transparent);
+}
+
+.offerBlocked {
+  font-size: 0.85rem;
+  color: #d46b08;
+  margin-top: 6px;
+}
+
+.offerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #0b69eb;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.buttonSecondary {
+  border: 1px solid color-mix(in oklch, var(--foreground) 30%, transparent);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.button:hover,
+.buttonSecondary:hover {
+  opacity: 0.85;
+}
+
+.button:disabled,
+.buttonSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: 0.9rem;
+  color: #d4380d;
+  margin-top: 8px;
+}
+
 @media (prefers-color-scheme: dark) {
   /* #237804 / #d4380d are below WCAG AA contrast on the dark card. */
   .won {
@@ -148,8 +267,25 @@
   }
 
   .important,
-  .ineligible {
+  .ineligible,
+  .error {
     color: #ff7a5c;
+  }
+
+  .offerBlocked {
+    color: #ffa940;
+  }
+
+  .seat:hover {
+    background: color-mix(in oklch, #73d13d 14%, var(--background));
+  }
+
+  .seatLinkHint {
+    color: #69b1ff;
+  }
+
+  .offerFrom {
+    color: #69b1ff;
   }
 
   .seat {
