@@ -104,11 +104,21 @@ this entirely; the FK stays fully enforced there.
 
 ## The result side
 
-- **The draw runs outside this app.** `2026-lottery` reads the exported
-  entries, draws the winners, and emits the `lottery_results` INSERTs
-  (`./scripts/generate-sql.sh`). No seat is ever created by this app; it only
-  reads them, and — once a holder asks — moves one to another account or
-  deletes it (see 譲渡 and 破棄 below).
+- **Rows are created only by the draw loader, never by an app.**
+  `2026-lottery` reads the exported entries, draws the winners, and emits the
+  `lottery_results` INSERTs (`./scripts/generate-sql.sh`), which are loaded out
+  of band. This app writes the table in exactly two ways, both on an existing
+  row and both because its holder asked:
+  - **`db/claimTicketTransfer.ts` rewrites `username`** (and clears
+    `is_priority`) when a 譲渡 is claimed — twice in one transaction for an
+    exchange, once for a plain hand-over.
+  - **`db/deleteLotteryTicket.ts` deletes the row**, reached only from
+    `discardTicketAction` (`app/lottery/results/[ticketId]/actions.ts`) when a
+    holder presses 破棄.
+
+  There is no `insert` into `lottery_results` anywhere in the app, so a seat
+  that was never drawn cannot come into existence. See 譲渡 and 破棄 below.
+
 - **`lottery_results`** (`db/schema.ts`, canonical copy in `2026-db`) holds one
   row per seat awarded to a school account: `(lottery_id, slot_id, username,
 applicant_type)` is unique — nobody can be in two rooms at once — plus the
@@ -116,14 +126,17 @@ applicant_type)` is unique — nobody can be in two rooms at once — plus the
   `is_priority` for a 保護者 seat granted by the child's-class guarantee.
   **A missing row is a loss, not an error**: `/lottery/results` joins against
   `lottery_entries` to tell "applied and lost" from "never applied".
-- **`username` is not a foreign key here** (unlike `lottery_entries`). No app
-  writes this table, the loader copies usernames straight off already-checked
-  entry rows, and the schema-only PR preview clones have an empty `users`
-  table — a key would break every preview to re-check something the loader
-  already guarantees. The generated SQL ends with a `DO $$` block that reports
-  any username missing from `users` as a NOTICE, which is what the constraint
-  was actually for. Trade-off: deleting a `users` row leaves its results
-  behind, and they are unreadable rather than harmful.
+- **`username` IS a foreign key to `users`**, cascading on delete, exactly like
+  `lottery_entries` (`2026-db` migration `0016`). Because the draw loads this
+  table out of band, that key is what makes "every winner is a real account" a
+  fact rather than an intention: a typo'd or stale username fails the load
+  instead of writing a seat nobody can ever be shown. It covers 譲渡 too — the
+  app can only ever move a seat to an account it has just read out of `users`,
+  never to a name typed into a form. Load `users.sql` before the draw's SQL,
+  and re-run the draw after any roster reload. (The key was originally left off
+  because per-PR previews ran on a schema-only clone with an empty `users`
+  table; `2026-server-ansible`'s `pr-db.sh` now seeds that clone with the
+  roster, credentials redacted, so previews satisfy it too.)
 - **External applicants are deliberately absent.** They hear their result from
   the form provider. Covering them later is an additive table, not a change to
   this one.
