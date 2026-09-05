@@ -1,5 +1,5 @@
 {
-  "title": "Restyle /seat entries as physical tickets",
-  "description": "TODO",
+  "title": "座席チケットのスタイルの変更",
+  "description": "座席のチケットの表示形式を変更しました。",
   "credits": ["@rotarymars"]
 }
