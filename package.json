@@ -53,7 +53,7 @@
     "tailwindcss": "^4",
     "typescript": "^6",
     "unpdf": "^1.8.1",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "sharp": "^0.35.0",
