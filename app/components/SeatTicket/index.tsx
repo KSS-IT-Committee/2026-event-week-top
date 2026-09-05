@@ -21,7 +21,7 @@ export function SeatTicket({ performance, seat }: SeatTicketProps) {
           alt=""
           width={720}
           height={623}
-          priority
+          preload
         />
         <div className={styles.info}>
           <p className={styles.event}>2026年度行事週間</p>
