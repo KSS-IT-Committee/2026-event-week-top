@@ -310,7 +310,7 @@ function LotteryResultCard({
               (ticket) => ticket.applicantType === applicantType,
             )}
             isUsableType={usableTypes.includes(applicantType)}
-            showHeading={shownTypes.length > 1}
+            hasMultipleApplicantTypes={shownTypes.length > 1}
           />
         ))
       )}
@@ -324,7 +324,7 @@ async function ApplicantTypeResult({
   applicantType,
   tickets,
   isUsableType,
-  showHeading,
+  hasMultipleApplicantTypes,
 }: {
   lottery: Lottery;
   username: string;
@@ -334,7 +334,7 @@ async function ApplicantTypeResult({
   // type it only holds a transferred ticket in, where "applied and lost" is
   // not a thing that could have happened.
   isUsableType: boolean;
-  showHeading: boolean;
+  hasMultipleApplicantTypes: boolean;
 }) {
   // Needed only to tell "applied and lost" from "never applied", so it is not
   // read at all when there is a seat to show.
@@ -355,7 +355,7 @@ async function ApplicantTypeResult({
 
   return (
     <section className={styles.applicantSection}>
-      {showHeading && (
+      {hasMultipleApplicantTypes && (
         <h3 className={styles.applicantTitle}>
           {APPLICANT_TYPE_LABELS[applicantType]}
         </h3>
