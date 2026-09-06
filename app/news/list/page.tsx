@@ -9,7 +9,7 @@ import { NewsItem } from "@/app/news/newsItem";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: "News List",
+  title: "ニュース一覧 | 2026年度行事週間",
   description: "2026年度行事週間 ニュース一覧ページ",
 };
 

@@ -8,7 +8,7 @@ import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";
 import styles from "./edit.module.css";
 import { RegisterPage } from "./RegisterPage";
 export const metadata: Metadata = {
-  title: "Seat edit",
+  title: "芸能祭座席登録 | 2026年度行事週間",
   description: "2026年度行事週間 芸能祭座席登録ページ",
 };
 
