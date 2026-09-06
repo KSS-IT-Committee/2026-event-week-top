@@ -89,20 +89,23 @@ ORDER BY slot_id, first_choice;
 
 ## PR previews
 
-Preview clones are schema-only (`pr-db.sh`) with one exception: the `users`
-roster IS copied, credentials redacted, because app tables key their rows to
-`users(username)` with real foreign keys — `lottery_results` included (see
-"The result side"). Loading the draw's SQL therefore works on a preview as-is.
-`lottery_entries` still needs help, for a different reason:
+VPS previews run against a clone of `appdata` while the login cookie is
+vouched for by the production auth host, so the account a tester is logged in
+as has to exist in the clone for `lottery_entries.username → users.username`
+(and now `lottery_results`' key) to pass on a save.
 
-VPS previews run against a schema-only clone of `appdata` (empty `users`)
-while the login cookie is vouched for by the production auth host, so a
-save would normally fail the `lottery_entries.username → users.username`
-foreign key. `db/ensurePreviewUser.ts` handles this: on `IS_PR_PREVIEW`
-(and only there) the save transaction first upserts a stub `users` row for
-the session's username — the stub's password hash is a discarded random
-secret, so it can never be logged in with. Production and local runs skip
-this entirely; the FK stays fully enforced there.
+`pr-db.sh` (2026-server-ansible) makes that true: clones are schema-only
+except for the `users` roster, which is copied in with every credential
+column replaced by an unusable stub hash and re-seeded on each preview
+deploy. Previews therefore behave like production for anything keyed to
+`users`, while still being unable to mint their own logins.
+
+`db/ensurePreviewUser.ts` remains as the backstop for what seeding misses — a
+clone made before it existed, or an account created since this preview's last
+deploy: on `IS_PR_PREVIEW` (and only there) the save transaction first upserts
+a stub `users` row for the session's username, with the same unusable hash.
+Production and local runs skip it entirely; the FK is fully enforced
+everywhere.
 
 ## The result side
 
@@ -132,13 +135,18 @@ applicant_type)` is unique — nobody can be in two rooms at once — plus the
   `lottery_entries` (`2026-db` migration `0016`). Because the draw loads this
   table out of band, that key is what makes "every winner is a real account" a
   fact rather than an intention: a typo'd or stale username fails the load
-  instead of writing a seat nobody can ever be shown. It covers 譲渡 too — the
-  app can only ever move a seat to an account it has just read out of `users`,
-  never to a name typed into a form. Load `users.sql` before the draw's SQL,
-  and re-run the draw after any roster reload. (The key was originally left off
-  because per-PR previews ran on a schema-only clone with an empty `users`
-  table; `2026-server-ansible`'s `pr-db.sh` now seeds that clone with the
-  roster, credentials redacted, so previews satisfy it too.)
+  instead of writing a seat nobody can ever be shown (the page reads by session
+  username, so an orphan is invisible, not loud), and deleting a `users` row now
+  takes its seats with it. It covers 譲渡 too — the app can only ever move a seat
+  to an account it has just read out of `users`, never to a name typed into a
+  form. Load `users.sql` before the draw's SQL, and re-run the draw after any
+  roster reload. The generated SQL still ends with a `DO $$` block reporting
+  missing usernames as a NOTICE; it is now belt-and-braces ahead of the
+  constraint. Adding the key to an already-populated `lottery_results` validates
+  the rows in it — see 2026-db's README for the orphan check to run first. (The
+  key was originally left off because per-PR previews ran on a schema-only clone
+  with an empty `users` table; `2026-server-ansible`'s `pr-db.sh` now seeds that
+  clone with the roster, credentials redacted, so previews satisfy it too.)
 - **External applicants are deliberately absent.** They hear their result from
   the form provider. Covering them later is an additive table, not a change to
   this one.
