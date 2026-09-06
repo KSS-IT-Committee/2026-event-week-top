@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getLotteryResults } from "@/db/getLotteryResults";
+import { getLotteryTickets } from "@/db/getLotteryTickets";
 import { db } from "@/lib/db";
 
 const { rowsHolder, callsHolder } = vi.hoisted(() => ({
@@ -56,14 +56,14 @@ function makeRow(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("getLotteryResults", () => {
+describe("getLotteryTickets", () => {
   beforeEach(() => {
     rowsHolder.rows = [];
     callsHolder.calls = [];
   });
 
   it("awaits connection() before querying", async () => {
-    await getLotteryResults("5B21", "sousaku-performance", "student");
+    await getLotteryTickets("5B21");
     expect(vi.mocked(connection)).toHaveBeenCalledTimes(1);
     const connectionIndex = callsHolder.calls.indexOf("connection");
     const selectIndex = callsHolder.calls.indexOf("select");
@@ -73,7 +73,7 @@ describe("getLotteryResults", () => {
   });
 
   it("selects from the table with a filter (select->from->where)", async () => {
-    await getLotteryResults("5B21", "sousaku-performance", "student");
+    await getLotteryTickets("5B21");
     const selectIndex = callsHolder.calls.indexOf("select");
     const fromIndex = callsHolder.calls.indexOf("from");
     const whereIndex = callsHolder.calls.indexOf("where");
@@ -83,41 +83,43 @@ describe("getLotteryResults", () => {
     expect(vi.mocked(db.select)).toHaveBeenCalledTimes(1);
   });
 
-  it("returns an empty array when the account won nothing", async () => {
-    const result = await getLotteryResults(
-      "5B21",
-      "sousaku-performance",
-      "student",
-    );
-    expect(result).toEqual([]);
+  it("returns an empty array when the account holds no seat", async () => {
+    expect(await getLotteryTickets("5B21")).toEqual([]);
   });
 
-  it("maps every won seat, keeping the rank and 観覧人数", async () => {
+  it("exposes the row id, which is the ticket's page and transfer handle", async () => {
+    rowsHolder.rows = [makeRow({ id: 412 })];
+    expect((await getLotteryTickets("5B21"))[0].id).toBe(412);
+  });
+
+  it("maps every seat, keeping the rank and 観覧人数", async () => {
     rowsHolder.rows = [
       makeRow(),
       makeRow({
+        id: 2,
         slotId: "sep13-slot-3",
         actId: "5C",
         partySize: 2,
         choiceRank: 2,
       }),
     ];
-    const result = await getLotteryResults(
-      "5B21",
-      "sousaku-performance",
-      "student",
-    );
-    expect(result).toEqual([
+    expect(await getLotteryTickets("5B21")).toEqual([
       {
+        id: 1,
+        lotteryId: "sousaku-performance",
         slotId: "sep12-slot-1",
         actId: "6A",
+        applicantType: "student",
         partySize: 1,
         choiceRank: 1,
         isPriority: false,
       },
       {
+        id: 2,
+        lotteryId: "sousaku-performance",
         slotId: "sep13-slot-3",
         actId: "5C",
+        applicantType: "student",
         partySize: 2,
         choiceRank: 2,
         isPriority: false,
@@ -127,11 +129,29 @@ describe("getLotteryResults", () => {
 
   it("carries the 保護者 guarantee flag through", async () => {
     rowsHolder.rows = [makeRow({ applicantType: "parent", isPriority: true })];
-    const result = await getLotteryResults(
-      "5B21",
+    const tickets = await getLotteryTickets("5B21");
+    expect(tickets[0].isPriority).toBe(true);
+    expect(tickets[0].applicantType).toBe("parent");
+  });
+
+  it("returns seats from every lottery and 区分 the account holds, including transferred-in ones", async () => {
+    // A 教職員 account can only enter as 本人, yet may hold a 保護者 seat
+    // someone gave it — the query must not filter those away.
+    rowsHolder.rows = [
+      makeRow({ id: 1, lotteryId: "sousaku-performance" }),
+      makeRow({
+        id: 2,
+        lotteryId: "kaitaku-performance",
+        slotId: "sep12",
+        actId: "performance-3",
+        applicantType: "parent",
+      }),
+    ];
+    const tickets = await getLotteryTickets("k1234567");
+    expect(tickets.map((ticket) => ticket.lotteryId)).toEqual([
       "sousaku-performance",
-      "parent",
-    );
-    expect(result[0].isPriority).toBe(true);
+      "kaitaku-performance",
+    ]);
+    expect(tickets[1].applicantType).toBe("parent");
   });
 });
