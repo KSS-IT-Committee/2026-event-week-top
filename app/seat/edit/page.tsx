@@ -4,13 +4,15 @@ import Link from "next/link";
 import { AuthGuard } from "@/app/components/AuthGuard";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";
+import { pageMetadata } from "@/lib/site";
 
 import styles from "./edit.module.css";
 import { RegisterPage } from "./RegisterPage";
-export const metadata: Metadata = {
-  title: "Seat edit",
-  description: "2026年度行事週間 芸能祭座席登録ページ",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "芸能祭 座席登録",
+  description: "行事週間2026 芸能祭の座席登録ページ",
+  isIndexable: false,
+});
 
 type SeatEditPageProps = {
   searchParams: Promise<{ page?: string | string[] }>;

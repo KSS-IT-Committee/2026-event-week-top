@@ -19,15 +19,17 @@ import {
 } from "@/lib/lotteries";
 import { parseRowId } from "@/lib/row-id";
 import { getCurrentUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
 import { DiscardPanel } from "./DiscardPanel";
 import styles from "./ticket.module.css";
 import { TransferPanel } from "./TransferPanel";
 
-export const metadata: Metadata = {
-  title: "当選チケット | 行事週間2026",
+export const metadata: Metadata = pageMetadata({
+  title: "当選チケット",
   description: "行事週間2026 公演観覧抽選 当選チケットの詳細・譲渡・破棄",
-};
+  isIndexable: false,
+});
 
 // Ownership, the announcement gate and the transfer deadline are all read at
 // request time; a statically generated copy would freeze all three.

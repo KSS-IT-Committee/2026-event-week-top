@@ -16,13 +16,15 @@ import {
   LOTTERIES,
 } from "@/lib/lotteries";
 import { getCurrentUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
 import styles from "./lottery.module.css";
 
-export const metadata: Metadata = {
-  title: "公演観覧抽選 | 行事週間2026",
+export const metadata: Metadata = pageMetadata({
+  title: "公演観覧抽選",
   description: "創作展 開拓部門・創作部門公演の観覧抽選 申込ページ",
-};
+  isIndexable: false,
+});
 
 export default function LotteryIndexPage() {
   return (

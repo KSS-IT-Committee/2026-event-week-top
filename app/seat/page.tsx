@@ -6,6 +6,7 @@ import { performanceEnum } from "@/db/schema";
 import { INTERNAL_ROLES } from "@/lib/access";
 import { SEAT_ADMIN_ROLES } from "@/lib/seat-access";
 import { getCurrentUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
 import { AuthGuard } from "../components/AuthGuard";
 import { FloatingMenu } from "../components/FloatingMenu";
@@ -13,10 +14,11 @@ import { Internal } from "../components/Internal";
 import { SeatTicket } from "../components/SeatTicket";
 import styles from "./seat.module.css";
 
-export const metadata: Metadata = {
-  title: "Seat List",
-  description: "2026年度行事週間 芸能祭座席一覧ページ",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "芸能祭 座席一覧",
+  description: "行事週間2026 芸能祭の座席一覧ページ",
+  isIndexable: false,
+});
 
 export default async function SeatPage() {
   const user = await getCurrentUser();

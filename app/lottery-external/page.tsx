@@ -17,6 +17,7 @@ import {
 import { InternalNotice } from "@/app/lottery-external/InternalNotice";
 import styles from "@/app/lottery-external/lottery-external.module.css";
 import { INTERNAL_ROLES } from "@/lib/access";
+import { pageMetadata } from "@/lib/site";
 
 /**
  * 外部の方向けの観覧抽選 案内ページ。
@@ -33,11 +34,12 @@ import { INTERNAL_ROLES } from "@/lib/access";
 // 出ません。現状このアプリは全ルートが動的ですが、それに依存せず明示します。
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "公演観覧抽選（外部の方向け） | 行事週間2026",
+export const metadata: Metadata = pageMetadata({
+  title: "公演観覧抽選（外部の方向け）",
   description:
     "創作展 創作部門（5・6年生）クラス劇の観覧抽選について、外部の方向けの申し込み方法のご案内です。",
-};
+  path: "/lottery-external",
+});
 
 // 創作部門の公演時間。lib/lotteries.ts の SOUSAKU_PERFORMANCE_TIMES と
 // 同じ内容を表示用に持っています（あちらは server/DB 側の定義なので、

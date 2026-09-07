@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -6,8 +7,15 @@ import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { Internal } from "@/app/components/Internal";
 import { PageLoading } from "@/app/components/PageLoading";
 import { INTERNAL_ROLES } from "@/lib/access";
+import { pageMetadata } from "@/lib/site";
 
 import styles from "./requests.module.css";
+
+export const metadata: Metadata = pageMetadata({
+  title: "機能のリクエスト",
+  description: "行事週間2026 公式サイトへの新機能・修正のリクエスト方法。",
+  path: "/requests",
+});
 
 const MAINTAINERS = [
   "karencaya",

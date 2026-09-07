@@ -6,11 +6,13 @@ import Link from "next/link";
 
 import styles from "@/app/sousaku-list/sousaku-list.module.css";
 import { parseMarkdown } from "@/lib/markdown";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "創作部門 | 劇内容紹介",
-  description: "創作部門の各クラスの劇の内容紹介ページ",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "創作部門 劇内容紹介",
+  description: "創作展 創作部門 各クラスの劇の内容紹介。",
+  path: "/sousaku-list",
+});
 
 export default async function SousakuListPage() {
   const content = await readFile(

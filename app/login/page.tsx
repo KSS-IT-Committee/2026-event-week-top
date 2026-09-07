@@ -5,16 +5,18 @@ import { FloatingMenu } from "@/app/components/FloatingMenu";
 import { PageLoading } from "@/app/components/PageLoading";
 import { safeNextPath } from "@/lib/safe-next";
 import { getCurrentUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
 import { ChangePasswordForm } from "./ChangePasswordForm";
 import styles from "./login.module.css";
 import { LoginForm } from "./LoginForm";
 import { LogoutForm } from "./LogoutForm";
 
-export const metadata: Metadata = {
-  title: "ログイン | 行事週間2026",
+export const metadata: Metadata = pageMetadata({
+  title: "ログイン",
   description: "行事週間2026 各サイト共通のログインページ",
-};
+  isIndexable: false,
+});
 
 type LoginPageProps = {
   searchParams: Promise<{ next?: string }>;
