@@ -8,7 +8,7 @@ import { getAllPosts, getPostById } from "@/lib/posts";
 import { getCurrentUser } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: "News",
+  title: "ニュース | 2026年度行事週間",
   description: "2026年度行事週間 ニュース詳細ページ",
 };
 

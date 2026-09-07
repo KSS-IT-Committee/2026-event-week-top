@@ -14,7 +14,7 @@ import { SeatTicket } from "../components/SeatTicket";
 import styles from "./seat.module.css";
 
 export const metadata: Metadata = {
-  title: "Seat List",
+  title: "芸能祭座席一覧 | 2026年度行事週間",
   description: "2026年度行事週間 芸能祭座席一覧ページ",
 };
 
