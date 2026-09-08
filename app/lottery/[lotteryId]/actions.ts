@@ -136,8 +136,9 @@ export async function submitLotteryEntriesAction(
   // must never leave a half-applied mix of old and new preferences.
   try {
     await db.transaction(async (tx) => {
-      // On a PR preview the session-vouched account has no users row in the
-      // clone DB; stub it so the entries' username FK passes (no-op elsewhere).
+      // Backstop for a preview clone the deploy infra has not seeded the
+      // roster into: stub the session-vouched account so the entries'
+      // username FK passes (no-op outside previews).
       await ensurePreviewUser(user.username, tx);
       await deleteLotteryEntries(user.username, lottery.id, applicantType, tx);
       await addLotteryEntries(

@@ -8,12 +8,17 @@ const PREVIEW_STUB_PASSWORD_HASH =
   "$2b$12$mHTS3tBwl2qVnrwwFSEHlesNo0HVMTnJo/ku.rLMDLIJ.7rDfG57a";
 
 /**
- * PR previews run against a schema-only clone of `appdata` — its `users`
- * table is empty — while sessions are vouched for by the production auth
- * host (see lib/session.ts). Any insert referencing users(username) would
- * therefore fail its foreign key on a preview even for a perfectly valid
- * login. This materializes the vouched-for account as a stub row so those
- * writes succeed.
+ * PR previews run against a clone of `appdata` while their sessions are
+ * vouched for by the production auth host (see lib/session.ts), so the
+ * account a tester is logged in as has to exist locally for any insert
+ * referencing users(username) to pass its foreign key.
+ *
+ * 2026-server-ansible's pr-db.sh seeds each clone with the whole roster
+ * (credentials redacted, same stub hash as below) on every preview deploy,
+ * which covers that for good. This stays as the backstop for the gaps that
+ * seeding leaves: a clone made before seeding existed, an account created
+ * after this preview's last deploy, or a run with
+ * `apps_pr_preview_seed_users: false`.
  *
  * No-op outside previews (IS_PR_PREVIEW is only ever set by the preview
  * deploy infra) and for usernames that already have a row, so production
