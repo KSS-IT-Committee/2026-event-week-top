@@ -495,6 +495,62 @@ describe("describeApplicationDeadline", () => {
     );
   });
 
+  it("names the hour when the window shuts mid-day", () => {
+    // A date alone would promise a whole day the form is already shut for,
+    // so a non-midnight bound is stated as the instant it closes — not as
+    // the last accepted millisecond, which would read 08:59.
+    const fixture = {
+      ...kaitaku,
+      closesAt: new Date("2026-09-13T09:00:00+09:00"),
+    };
+    expect(describeApplicationDeadline(fixture)).toBe(
+      "2026年9月13日（日）09:00まで",
+    );
+  });
+
+  it("judges midnight in JST, not in the server's timezone", () => {
+    // 15:00Z IS JST midnight — so this keeps the date-only shape, and names
+    // the last JST day accepted. Production does not run in JST, so the
+    // judgement must follow the festival's clock, never the server's.
+    expect(
+      describeApplicationDeadline({
+        ...kaitaku,
+        closesAt: new Date("2026-08-30T15:00:00Z"),
+      }),
+    ).toBe("2026年8月30日（日）まで");
+    // …and a bound that is midnight only in UTC still names its hour.
+    expect(
+      describeApplicationDeadline({
+        ...kaitaku,
+        closesAt: new Date("2026-08-31T00:00:00Z"),
+      }),
+    ).toBe("2026年8月31日（月）09:00まで");
+  });
+
+  it("states a time for every mid-day deadline now configured", () => {
+    // Behaviour, not the value: whatever instants the committee sets, a
+    // lottery that closes mid-day must never be rendered date-only. Pins the
+    // string the pages interpolate verbatim (「申込期限は{deadline}です。」).
+    for (const lottery of LOTTERIES) {
+      const described = describeApplicationDeadline(lottery);
+      if (lottery.closesAt === null) {
+        expect(described).toBeNull();
+        continue;
+      }
+      const isMidnightBound =
+        new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          hourCycle: "h23",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }).format(lottery.closesAt) === "00:00:00";
+      expect(described).toMatch(
+        isMidnightBound ? /）まで$/ : /）\d{2}:\d{2}まで$/,
+      );
+    }
+  });
+
   it("returns null when no deadline is configured", () => {
     expect(describeApplicationDeadline({ ...kaitaku, closesAt: null })).toBe(
       null,
