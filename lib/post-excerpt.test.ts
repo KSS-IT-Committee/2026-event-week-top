@@ -15,6 +15,16 @@ describe("postExcerpt", () => {
     ).toBe(`A & B <C> "D" 'E'`);
   });
 
+  it("decodes hexadecimal and decimal numeric references", () => {
+    expect(postExcerpt("<p>a&#x2014;b &#8212; c &#X1F600;</p>")).toBe(
+      "a—b — c 😀",
+    );
+  });
+
+  it("replaces an out-of-range or surrogate numeric reference with a space", () => {
+    expect(postExcerpt("<p>a&#x110000;b&#xD800;c&#0;d</p>")).toBe("a b c d");
+  });
+
   it("replaces an entity it does not know with a space", () => {
     expect(postExcerpt("<p>a&hellip;b</p>")).toBe("a b");
   });
