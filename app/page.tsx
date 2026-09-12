@@ -386,7 +386,10 @@ async function TopPageContent() {
                 </p>
               </a>
 
-              <div className={styles.sousakutenSite}>
+              <a
+                className={styles.informationSite}
+                href="https://sousakuten-top.2026.kss-it.com"
+              >
                 <p
                   style={{
                     color: "#fff",
@@ -395,10 +398,8 @@ async function TopPageContent() {
                   }}
                 >
                   創作展ホームページ
-                  <br />
-                  （Coming Soon）
                 </p>
-              </div>
+              </a>
             </div>
           </Internal>
         </div>
