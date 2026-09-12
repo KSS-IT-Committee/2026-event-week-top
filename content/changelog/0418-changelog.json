@@ -1,5 +1,5 @@
 {
-  "title": "showing the page",
-  "description": "TODO",
+  "title": "創作展ページを表示",
+  "description": "外部の方にも創作展ページへのリンクを表示するよう変更しました。",
   "credits": ["@rotarymars"]
 }
