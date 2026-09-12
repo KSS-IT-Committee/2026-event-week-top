@@ -257,6 +257,49 @@ export const LOTTERIES: readonly Lottery[] = [
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
     resultsAnnouncedAt: new Date("2026-08-27T12:30:00+09:00"),
   },
+  {
+    // 生徒観覧 — 創作部門 stages a fifth performance on the second festival
+    // day only (15:45～17:00), for the school's own students instead of
+    // outside visitors. Same class plays as sousaku-performance, so the acts
+    // are the same; one performance, so exactly one slot. Note the asymmetry:
+    // the acts are the 創作部門 (5・6年) plays, but the AUDIENCE is the whole
+    // student body — eligibleClasses and acts are unrelated lists.
+    id: "sousaku-student-viewing",
+    title: "生徒観覧（２日目第五公演）",
+    description:
+      "9月13日（日）の生徒観覧時間＝創作部門 第五公演（15:45～17:00）の観覧抽選です。全学年の生徒本人が対象で、創作部門（5・6年生）のクラス劇のうち観たいクラスを第1〜第3希望まで選べます。",
+    notes: [
+      "第五公演は2日目（9月13日）のみ、帰りのSHRのあと 15:45～17:00 に行われます。",
+      "当選したら、帰りのSHRのあとそのクラスの教室へ向かってください。",
+      "6年生のクラス劇は、各HR教室での上演のほか、別教室での配信も予定しています。",
+      "申込は生徒本人のアカウントから、１アカウントにつき１件です。",
+    ],
+    // 生徒観覧: students only — no 保護者 tab, and staff do not attend it.
+    applicantTypes: ["student"],
+    // Every class in the school, 1A–6D: the 創作部門 students are the ones
+    // performing, but every grade watches.
+    eligibleClasses: [...CLASSNAMES],
+    canStaffApply: false,
+    acts: SOUSAKU_CLASSES.map(actForClass),
+    slots: [
+      {
+        id: "sep13-slot-5",
+        label: "9月13日（日）第五公演",
+        time: "15:45～17:00",
+        startsAt: new Date("2026-09-13T15:45:00+09:00"),
+      },
+    ],
+    opensAt: new Date("2026-09-12T16:00:00+09:00"),
+    // Exclusive bound, and — unlike the other two — not a midnight one: the
+    // vote is collected during the festival itself, so it shuts at 9:00 JST on
+    // the second morning, well before the 15:45 performance.
+    // describeApplicationDeadline() states the hour for a bound like this.
+    closesAt: new Date("2026-09-13T09:00:00+09:00"),
+    // No announcement time fixed yet. Deny-by-default means the draw can be
+    // loaded into `lottery_results` the night before without leaking a thing;
+    // set an instant here when the committee names one.
+    resultsAnnouncedAt: null,
+  },
 ];
 
 // "student" reads 本人 (not 生徒本人): staff accounts also apply through it
@@ -452,12 +495,36 @@ export function describeTicketTransferDeadline(
   );
 }
 
-// 「2026年8月30日（日）まで」 — the last day applications are accepted, or
-// null when no deadline is configured. Derived from the exclusive closesAt
-// bound and rendered in JST, so the pages can never disagree with the
-// enforced window (or with what the parent letter announced).
+// Whether an instant lands exactly on JST midnight — the shape of every
+// "the whole of that day is accepted" bound (closesAt is exclusive, so
+// 8月26日00:00 means 8月25日まで). Any other instant is a mid-day cutoff.
+function isJstMidnight(instant: Date): boolean {
+  const clock = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    hourCycle: "h23",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(instant);
+  return clock === "00:00:00" && instant.getTime() % 1000 === 0;
+}
+
+// 「2026年8月30日（日）まで」, or 「2026年9月13日（日）09:00まで」 when the
+// window shuts mid-day — the deadline as the pages state it, or null when
+// none is configured. Derived from the exclusive closesAt bound and rendered
+// in JST, so the pages can never disagree with the enforced window (or with
+// what the parent letter announced).
+//
+// Two shapes, because a date alone is only honest for a midnight bound. A
+// cutoff at 09:00 rendered as 「9月13日まで」 would promise a whole day the
+// form is already shut for, so those name their hour; the instant shown is
+// closesAt itself (the moment it shuts), not the last accepted millisecond,
+// which would read as the baffling 08:59.
 export function describeApplicationDeadline(lottery: Lottery): string | null {
   if (lottery.closesAt === null) return null;
+  if (!isJstMidnight(lottery.closesAt)) {
+    return `${describeJstDateTime(lottery.closesAt)}まで`;
+  }
   const lastIncludedInstant = new Date(lottery.closesAt.getTime() - 1);
   const date = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",

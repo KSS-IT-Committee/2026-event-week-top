@@ -43,6 +43,7 @@ function mustGetLottery(lotteryId: string): Lottery {
 
 const kaitaku = mustGetLottery("kaitaku-performance");
 const sousaku = mustGetLottery("sousaku-performance");
+const studentViewing = mustGetLottery("sousaku-student-viewing");
 
 describe("LOTTERIES registry", () => {
   it("has unique lottery ids", () => {
@@ -66,9 +67,10 @@ describe("LOTTERIES registry", () => {
   // The exact dates are operations, not behavior — they change as the event
   // approaches (and get toggled to preview UI states), so only the presence
   // of a deadline is pinned here.
-  it("has an application deadline configured for both lotteries", () => {
-    expect(kaitaku.closesAt).toBeInstanceOf(Date);
-    expect(sousaku.closesAt).toBeInstanceOf(Date);
+  it("has an application deadline configured for every lottery", () => {
+    for (const lottery of LOTTERIES) {
+      expect(lottery.closesAt).toBeInstanceOf(Date);
+    }
   });
 
   it("asks kaitaku parents one question per festival day: rank the 8 performances", () => {
@@ -218,6 +220,29 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.applicantTypes).toEqual(["student", "parent"]);
     expect(sousaku.canStaffApply).toBe(true);
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
+  });
+
+  it("asks 生徒観覧 one question: which class play at the 2nd day's 第五公演", () => {
+    // 創作部門's extra student-only performance: one slot, and the slot itself
+    // carries the clock, exactly like the other 創作部門 slots.
+    expect(studentViewing.slots).toEqual([
+      {
+        id: "sep13-slot-5",
+        label: "9月13日（日）第五公演",
+        time: "15:45～17:00",
+        startsAt: new Date("2026-09-13T15:45:00+09:00"),
+      },
+    ]);
+    // The very same eight class plays the 創作部門 lottery offers.
+    expect(studentViewing.acts).toEqual(sousaku.acts);
+  });
+
+  it("opens 生徒観覧 to every class as 本人 entries only, no staff", () => {
+    // The acts are the 創作部門 plays, but the audience is the whole school —
+    // the two lists are deliberately unrelated.
+    expect(studentViewing.applicantTypes).toEqual(["student"]);
+    expect(studentViewing.canStaffApply).toBe(false);
+    expect(studentViewing.eligibleClasses).toEqual([...CLASSNAMES]);
   });
 
   it("carries the important parent-facing notes for both lotteries", () => {
@@ -378,6 +403,12 @@ describe("isEligibleForLottery", () => {
     expect(isEligibleForLottery(sousaku, studentRoles("1A"))).toBe(true);
     expect(isEligibleForLottery(sousaku, studentRoles("6D"))).toBe(true);
   });
+
+  it("accepts every grade's students for 生徒観覧, but no staff", () => {
+    expect(isEligibleForLottery(studentViewing, studentRoles("1A"))).toBe(true);
+    expect(isEligibleForLottery(studentViewing, studentRoles("6D"))).toBe(true);
+    expect(isEligibleForLottery(studentViewing, TEACHER_ROLES)).toBe(false);
+  });
 });
 
 describe("canApplyToLottery", () => {
@@ -405,6 +436,15 @@ describe("canApplyToLottery", () => {
     expect(canApplyToLottery(kaitaku, studentRoles("5A"), "parent")).toBe(
       false,
     );
+  });
+
+  it("takes only 本人 entries for 生徒観覧, never 保護者", () => {
+    expect(
+      canApplyToLottery(studentViewing, studentRoles("1A"), "student"),
+    ).toBe(true);
+    expect(
+      canApplyToLottery(studentViewing, studentRoles("1A"), "parent"),
+    ).toBe(false);
   });
 });
 
@@ -453,6 +493,62 @@ describe("describeApplicationDeadline", () => {
     expect(describeApplicationDeadline(fixture)).toBe(
       "2026年8月30日（日）まで",
     );
+  });
+
+  it("names the hour when the window shuts mid-day", () => {
+    // A date alone would promise a whole day the form is already shut for,
+    // so a non-midnight bound is stated as the instant it closes — not as
+    // the last accepted millisecond, which would read 08:59.
+    const fixture = {
+      ...kaitaku,
+      closesAt: new Date("2026-09-13T09:00:00+09:00"),
+    };
+    expect(describeApplicationDeadline(fixture)).toBe(
+      "2026年9月13日（日）09:00まで",
+    );
+  });
+
+  it("judges midnight in JST, not in the server's timezone", () => {
+    // 15:00Z IS JST midnight — so this keeps the date-only shape, and names
+    // the last JST day accepted. Production does not run in JST, so the
+    // judgement must follow the festival's clock, never the server's.
+    expect(
+      describeApplicationDeadline({
+        ...kaitaku,
+        closesAt: new Date("2026-08-30T15:00:00Z"),
+      }),
+    ).toBe("2026年8月30日（日）まで");
+    // …and a bound that is midnight only in UTC still names its hour.
+    expect(
+      describeApplicationDeadline({
+        ...kaitaku,
+        closesAt: new Date("2026-08-31T00:00:00Z"),
+      }),
+    ).toBe("2026年8月31日（月）09:00まで");
+  });
+
+  it("states a time for every mid-day deadline now configured", () => {
+    // Behaviour, not the value: whatever instants the committee sets, a
+    // lottery that closes mid-day must never be rendered date-only. Pins the
+    // string the pages interpolate verbatim (「申込期限は{deadline}です。」).
+    for (const lottery of LOTTERIES) {
+      const described = describeApplicationDeadline(lottery);
+      if (lottery.closesAt === null) {
+        expect(described).toBeNull();
+        continue;
+      }
+      const isMidnightBound =
+        new Intl.DateTimeFormat("ja-JP", {
+          timeZone: "Asia/Tokyo",
+          hourCycle: "h23",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }).format(lottery.closesAt) === "00:00:00";
+      expect(described).toMatch(
+        isMidnightBound ? /）まで$/ : /）\d{2}:\d{2}まで$/,
+      );
+    }
   });
 
   it("returns null when no deadline is configured", () => {
