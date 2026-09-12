@@ -347,11 +347,12 @@ async function TopPageContent() {
             )}
             <br />
           </div>
-          <Internal role={INTERNAL_ROLES}>
-            <div className={styles.lead}>
-              <p>↓創作展の関連サイトはこちらからアクセス</p>
-            </div>
-            <div className={styles.linkContainer}>
+          {/* <Internal role={INTERNAL_ROLES}> */}
+          <div className={styles.lead}>
+            <p>↓創作展の関連サイトはこちらからアクセス</p>
+          </div>
+          <div className={styles.linkContainer}>
+            <Internal role={INTERNAL_ROLES}>
               <a
                 className={styles.rentalSite}
                 href="https://equipment.2026.kss-it.com"
@@ -381,23 +382,24 @@ async function TopPageContent() {
                   情報伝達サイト
                 </p>
               </a>
+            </Internal>
 
-              <a
-                className={styles.informationSite}
-                href="https://sousakuten-top.2026.kss-it.com"
+            <a
+              className={styles.informationSite}
+              href="https://sousakuten-top.2026.kss-it.com"
+            >
+              <p
+                style={{
+                  color: "#fff",
+                  WebkitTextFillColor: "#fff",
+                  opacity: 1,
+                }}
               >
-                <p
-                  style={{
-                    color: "#fff",
-                    WebkitTextFillColor: "#fff",
-                    opacity: 1,
-                  }}
-                >
-                  創作展ホームページ
-                </p>
-              </a>
-            </div>
-          </Internal>
+                創作展ホームページ
+              </p>
+            </a>
+          </div>
+          {/* </Internal> */}
         </div>
 
         {/* 後夜祭 */}
