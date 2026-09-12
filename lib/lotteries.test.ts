@@ -237,19 +237,12 @@ describe("LOTTERIES registry", () => {
     expect(studentViewing.acts).toEqual(sousaku.acts);
   });
 
-  it("restricts 生徒観覧 to 本人 entries from grade 5-6 classes, no staff", () => {
+  it("opens 生徒観覧 to every class as 本人 entries only, no staff", () => {
+    // The acts are the 創作部門 plays, but the audience is the whole school —
+    // the two lists are deliberately unrelated.
     expect(studentViewing.applicantTypes).toEqual(["student"]);
     expect(studentViewing.canStaffApply).toBe(false);
-    expect(studentViewing.eligibleClasses).toEqual([
-      "5A",
-      "5B",
-      "5C",
-      "5D",
-      "6A",
-      "6B",
-      "6C",
-      "6D",
-    ]);
+    expect(studentViewing.eligibleClasses).toEqual([...CLASSNAMES]);
   });
 
   it("carries the important parent-facing notes for both lotteries", () => {
@@ -411,12 +404,9 @@ describe("isEligibleForLottery", () => {
     expect(isEligibleForLottery(sousaku, studentRoles("6D"))).toBe(true);
   });
 
-  it("limits 生徒観覧 to grade 5-6 students", () => {
-    expect(isEligibleForLottery(studentViewing, studentRoles("5A"))).toBe(true);
+  it("accepts every grade's students for 生徒観覧, but no staff", () => {
+    expect(isEligibleForLottery(studentViewing, studentRoles("1A"))).toBe(true);
     expect(isEligibleForLottery(studentViewing, studentRoles("6D"))).toBe(true);
-    expect(isEligibleForLottery(studentViewing, studentRoles("4D"))).toBe(
-      false,
-    );
     expect(isEligibleForLottery(studentViewing, TEACHER_ROLES)).toBe(false);
   });
 });
@@ -450,10 +440,10 @@ describe("canApplyToLottery", () => {
 
   it("takes only 本人 entries for 生徒観覧, never 保護者", () => {
     expect(
-      canApplyToLottery(studentViewing, studentRoles("5A"), "student"),
+      canApplyToLottery(studentViewing, studentRoles("1A"), "student"),
     ).toBe(true);
     expect(
-      canApplyToLottery(studentViewing, studentRoles("5A"), "parent"),
+      canApplyToLottery(studentViewing, studentRoles("1A"), "parent"),
     ).toBe(false);
   });
 });

@@ -261,11 +261,13 @@ export const LOTTERIES: readonly Lottery[] = [
     // 生徒観覧 — 創作部門 stages a fifth performance on the second festival
     // day only (15:45～17:00), for the school's own students instead of
     // outside visitors. Same class plays as sousaku-performance, so the acts
-    // are the same; one performance, so exactly one slot.
+    // are the same; one performance, so exactly one slot. Note the asymmetry:
+    // the acts are the 創作部門 (5・6年) plays, but the AUDIENCE is the whole
+    // student body — eligibleClasses and acts are unrelated lists.
     id: "sousaku-student-viewing",
     title: "生徒観覧（２日目第五公演）",
     description:
-      "9月13日（日）の生徒観覧時間＝創作部門 第五公演（15:45～17:00）の観覧抽選です。5・6年生の生徒本人が対象で、観たいクラスを第1〜第3希望まで選べます。",
+      "9月13日（日）の生徒観覧時間＝創作部門 第五公演（15:45～17:00）の観覧抽選です。全学年の生徒本人が対象で、創作部門（5・6年生）のクラス劇のうち観たいクラスを第1〜第3希望まで選べます。",
     notes: [
       "第五公演は2日目（9月13日）のみ、帰りのSHRのあと 15:45～17:00 に行われます。",
       "申込は9月13日（日）7:00で締め切ります。",
@@ -275,7 +277,9 @@ export const LOTTERIES: readonly Lottery[] = [
     ],
     // 生徒観覧: students only — no 保護者 tab, and staff do not attend it.
     applicantTypes: ["student"],
-    eligibleClasses: SOUSAKU_CLASSES,
+    // Every class in the school, 1A–6D: the 創作部門 students are the ones
+    // performing, but every grade watches.
+    eligibleClasses: [...CLASSNAMES],
     canStaffApply: false,
     acts: SOUSAKU_CLASSES.map(actForClass),
     slots: [
