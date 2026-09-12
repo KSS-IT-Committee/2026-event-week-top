@@ -43,6 +43,7 @@ function mustGetLottery(lotteryId: string): Lottery {
 
 const kaitaku = mustGetLottery("kaitaku-performance");
 const sousaku = mustGetLottery("sousaku-performance");
+const studentViewing = mustGetLottery("sousaku-student-viewing");
 
 describe("LOTTERIES registry", () => {
   it("has unique lottery ids", () => {
@@ -66,9 +67,10 @@ describe("LOTTERIES registry", () => {
   // The exact dates are operations, not behavior — they change as the event
   // approaches (and get toggled to preview UI states), so only the presence
   // of a deadline is pinned here.
-  it("has an application deadline configured for both lotteries", () => {
-    expect(kaitaku.closesAt).toBeInstanceOf(Date);
-    expect(sousaku.closesAt).toBeInstanceOf(Date);
+  it("has an application deadline configured for every lottery", () => {
+    for (const lottery of LOTTERIES) {
+      expect(lottery.closesAt).toBeInstanceOf(Date);
+    }
   });
 
   it("asks kaitaku parents one question per festival day: rank the 8 performances", () => {
@@ -218,6 +220,36 @@ describe("LOTTERIES registry", () => {
     expect(sousaku.applicantTypes).toEqual(["student", "parent"]);
     expect(sousaku.canStaffApply).toBe(true);
     expect(sousaku.eligibleClasses).toEqual([...CLASSNAMES]);
+  });
+
+  it("asks 生徒観覧 one question: which class play at the 2nd day's 第五公演", () => {
+    // 創作部門's extra student-only performance: one slot, and the slot itself
+    // carries the clock, exactly like the other 創作部門 slots.
+    expect(studentViewing.slots).toEqual([
+      {
+        id: "sep13-slot-5",
+        label: "9月13日（日）第五公演",
+        time: "15:45～17:00",
+        startsAt: new Date("2026-09-13T15:45:00+09:00"),
+      },
+    ]);
+    // The very same eight class plays the 創作部門 lottery offers.
+    expect(studentViewing.acts).toEqual(sousaku.acts);
+  });
+
+  it("restricts 生徒観覧 to 本人 entries from grade 5-6 classes, no staff", () => {
+    expect(studentViewing.applicantTypes).toEqual(["student"]);
+    expect(studentViewing.canStaffApply).toBe(false);
+    expect(studentViewing.eligibleClasses).toEqual([
+      "5A",
+      "5B",
+      "5C",
+      "5D",
+      "6A",
+      "6B",
+      "6C",
+      "6D",
+    ]);
   });
 
   it("carries the important parent-facing notes for both lotteries", () => {
@@ -378,6 +410,15 @@ describe("isEligibleForLottery", () => {
     expect(isEligibleForLottery(sousaku, studentRoles("1A"))).toBe(true);
     expect(isEligibleForLottery(sousaku, studentRoles("6D"))).toBe(true);
   });
+
+  it("limits 生徒観覧 to grade 5-6 students", () => {
+    expect(isEligibleForLottery(studentViewing, studentRoles("5A"))).toBe(true);
+    expect(isEligibleForLottery(studentViewing, studentRoles("6D"))).toBe(true);
+    expect(isEligibleForLottery(studentViewing, studentRoles("4D"))).toBe(
+      false,
+    );
+    expect(isEligibleForLottery(studentViewing, TEACHER_ROLES)).toBe(false);
+  });
 });
 
 describe("canApplyToLottery", () => {
@@ -405,6 +446,15 @@ describe("canApplyToLottery", () => {
     expect(canApplyToLottery(kaitaku, studentRoles("5A"), "parent")).toBe(
       false,
     );
+  });
+
+  it("takes only 本人 entries for 生徒観覧, never 保護者", () => {
+    expect(
+      canApplyToLottery(studentViewing, studentRoles("5A"), "student"),
+    ).toBe(true);
+    expect(
+      canApplyToLottery(studentViewing, studentRoles("5A"), "parent"),
+    ).toBe(false);
   });
 });
 

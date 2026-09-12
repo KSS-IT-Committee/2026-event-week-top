@@ -257,6 +257,47 @@ export const LOTTERIES: readonly Lottery[] = [
     closesAt: new Date("2026-08-26T00:00:00+09:00"),
     resultsAnnouncedAt: new Date("2026-08-27T12:30:00+09:00"),
   },
+  {
+    // 生徒観覧 — 創作部門 stages a fifth performance on the second festival
+    // day only (15:45～17:00), for the school's own students instead of
+    // outside visitors. Same class plays as sousaku-performance, so the acts
+    // are the same; one performance, so exactly one slot.
+    id: "sousaku-student-viewing",
+    title: "生徒観覧（２日目第五公演）",
+    description:
+      "9月13日（日）の生徒観覧時間＝創作部門 第五公演（15:45～17:00）の観覧抽選です。5・6年生の生徒本人が対象で、観たいクラスを第1〜第3希望まで選べます。",
+    notes: [
+      "第五公演は2日目（9月13日）のみ、帰りのSHRのあと 15:45～17:00 に行われます。",
+      "申込は9月13日（日）7:00で締め切ります。",
+      "当選したら、帰りのSHRのあとそのクラスの教室へ向かってください。",
+      "6年生のクラス劇は、各HR教室での上演のほか、別教室での配信も予定しています。",
+      "申込は生徒本人のアカウントから、１アカウントにつき１件です。",
+    ],
+    // 生徒観覧: students only — no 保護者 tab, and staff do not attend it.
+    applicantTypes: ["student"],
+    eligibleClasses: SOUSAKU_CLASSES,
+    canStaffApply: false,
+    acts: SOUSAKU_CLASSES.map(actForClass),
+    slots: [
+      {
+        id: "sep13-slot-5",
+        label: "9月13日（日）第五公演",
+        time: "15:45～17:00",
+        startsAt: new Date("2026-09-13T15:45:00+09:00"),
+      },
+    ],
+    opensAt: new Date("2026-09-12T16:00:00+09:00"),
+    // Exclusive bound, and — unlike the other two — not a midnight one: the
+    // vote is collected during the festival itself, so it shuts at 7:00 JST on
+    // the second morning, well before the 15:45 performance.
+    // describeApplicationDeadline() renders the DATE only, so the hour is
+    // spelled out in `notes` above as well.
+    closesAt: new Date("2026-09-13T07:00:00+09:00"),
+    // No announcement time fixed yet. Deny-by-default means the draw can be
+    // loaded into `lottery_results` the night before without leaking a thing;
+    // set an instant here when the committee names one.
+    resultsAnnouncedAt: null,
+  },
 ];
 
 // "student" reads 本人 (not 生徒本人): staff accounts also apply through it
