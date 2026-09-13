@@ -4,13 +4,42 @@ import { forbidden, unauthorized } from "next/navigation";
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import styles from "@/app/news/markdown.module.css";
 import { canViewPost, isRestrictedPost } from "@/lib/post-access";
+import { postExcerpt } from "@/lib/post-excerpt";
 import { getAllPosts, getPostById } from "@/lib/posts";
 import { getCurrentUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "ニュース | 2026年度行事週間",
-  description: "2026年度行事週間 ニュース詳細ページ",
-};
+/**
+ * Per-article metadata.
+ *
+ * generateMetadata runs BEFORE the body's visibility check below, and its
+ * output is rendered into the <head> of the 401/403 page too — so a restricted
+ * post must not put its real title or excerpt here. Anonymous visitors get a
+ * fixed placeholder instead, and the whole page is marked non-indexable.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const post = await getPostById(id);
+
+  if (isRestrictedPost(post)) {
+    return pageMetadata({
+      title: "お知らせ",
+      description: "行事週間2026 のお知らせ",
+      isIndexable: false,
+    });
+  }
+
+  return pageMetadata({
+    title: post.title,
+    description: postExcerpt(post.contentHtml),
+    path: `/news/${post.id}`,
+    publishedTime: post.date,
+  });
+}
 
 export const dynamicParams = false;
 

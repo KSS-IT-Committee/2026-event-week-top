@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { pageMetadata, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
+
 import { INTERNAL_ROLES } from "../lib/access";
 import { getCurrentUser } from "../lib/session";
 import { Countdown } from "./components/Countdown";
@@ -15,10 +17,12 @@ import { getNews } from "./news/newsData";
 import { NewsItem } from "./news/newsItem";
 import styles from "./top-page.module.css";
 
-export const metadata: Metadata = {
-  title: "2026年度行事週間",
-  description: "2026年度行事週間 トップページ",
-};
+export const metadata: Metadata = pageMetadata({
+  title: `${SITE_NAME} | 東京都立小石川中等教育学校`,
+  isTitleAbsolute: true,
+  description: SITE_DESCRIPTION,
+  path: "/",
+});
 
 // The page itself is synchronous, so it becomes the static shell and the
 // loading UI streams immediately; the session-dependent body renders behind

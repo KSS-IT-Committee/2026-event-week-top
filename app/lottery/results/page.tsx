@@ -32,13 +32,15 @@ import {
   type Lottery,
 } from "@/lib/lotteries";
 import { getCurrentUser, type SessionUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
 import { TransferInboxItem } from "./TransferInboxItem";
 
-export const metadata: Metadata = {
-  title: "公演観覧抽選 結果 | 行事週間2026",
+export const metadata: Metadata = pageMetadata({
+  title: "公演観覧抽選 結果",
   description: "行事週間2026 公演観覧抽選の当選結果ページ",
-};
+  isIndexable: false,
+});
 
 // The announcement time is read from the server clock, so this page must be
 // rendered per request — a statically generated copy would freeze "not yet

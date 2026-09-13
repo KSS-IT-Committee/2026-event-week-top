@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
 import changelog from "@/lib/changelog.generated.json";
+import { pageMetadata } from "@/lib/site";
 
 import styles from "./changelog.module.css";
 
@@ -17,10 +18,12 @@ type Entry = {
 const COMMIT_URL_BASE =
   "https://github.com/KSS-IT-Committee/2026-event-week-top/commit/";
 
-export const metadata: Metadata = {
-  title: "Changelog | 行事週間2026",
-  description: "サイトの更新履歴",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "更新履歴",
+  description:
+    "行事週間2026 公式サイトの更新履歴。追加された機能と修正の一覧。",
+  path: "/changelog",
+});
 
 const dateFmt = new Intl.DateTimeFormat("ja-JP", {
   year: "numeric",
