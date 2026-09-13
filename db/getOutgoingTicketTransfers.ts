@@ -59,6 +59,7 @@ export async function getOutgoingTicketTransfers(
       lotteryId: row.ticket.lotteryId,
       slotId: row.ticket.slotId,
       actId: row.ticket.actId,
+      venueId: row.ticket.venueId,
       applicantType: row.ticket.applicantType,
       partySize: row.ticket.partySize,
       choiceRank: row.ticket.choiceRank,

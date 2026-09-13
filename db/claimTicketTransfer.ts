@@ -193,6 +193,7 @@ export async function claimTicketTransfer(
           lotteryId: ticket.lotteryId,
           slotId: ticket.slotId,
           actId: ticket.actId,
+          venueId: ticket.venueId,
           applicantType: ticket.applicantType,
           partySize: ticket.partySize,
           choiceRank: ticket.choiceRank,

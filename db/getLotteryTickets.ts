@@ -17,6 +17,10 @@ export type LotteryTicket = {
   slotId: string;
   // The act won: a class code for sousaku, a performance id for kaitaku.
   actId: string;
+  // The room the act is watched in — one of the act's `venues` ids — or null
+  // for a lottery whose acts have only the one room. Travels with the seat
+  // through 譲渡, since the row is rewritten in place.
+  venueId: string | null;
   applicantType: LotteryApplicantType;
   // 観覧人数 admitted by this seat.
   partySize: number;
@@ -56,6 +60,7 @@ export async function getLotteryTickets(
     lotteryId: row.lotteryId,
     slotId: row.slotId,
     actId: row.actId,
+    venueId: row.venueId,
     applicantType: row.applicantType,
     partySize: row.partySize,
     choiceRank: row.choiceRank,

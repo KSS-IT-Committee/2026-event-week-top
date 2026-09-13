@@ -68,6 +68,7 @@ const TICKET: LotteryTicket = {
   lotteryId: "sousaku-performance",
   slotId: "sep12-slot-1",
   actId: "6A",
+  venueId: null,
   applicantType: "student",
   partySize: 1,
   choiceRank: 1,

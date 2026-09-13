@@ -18,11 +18,14 @@ type TransferInboxItemProps = {
   slotLabel: string;
   slotTime: string | null;
   actLabel: string;
+  // The room the offered seat watches in, or null for a seat that names none.
+  venueLabel: string | null;
   applicantTypeLabel: string;
   partySize: number;
-  // The act on the caller's own seat that would go the other way, when this is
-  // a mutual exchange. Non-null turns 受け取る into 交換する, because pressing
-  // it moves two seats and the viewer must see that before they do.
+  // The act (and room, where the seat names one) on the caller's own seat
+  // that would go the other way, when this is a mutual exchange. Non-null
+  // turns 受け取る into 交換する, because pressing it moves two seats and the
+  // viewer must see that before they do.
   swapActLabel: string | null;
   // Why nothing can be pressed, or null when it can. The server checks the
   // same rules again — this only spares the viewer a pointless round trip.
@@ -46,6 +49,7 @@ export function TransferInboxItem({
   slotLabel,
   slotTime,
   actLabel,
+  venueLabel,
   applicantTypeLabel,
   partySize,
   swapActLabel,
@@ -71,6 +75,9 @@ export function TransferInboxItem({
         )}
       </span>
       <span className={styles.seatAct}>{actLabel}</span>
+      {venueLabel !== null && (
+        <span className={styles.seatVenue}>会場：{venueLabel}</span>
+      )}
       <span className={styles.seatMeta}>
         観覧人数 {partySize}名 ／ {applicantTypeLabel}
       </span>

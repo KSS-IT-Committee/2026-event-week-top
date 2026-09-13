@@ -16,6 +16,7 @@ import {
   getSlotLabel,
   getSlotTime,
   getTicketStartsAt,
+  getVenueLabel,
   isEligibleForLottery,
   LOTTERIES,
   type Lottery,
@@ -233,8 +234,46 @@ describe("LOTTERIES registry", () => {
         startsAt: new Date("2026-09-13T15:45:00+09:00"),
       },
     ]);
-    // The very same eight class plays the 創作部門 lottery offers.
-    expect(studentViewing.acts).toEqual(sousaku.acts);
+    // The very same eight class plays the 創作部門 lottery offers — same ids,
+    // same labels; only the rooms are extra.
+    expect(studentViewing.acts.map(({ id, label }) => ({ id, label }))).toEqual(
+      sousaku.acts,
+    );
+  });
+
+  it("seats 生徒観覧 in each class's own room first, then the 6年 screening rooms", () => {
+    // 2026-lottery's src/student_viewing.cpp writes exactly these ids into
+    // lottery_results.venue_id, filling them in this order. Renaming one here
+    // strands every loaded seat in that room on its raw id.
+    expect(
+      Object.fromEntries(
+        studentViewing.acts.map((act) => [
+          act.id,
+          act.venues?.map((venue) => venue.id),
+        ]),
+      ),
+    ).toEqual({
+      "5A": ["classroom"],
+      "5B": ["classroom"],
+      "5C": ["classroom"],
+      "5D": ["classroom"],
+      "6A": ["classroom", "arena"],
+      "6B": ["classroom", "lecture-301", "room-37", "room-38", "sewing-room"],
+      "6C": ["classroom", "multipurpose-hall"],
+      "6D": ["classroom", "room-22", "av-room"],
+    });
+  });
+
+  it("keeps venue ids unique within an act, and the one-room lotteries venue-less", () => {
+    for (const lottery of LOTTERIES) {
+      for (const act of lottery.acts) {
+        const venueIds = (act.venues ?? []).map((venue) => venue.id);
+        expect(new Set(venueIds).size).toBe(venueIds.length);
+      }
+    }
+    // Their seats were drawn with no venue_id, so they must render as before.
+    expect(kaitaku.acts.every((act) => act.venues === undefined)).toBe(true);
+    expect(sousaku.acts.every((act) => act.venues === undefined)).toBe(true);
   });
 
   it("opens 生徒観覧 to every class as 本人 entries only, no staff", () => {
@@ -325,10 +364,27 @@ describe("label lookups for stored ids", () => {
     );
   });
 
+  it("renders a 生徒観覧 seat's room, and no room for a seat that names none", () => {
+    expect(getVenueLabel(studentViewing, "6A", "arena")).toBe(
+      "アリーナ（放映）",
+    );
+    expect(getVenueLabel(studentViewing, "5B", "classroom")).toBe(
+      "5年B組の教室（上演）",
+    );
+    expect(getVenueLabel(studentViewing, "6B", "sewing-room")).toBe(
+      "被服室（放映）",
+    );
+    expect(getVenueLabel(sousaku, "6A", null)).toBeNull();
+  });
+
   it("falls back to the raw id when the definition no longer knows it", () => {
     expect(getSlotLabel(sousaku, "sep14-slot-9")).toBe("sep14-slot-9");
     expect(getActLabel(sousaku, "7A")).toBe("7A");
     expect(getSlotTime(sousaku, "sep14-slot-9")).toBeNull();
+    expect(getVenueLabel(studentViewing, "6A", "rooftop")).toBe("rooftop");
+    // A room is looked up within its own act: 22番教室 screens 6D, not 6A.
+    expect(getVenueLabel(studentViewing, "6A", "room-22")).toBe("room-22");
+    expect(getVenueLabel(studentViewing, "7A", "classroom")).toBe("classroom");
   });
 });
 

@@ -148,6 +148,11 @@
   font-weight: 700;
 }
 
+.seatVenue {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 .seatMeta {
   font-size: 0.85rem;
   color: color-mix(in oklch, var(--foreground) 65%, transparent);

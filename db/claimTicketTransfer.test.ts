@@ -101,6 +101,7 @@ const TICKET = [
     username: "5B21",
     applicantType: "parent",
     actId: "6A",
+    venueId: null,
     partySize: 2,
     choiceRank: 1,
     isPriority: true,
@@ -156,6 +157,7 @@ describe("claimTicketTransfer", () => {
         lotteryId: "sousaku-performance",
         slotId: "sep12-slot-1",
         actId: "6A",
+        venueId: null,
         applicantType: "parent",
         partySize: 2,
         choiceRank: 1,
@@ -167,6 +169,26 @@ describe("claimTicketTransfer", () => {
     expect(
       (state.updates[1] as { resolvedAt: Date }).resolvedAt,
     ).toBeInstanceOf(Date);
+  });
+
+  it("keeps the seat's room: a 譲渡 changes who holds it, never where it is", async () => {
+    // A 生徒観覧 seat in a screening room. The room was drawn for the seat,
+    // not for its holder, so it must survive the hand-over untouched.
+    const screeningSeat = [
+      {
+        ...TICKET[0],
+        lotteryId: "sousaku-student-viewing",
+        slotId: "sep13-slot-5",
+        applicantType: "student",
+        venueId: "arena",
+        partySize: 1,
+        isPriority: false,
+      },
+    ];
+    state.selects = [PEEK, screeningSeat, OFFER, []];
+    const result = await claimTicketTransfer(7, "4D11");
+    expect(result.ok && result.ticket.venueId).toBe("arena");
+    expect(state.updates[0]).toEqual({ username: "4D11", isPriority: false });
   });
 
   it("clears the child's-class guarantee, which was about the old holder", async () => {

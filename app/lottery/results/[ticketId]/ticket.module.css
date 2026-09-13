@@ -61,6 +61,11 @@
   font-weight: 700;
 }
 
+.ticketVenue {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
 .ticketMeta {
   font-size: 0.85rem;
   color: color-mix(in oklch, var(--foreground) 65%, transparent);

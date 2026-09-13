@@ -27,6 +27,7 @@ import {
   getLottery,
   getSlotLabel,
   getSlotTime,
+  getVenueLabel,
   LOTTERIES,
   type Lottery,
 } from "@/lib/lotteries";
@@ -88,7 +89,7 @@ async function LotteryResults() {
         </p>
         <ul className={styles.notesList}>
           <li className={styles.important}>
-            当選された方は、必ず公演開始5分前までに当選クラスの受付へお越しください。5分前の時点で不在の場合、当選は無効となります。
+            当選された方は、必ず公演開始5分前までに当選クラスの受付（チケットに会場が表示されている場合は、その会場）へお越しください。5分前の時点で不在の場合、当選は無効となります。
           </li>
           <li>
             抽選の結果、定員に満たなかった分はキャンセル待ちの列から補填されます。抽選に外れたがどうしても観たい公演がある場合は、お早めにキャンセル待ち列へお並びください。
@@ -182,6 +183,15 @@ function resolveOffer(
   return { swapTicket: heldForSlot, blockedReason: null };
 }
 
+// 「6年A組」, or 「6年A組・アリーナ（放映）」 for a seat that names its room: the
+// two seats of an exchange can be the same class in different rooms, and then
+// the room is the whole difference.
+function describeSeatAct(lottery: Lottery, ticket: LotteryTicket): string {
+  const actLabel = getActLabel(lottery, ticket.actId);
+  const venueLabel = getVenueLabel(lottery, ticket.actId, ticket.venueId);
+  return venueLabel === null ? actLabel : `${actLabel}・${venueLabel}`;
+}
+
 function TransferInbox({
   offers,
   outgoing,
@@ -231,6 +241,11 @@ function TransferInbox({
               slotLabel={getSlotLabel(lottery, offer.ticket.slotId)}
               slotTime={getSlotTime(lottery, offer.ticket.slotId)}
               actLabel={getActLabel(lottery, offer.ticket.actId)}
+              venueLabel={getVenueLabel(
+                lottery,
+                offer.ticket.actId,
+                offer.ticket.venueId,
+              )}
               applicantTypeLabel={
                 APPLICANT_TYPE_LABELS[offer.ticket.applicantType]
               }
@@ -238,7 +253,7 @@ function TransferInbox({
               swapActLabel={
                 outcome.swapTicket === null
                   ? null
-                  : getActLabel(lottery, outcome.swapTicket.actId)
+                  : describeSeatAct(lottery, outcome.swapTicket)
               }
               blockedReason={outcome.blockedReason}
             />
@@ -369,6 +384,11 @@ async function ApplicantTypeResult({
           <ul className={styles.seatList}>
             {sorted.map((ticket) => {
               const time = getSlotTime(lottery, ticket.slotId);
+              const venueLabel = getVenueLabel(
+                lottery,
+                ticket.actId,
+                ticket.venueId,
+              );
               return (
                 <li key={ticket.id}>
                   <Link
@@ -384,6 +404,11 @@ async function ApplicantTypeResult({
                     <span className={styles.seatAct}>
                       {getActLabel(lottery, ticket.actId)}
                     </span>
+                    {venueLabel !== null && (
+                      <span className={styles.seatVenue}>
+                        会場：{venueLabel}
+                      </span>
+                    )}
                     <span className={styles.seatMeta}>
                       観覧人数 {ticket.partySize}名 ／ 第{ticket.choiceRank}希望
                       {ticket.isPriority && (

@@ -48,6 +48,7 @@ function makeRow(overrides: Record<string, unknown> = {}) {
     username: "5B21",
     applicantType: "student",
     actId: "6A",
+    venueId: null,
     partySize: 1,
     choiceRank: 1,
     isPriority: false,
@@ -109,6 +110,7 @@ describe("getLotteryTickets", () => {
         lotteryId: "sousaku-performance",
         slotId: "sep12-slot-1",
         actId: "6A",
+        venueId: null,
         applicantType: "student",
         partySize: 1,
         choiceRank: 1,
@@ -119,12 +121,27 @@ describe("getLotteryTickets", () => {
         lotteryId: "sousaku-performance",
         slotId: "sep13-slot-3",
         actId: "5C",
+        venueId: null,
         applicantType: "student",
         partySize: 2,
         choiceRank: 2,
         isPriority: false,
       },
     ]);
+  });
+
+  it("carries the room a 生徒観覧 seat watches in", async () => {
+    rowsHolder.rows = [
+      makeRow({
+        lotteryId: "sousaku-student-viewing",
+        slotId: "sep13-slot-5",
+        actId: "6B",
+        venueId: "room-37",
+      }),
+    ];
+    const [ticket] = await getLotteryTickets("5B21");
+    expect(ticket.actId).toBe("6B");
+    expect(ticket.venueId).toBe("room-37");
   });
 
   it("carries the 保護者 guarantee flag through", async () => {

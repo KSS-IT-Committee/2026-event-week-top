@@ -41,6 +41,15 @@ export type LotterySlot = {
   date?: string;
 };
 
+export type LotteryVenue = {
+  // What `lottery_results.venue_id` stores. Unique within its act, and the
+  // draw (2026-lottery) seats people under exactly these ids — keep them
+  // stable once seats are loaded.
+  id: string;
+  // 「アリーナ（放映）」 — shown on the ticket as where to go.
+  label: string;
+};
+
 export type LotteryAct = {
   id: string;
   label: string;
@@ -48,6 +57,13 @@ export type LotteryAct = {
   // timed performances (開拓部門). Meaningless (and omitted) where the acts
   // are class plays, because there every act in a slot starts together.
   startTime?: string;
+  // Every room this act can be watched in. Decided per lottery, not per act:
+  // a lottery that spreads any act's audience over several rooms (生徒観覧,
+  // where a 6年 play is also screened elsewhere) lists rooms on EVERY act —
+  // its one-room 5年 plays list just their classroom — so each of its seats
+  // names a room. Lotteries whose acts all play in one place omit it, and
+  // their seats carry no venue at all.
+  venues?: readonly LotteryVenue[];
 };
 
 export type Lottery = {
@@ -136,6 +152,38 @@ function classesInGrades(grades: readonly string[]): ClassName[] {
 // 「3A」→「3年A組」 — the acts are the division's class plays.
 function actForClass(className: ClassName): LotteryAct {
   return { id: className, label: `${className[0]}年${className[1]}組` };
+}
+
+// 生徒観覧's rooms. Every class performs in its own HR classroom; a 6年 play
+// is also screened in the rooms below, so its audience outgrows one room. The
+// draw decides the room along with the class, and 2026-lottery's
+// src/student_viewing.cpp holds the seat counts under these same ids.
+const CLASSROOM_VENUE_ID = "classroom";
+
+const SCREENING_ROOMS: Partial<Record<ClassName, readonly LotteryVenue[]>> = {
+  "6A": [{ id: "arena", label: "アリーナ（放映）" }],
+  "6B": [
+    { id: "lecture-301", label: "301講義室（放映）" },
+    { id: "room-37", label: "37番教室（放映）" },
+    { id: "room-38", label: "38番教室（放映）" },
+    { id: "sewing-room", label: "被服室（放映）" },
+  ],
+  "6C": [{ id: "multipurpose-hall", label: "多目的ホール（放映）" }],
+  "6D": [
+    { id: "room-22", label: "22番教室（放映）" },
+    { id: "av-room", label: "視聴覚室（放映）" },
+  ],
+};
+
+function studentViewingActForClass(className: ClassName): LotteryAct {
+  const act = actForClass(className);
+  return {
+    ...act,
+    venues: [
+      { id: CLASSROOM_VENUE_ID, label: `${act.label}の教室（上演）` },
+      ...(SCREENING_ROOMS[className] ?? []),
+    ],
+  };
 }
 
 const KAITAKU_CLASSES = classesInGrades(["3", "4"]);
@@ -261,7 +309,8 @@ export const LOTTERIES: readonly Lottery[] = [
     // 生徒観覧 — 創作部門 stages a fifth performance on the second festival
     // day only (15:45～17:00), for the school's own students instead of
     // outside visitors. Same class plays as sousaku-performance, so the acts
-    // are the same; one performance, so exactly one slot. Note the asymmetry:
+    // are the same ids — here with rooms, since the 6年 plays are screened
+    // elsewhere too; one performance, so exactly one slot. Note the asymmetry:
     // the acts are the 創作部門 (5・6年) plays, but the AUDIENCE is the whole
     // student body — eligibleClasses and acts are unrelated lists.
     id: "sousaku-student-viewing",
@@ -270,8 +319,8 @@ export const LOTTERIES: readonly Lottery[] = [
       "9月13日（日）の生徒観覧時間＝創作部門 第五公演（15:45～17:00）の観覧抽選です。全学年の生徒本人が対象で、創作部門（5・6年生）のクラス劇のうち観たいクラスを第1〜第3希望まで選べます。",
     notes: [
       "第五公演は2日目（9月13日）のみ、帰りのSHRのあと 15:45～17:00 に行われます。",
-      "当選したら、帰りのSHRのあとそのクラスの教室へ向かってください。",
-      "6年生のクラス劇は、各HR教室での上演のほか、別教室での配信も予定しています。",
+      "当選したら、帰りのSHRのあと、抽選結果に表示される会場へ向かってください。",
+      "6年生のクラス劇は、各HR教室での上演のほか、別教室でも放映します。どの会場で観覧するかも抽選で決まります。",
       "申込は生徒本人のアカウントから、１アカウントにつき１件です。",
     ],
     // 生徒観覧: students only — no 保護者 tab, and staff do not attend it.
@@ -280,7 +329,8 @@ export const LOTTERIES: readonly Lottery[] = [
     // performing, but every grade watches.
     eligibleClasses: [...CLASSNAMES],
     canStaffApply: false,
-    acts: SOUSAKU_CLASSES.map(actForClass),
+    // The same eight class plays, each with the rooms it can be watched in.
+    acts: SOUSAKU_CLASSES.map(studentViewingActForClass),
     slots: [
       {
         id: "sep13-slot-5",
@@ -295,10 +345,10 @@ export const LOTTERIES: readonly Lottery[] = [
     // the second morning, well before the 15:45 performance.
     // describeApplicationDeadline() states the hour for a bound like this.
     closesAt: new Date("2026-09-13T09:00:00+09:00"),
-    // No announcement time fixed yet. Deny-by-default means the draw can be
-    // loaded into `lottery_results` the night before without leaking a thing;
-    // set an instant here when the committee names one.
-    resultsAnnouncedAt: null,
+    // Noon on the day itself, well before the 15:45 performance. The draw's
+    // SQL must be loaded before this instant: from then on an applicant with
+    // no row reads as 落選.
+    resultsAnnouncedAt: new Date("2026-09-13T12:00:00+09:00"),
   },
 ];
 
@@ -377,6 +427,21 @@ export function getSlotTime(lottery: Lottery, slotId: string): string | null {
 
 export function getActLabel(lottery: Lottery, actId: string): string {
   return lottery.acts.find((act) => act.id === actId)?.label ?? actId;
+}
+
+/**
+ * 「アリーナ（放映）」 — the room a seat watches its act in, or null for a seat
+ * that names none (every lottery whose acts have one room). Like the other
+ * labels, an id the definition no longer knows falls back to itself.
+ */
+export function getVenueLabel(
+  lottery: Lottery,
+  actId: string,
+  venueId: string | null,
+): string | null {
+  if (venueId === null) return null;
+  const act = lottery.acts.find((candidate) => candidate.id === actId);
+  return act?.venues?.find((venue) => venue.id === venueId)?.label ?? venueId;
 }
 
 export function getLottery(lotteryId: string): Lottery | null {
