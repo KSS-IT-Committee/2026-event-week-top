@@ -345,10 +345,14 @@ export const LOTTERIES: readonly Lottery[] = [
     // the second morning, well before the 15:45 performance.
     // describeApplicationDeadline() states the hour for a bound like this.
     closesAt: new Date("2026-09-13T09:00:00+09:00"),
+    // TEMPORARY, to preview the results: set to the moment of the change.
+    // Put back 2026-09-13T12:00:00+09:00 before merging — on main this would
+    // show every applicant 落選 until the draw's SQL is loaded.
+    //
     // Noon on the day itself, well before the 15:45 performance. The draw's
     // SQL must be loaded before this instant: from then on an applicant with
     // no row reads as 落選.
-    resultsAnnouncedAt: new Date("2026-09-13T12:00:00+09:00"),
+    resultsAnnouncedAt: new Date("2026-09-13T10:47:00+09:00"),
   },
 ];
 
