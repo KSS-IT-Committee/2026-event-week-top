@@ -36,6 +36,7 @@ export async function getLotteryTicket(
     lotteryId: row.lotteryId,
     slotId: row.slotId,
     actId: row.actId,
+    venueId: row.venueId,
     applicantType: row.applicantType,
     partySize: row.partySize,
     choiceRank: row.choiceRank,

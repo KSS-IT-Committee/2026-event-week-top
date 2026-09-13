@@ -16,6 +16,7 @@ import {
   getLottery,
   getSlotLabel,
   getSlotTime,
+  getVenueLabel,
 } from "@/lib/lotteries";
 import { parseRowId } from "@/lib/row-id";
 import { getCurrentUser } from "@/lib/session";
@@ -81,6 +82,7 @@ async function TicketDetail({ rawTicketId }: { rawTicketId: string }) {
 
   const pendingTransfer = await getPendingTicketTransfer(ticket.id);
   const slotTime = getSlotTime(lottery, ticket.slotId);
+  const venueLabel = getVenueLabel(lottery, ticket.actId, ticket.venueId);
 
   return (
     <div className={styles.main}>
@@ -101,6 +103,9 @@ async function TicketDetail({ rawTicketId }: { rawTicketId: string }) {
           <span className={styles.ticketAct}>
             {getActLabel(lottery, ticket.actId)}
           </span>
+          {venueLabel !== null && (
+            <span className={styles.ticketVenue}>会場：{venueLabel}</span>
+          )}
           <span className={styles.ticketMeta}>
             観覧人数 {ticket.partySize}名 ／ 第{ticket.choiceRank}希望 ／{" "}
             {APPLICANT_TYPE_LABELS[ticket.applicantType]}
@@ -112,7 +117,11 @@ async function TicketDetail({ rawTicketId }: { rawTicketId: string }) {
         </div>
 
         <p className={styles.important}>
-          公演開始5分前までに当選クラスの受付へお越しください。5分前の時点で不在の場合、当選は無効となります。
+          {/* A seat that names its room may be a screening room with no class
+              受付 of its own, so point at the room shown above instead. */}
+          公演開始5分前までに
+          {venueLabel === null ? "当選クラスの受付" : "上記の会場"}
+          へお越しください。5分前の時点で不在の場合、当選は無効となります。
         </p>
 
         <TransferPanel

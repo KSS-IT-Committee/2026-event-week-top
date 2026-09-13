@@ -67,6 +67,9 @@ moving parts and, most importantly, **how to add another lottery later**.
    lists, eligibility cases) and run `npm run test`.
 4. If the acts are not class plays, act ids can be any short string — the
    `acts` list is the validation allow-list, and labels are free text.
+5. If one act's audience is spread over several rooms, list them as the act's
+   `venues` (see 生徒観覧 below). The draw then writes the room's id into
+   `lottery_results.venue_id`, and the result pages show its label.
 
 Opening/closing applications is also just config: set `opensAt` / `closesAt`
 (`null` = no bound) and deploy. Always construct the dates with an explicit
@@ -147,6 +150,26 @@ applicant_type)` is unique — nobody can be in two rooms at once — plus the
   key was originally left off because per-PR previews ran on a schema-only clone
   with an empty `users` table; `2026-server-ansible`'s `pr-db.sh` now seeds that
   clone with the roster, credentials redacted, so previews satisfy it too.)
+- **`venue_id` says which room, when an act has more than one.** 生徒観覧
+  (`sousaku-student-viewing`, 9/13 第五公演) seats each class play's audience
+  in the class's own room (`classroom`, where the play is performed) and, for
+  the 6年 plays, in rooms screening it too (`arena`, `lecture-301`, …). Those
+  ids are the act's `venues` in `lib/lotteries.ts`; the result list, the
+  ticket page and the 譲渡 inbox render the label (「会場：アリーナ（放映）」).
+  Every other lottery's seats keep `venue_id` NULL and render exactly as
+  before. The room belongs to the seat, not the holder, so a 譲渡 leaves it
+  alone. The seat counts per room are the draw's business, not this app's:
+  they live in `2026-lottery`'s `src/student_viewing.cpp`, which must use the
+  same ids (`lib/lotteries.test.ts` pins them).
+- **生徒観覧 has a draw of its own.** `2026-lottery`'s
+  `./scripts/generate-student-viewing-sql.sh` (a separate program from
+  `generate-sql.sh`, so running it cannot regenerate that file) lets students
+  pick 6年 → 1年, in a random order within a grade, each taking their
+  best-ranked class that still has a seat in any of its rooms; the classroom
+  fills first, then the screening rooms in order. A student whose chosen
+  classes are all full by their turn gets no seat. Its SQL replaces every
+  `sousaku-student-viewing` seat, so load it before `resultsAnnouncedAt` and
+  never after — it refuses once any of those seats has a transfer on record.
 - **External applicants are deliberately absent.** They hear their result from
   the form provider. Covering them later is an additive table, not a change to
   this one.
@@ -261,3 +284,11 @@ will error on the missing table. `lottery_ticket_transfers` is migration
 `0017`, and it is purely additive (a new enum, a new table), so migrating ahead
 of the app deploy is safe: the table simply sits empty until the app that
 writes it ships.
+
+`lottery_results.venue_id` follows the same rule, with higher stakes: every
+read of `lottery_results` here selects it, so an app deployed before the
+column exists fails `/lottery/results` and every ticket page — for **all**
+lotteries, not just 生徒観覧. Migrate first (the column is nullable, so older
+app builds and the other apps reading the table are unaffected), deploy
+this app second, and load the 生徒観覧 SQL (which writes the column) after
+the migration.
