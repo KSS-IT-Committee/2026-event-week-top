@@ -2,15 +2,15 @@ import "./globals.css";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Noto_Sans_JP } from "next/font/google";
 
 import { AccountBar } from "@/app/components/AccountNav/AccountBar";
 import { Easter } from "@/app/components/Easter";
 import { Footer } from "@/app/components/Footer";
 import { NoScriptAlert } from "@/components/NoScriptAlert";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const notoSansJP = Noto_Sans_JP({
+  variable: "--font-noto-sans-jp",
   subsets: ["latin"],
 });
 
@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${notoSansJP.variable} ${geistMono.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col">
         <NoScriptAlert />
