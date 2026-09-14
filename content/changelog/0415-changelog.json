@@ -1,0 +1,5 @@
+{
+  "title": "Bump sharp from 0.35.3 to 0.35.4",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
