@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import styles from "./not-found.module.css";
+
+// Title and description only. Next already marks this route noindex on its
+// own — the error boundary injects <meta name="robots" content="noindex"> into
+// the fallback it renders — so an explicit robots field here would just add
+// another copy of a directive the page already carries.
+export const metadata: Metadata = {
+  title: "アクセス権限がありません",
+  description: "このページを表示する権限がありません。",
+};
 
 export default function Forbidden() {
   return (

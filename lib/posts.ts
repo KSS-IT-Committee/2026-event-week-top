@@ -1,4 +1,4 @@
-import type { PostVisibility } from "@/lib/post-access";
+import { isRestrictedPost, type PostVisibility } from "@/lib/post-access";
 
 import posts from "./posts.generated.json";
 
@@ -33,4 +33,15 @@ export async function getPostById(id: string): Promise<Post> {
     internal: post.internal,
     roles: post.roles,
   };
+}
+
+/**
+ * Posts carrying no visibility restriction, for app/sitemap.ts. Restricted
+ * posts are filtered out here rather than at the call site so a public sitemap
+ * can never leak the existence of an internal post.
+ */
+export function getPublicPosts() {
+  return posts
+    .filter((post) => !isRestrictedPost(post))
+    .map((post) => ({ id: post.slug, date: post.date }));
 }

@@ -20,15 +20,17 @@ import {
   MAX_PARTY_SIZE_BY_APPLICANT_TYPE,
 } from "@/lib/lotteries";
 import { getCurrentUser } from "@/lib/session";
+import { pageMetadata } from "@/lib/site";
 
 import styles from "../lottery.module.css";
 import { LotteryEntryForm } from "./LotteryEntryForm";
 import { PartySizeGuide } from "./PartySizeGuide";
 
-export const metadata: Metadata = {
-  title: "公演観覧抽選 | 行事週間2026",
+export const metadata: Metadata = pageMetadata({
+  title: "公演観覧抽選 申込",
   description: "行事週間2026 公演観覧抽選の希望申込ページ",
-};
+  isIndexable: false,
+});
 
 type LotteryDetailPageProps = {
   params: Promise<{ lotteryId: string }>;
