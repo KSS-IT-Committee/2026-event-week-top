@@ -1,5 +1,5 @@
 {
-  "title": "pin the image optimizer to the maintainer avatars",
-  "description": "TODO",
+  "title": "画像の読み込み先の制限",
+  "description": "サイトが外部から読み込む画像を、リクエストページに掲載している委員のアイコンだけに限定しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
