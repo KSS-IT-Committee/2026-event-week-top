@@ -1,14 +1,14 @@
 import "./globals.css";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { AccountBar } from "@/app/components/AccountNav/AccountBar";
 import { Easter } from "@/app/components/Easter";
 import { Footer } from "@/app/components/Footer";
 import { NoScriptAlert } from "@/components/NoScriptAlert";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, THEME_COLOR } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +35,13 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
+};
+
+// Colours the browser chrome on Android and the standalone PWA title bar.
+// Next merges this with its default viewport, so width=device-width and
+// initial-scale=1 are still emitted.
+export const viewport: Viewport = {
+  themeColor: THEME_COLOR,
 };
 
 export default function RootLayout({
