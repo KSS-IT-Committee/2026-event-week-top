@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, countLiveBuckets } from "@/lib/rate-limit";
 
 describe("checkRateLimit", () => {
   beforeEach(() => {
@@ -148,5 +148,31 @@ describe("checkRateLimit", () => {
     // keyA is now blocked, keyB is now blocked, independently.
     expect(checkRateLimit(keyA, 1, 1000).ok).toBe(false);
     expect(checkRateLimit(keyB, 1, 1000).ok).toBe(false);
+  });
+  it("reclaims expired buckets instead of holding every key forever", () => {
+    // loginAction keys by the submitted username before any credential check,
+    // so an unauthenticated caller chooses these keys; they must not accumulate.
+    const before = countLiveBuckets();
+    for (let i = 0; i < 50; i += 1) {
+      checkRateLimit(`sweep-throwaway-${i}`, 5, 1000);
+    }
+    expect(countLiveBuckets()).toBe(before + 50);
+
+    // Past both the buckets' window and the sweep interval, the next call
+    // reclaims all 50 rather than leaving them in the map.
+    vi.setSystemTime(61_000);
+    checkRateLimit("sweep-trigger", 5, 1000);
+    expect(countLiveBuckets()).toBeLessThanOrEqual(before + 1);
+  });
+
+  it("does not drop a bucket that is still inside its window when sweeping", () => {
+    vi.setSystemTime(200_000);
+    checkRateLimit("sweep-survivor", 1, 600_000);
+
+    // Force a sweep well after the interval but well before this window ends.
+    vi.setSystemTime(300_000);
+    const blocked = checkRateLimit("sweep-survivor", 1, 600_000);
+    expect(blocked.ok).toBe(false);
+    expect(blocked.retryAfterSeconds).toBe(500);
   });
 });
