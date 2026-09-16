@@ -2,12 +2,18 @@ import { Metadata } from "next";
 import { forbidden, unauthorized } from "next/navigation";
 
 import { FloatingMenu } from "@/app/components/FloatingMenu";
+import { JsonLdGraph } from "@/app/components/JsonLdGraph";
 import styles from "@/app/news/markdown.module.css";
 import { canViewPost, isRestrictedPost } from "@/lib/post-access";
 import { postExcerpt } from "@/lib/post-excerpt";
 import { getAllPosts, getPostById } from "@/lib/posts";
 import { getCurrentUser } from "@/lib/session";
-import { pageMetadata } from "@/lib/site";
+import { pageMetadata, SITE_NAME } from "@/lib/site";
+import {
+  breadcrumbNode,
+  newsArticleNode,
+  organizationNodes,
+} from "@/lib/structured-data";
 
 /**
  * Per-article metadata.
@@ -71,6 +77,20 @@ export default async function Page({
 
   return (
     <>
+      {/* Below the visibility check on purpose: everything from here on is
+          rendered only for a viewer allowed to read the post, so the headline
+          in the structured data can be the real one. */}
+      <JsonLdGraph
+        graph={[
+          ...organizationNodes(),
+          newsArticleNode(post),
+          breadcrumbNode([
+            { name: SITE_NAME, path: "/" },
+            { name: "ニュース一覧", path: "/news/list" },
+            { name: post.title, path: `/news/${post.id}` },
+          ]),
+        ]}
+      />
       <article>
         <div className={styles.header}>
           <h1 className={styles.title}>{post.title}</h1>
