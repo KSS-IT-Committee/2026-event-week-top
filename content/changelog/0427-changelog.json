@@ -1,5 +1,5 @@
 {
-  "title": "shrink the theme svgs",
-  "description": "TODO",
+  "title": "トップページのテーマ画像の軽量化",
+  "description": "トップページに掲載している芸能祭と体育祭のテーマ画像を、見た目を変えずに軽量化しました。2つ合わせて約2.9MBから約0.87MBになり、特にスマートフォンでの読み込みが速くなります。",
   "credits": ["@rotarymars"]
 }
