@@ -12,6 +12,9 @@ export const SITE_URL = "https://2026.kss-it.com";
 /** Short site name: the `%s | …` title suffix and og:site_name. */
 export const SITE_NAME = "行事週間2026";
 
+/** The school this site belongs to, spelled the way the school spells it. */
+export const SCHOOL_NAME = "東京都立小石川中等教育学校";
+
 export const SITE_DESCRIPTION =
   "東京都立小石川中等教育学校の行事週間2026 公式サイト。創作展・体育祭・芸能祭の日程、最新ニュース、公演観覧抽選のご案内。";
 
