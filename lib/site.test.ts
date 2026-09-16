@@ -17,7 +17,7 @@ describe("pageMetadata (indexable)", () => {
     expect(meta.alternates?.canonical).toBe("/news/list");
   });
 
-  it("carries og:site_name, locale and the image on every page", () => {
+  it("carries og:site_name and locale on every page", () => {
     // These live here rather than in the root layout because Next replaces a
     // nested metadata object wholesale instead of merging it.
     expect(meta.openGraph).toMatchObject({
@@ -26,7 +26,14 @@ describe("pageMetadata (indexable)", () => {
       type: "website",
       url: "/news/list",
     });
-    expect(meta.openGraph?.images).toHaveLength(1);
+  });
+
+  it("names no image, leaving the card to the opengraph-image routes", () => {
+    // Next folds app/opengraph-image.tsx (and a news article's own card) into
+    // a page's metadata only while that page has not set `images` itself, so
+    // pinning one here would shadow both.
+    expect(meta.openGraph).not.toHaveProperty("images");
+    expect(meta.twitter).not.toHaveProperty("images");
   });
 
   it("emits a summary_large_image Twitter card", () => {
