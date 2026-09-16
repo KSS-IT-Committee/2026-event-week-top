@@ -1,5 +1,5 @@
 {
-  "title": "open graph images",
-  "description": "TODO",
+  "title": "SNS共有時のサムネイル画像を追加",
+  "description": "LINEやX（旧Twitter）などにこのサイトのリンクを貼ったときに表示されるサムネイル画像を用意しました。お知らせの記事ページでは、その記事のタイトルが入った画像が表示されます。",
   "credits": ["@rotarymars"]
 }
