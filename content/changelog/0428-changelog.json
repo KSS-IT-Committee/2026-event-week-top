@@ -1,5 +1,5 @@
 {
-  "title": "filter announcements in sql",
-  "description": "TODO",
+  "title": "お知らせの取得の効率化",
+  "description": "お知らせを表示する際に、必要な件数だけをデータベースから取り出すように変更しました。これによるページの変更はありません。",
   "credits": ["@rotarymars"]
 }
