@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { connection } from "next/server";
 
 import {
@@ -27,6 +27,40 @@ export async function getAnnouncements(
 ): Promise<AnnouncementSummary[]> {
   await connection();
 
+  // Choose the announcements first, so both the class filter and the limit run
+  // in SQL. They can't be folded into the join below: that join expands one
+  // announcement into one row per class it targets, so a LIMIT there would cut
+  // an announcement's classes in half rather than cap the announcement count.
+  //
+  // Scoping to the class: only announcements explicitly targeting it. A
+  // class-less announcement is NOT treated as global here — sousakuten-info
+  // (which owns and writes announcements) inner-joins the link table and never
+  // surfaces a class-less row, so this keeps both apps in agreement.
+  const selected = await (
+    className
+      ? db
+          .selectDistinct({
+            id: announcements.id,
+            createdAt: announcements.createdAt,
+          })
+          .from(announcements)
+          .innerJoin(
+            announcementClasses,
+            eq(announcementClasses.announcementId, announcements.id),
+          )
+          .where(eq(announcementClasses.className, className))
+      : db
+          .select({
+            id: announcements.id,
+            createdAt: announcements.createdAt,
+          })
+          .from(announcements)
+  )
+    .orderBy(desc(announcements.createdAt))
+    .limit(limit);
+
+  if (selected.length === 0) return [];
+
   const rows = await db
     .select({
       id: announcements.id,
@@ -39,6 +73,12 @@ export async function getAnnouncements(
     .leftJoin(
       announcementClasses,
       eq(announcementClasses.announcementId, announcements.id),
+    )
+    .where(
+      inArray(
+        announcements.id,
+        selected.map((row) => row.id),
+      ),
     )
     .orderBy(desc(announcements.createdAt));
 
@@ -60,13 +100,5 @@ export async function getAnnouncements(
     if (row.className) entry.classes.push(row.className);
   }
 
-  let list = [...byId.values()];
-  if (className) {
-    // Scope to the class: only announcements explicitly targeting it. A
-    // class-less announcement is NOT treated as global here — sousakuten-info
-    // (which owns and writes announcements) inner-joins the link table and
-    // never surfaces a class-less row, so this keeps both apps in agreement.
-    list = list.filter((a) => a.classes.includes(className));
-  }
-  return list.slice(0, limit);
+  return [...byId.values()];
 }
