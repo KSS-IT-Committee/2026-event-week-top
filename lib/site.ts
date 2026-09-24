@@ -18,6 +18,14 @@ export const SCHOOL_NAME = "東京都立小石川中等教育学校";
 export const SITE_DESCRIPTION =
   "東京都立小石川中等教育学校の行事週間2026 公式サイト。創作展・体育祭・芸能祭の日程、最新ニュース、公演観覧抽選のご案内。";
 
+/**
+ * The site's accent blue — the footer gradient and every primary button. Lives
+ * here rather than only in CSS because the browser UI colour
+ * (<meta name="theme-color">) and the installed app's manifest theme_color are
+ * set from TypeScript, and all three must be the same blue.
+ */
+export const THEME_COLOR = "#0b69eb";
+
 type IndexablePage = {
   /** Page title WITHOUT the site suffix — `title.template` appends it. */
   title: string;

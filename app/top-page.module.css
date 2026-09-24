@@ -186,7 +186,6 @@
 }
 .performanceTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho";
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #ff5a5a 0%, #f2ff00 100%);
@@ -199,7 +198,6 @@
 }
 .sportsTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho";
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #79e400 0%, #0083ee 100%);
@@ -212,7 +210,6 @@
 }
 .createTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho";
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #469ce2 0%, #b700ff 100%);
@@ -276,7 +273,6 @@
 
 .ceremonyTitle {
   font-size: 4rem;
-  font-family: "Yu Mincho", serif;
   text-align: left;
   display: inline-block;
   background: linear-gradient(90deg, #c85aff 0%, #ff0051 100%);
