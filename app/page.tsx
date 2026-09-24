@@ -3,7 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { EVENT_WEEK_STARTS_AT, FESTIVALS } from "@/lib/events";
 import { pageMetadata, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
+import { festivalEventNodes, organizationNodes } from "@/lib/structured-data";
 
 import { INTERNAL_ROLES } from "../lib/access";
 import { getCurrentUser } from "../lib/session";
@@ -11,6 +13,7 @@ import { Countdown } from "./components/Countdown";
 import { FloatingMenu } from "./components/FloatingMenu";
 import { HeaderSlider } from "./components/HeaderSlider";
 import { Internal } from "./components/Internal";
+import { JsonLdGraph } from "./components/JsonLdGraph";
 import { PageLoading } from "./components/PageLoading";
 import { Schedule } from "./components/Schedule";
 import { getNews } from "./news/newsData";
@@ -31,9 +34,15 @@ export const metadata: Metadata = pageMetadata({
 // is what stops a route-wide boundary from freezing sibling routes at 200.
 export default function Toppage() {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <TopPageContent />
-    </Suspense>
+    <>
+      {/* In the static shell, not behind the boundary: the schedule and the
+          organizations behind it do not depend on who is looking, so they go
+          out with the first flush rather than streaming in later. */}
+      <JsonLdGraph graph={[...organizationNodes(), ...festivalEventNodes()]} />
+      <Suspense fallback={<PageLoading />}>
+        <TopPageContent />
+      </Suspense>
+    </>
   );
 }
 
@@ -146,7 +155,7 @@ async function TopPageContent() {
             <Countdown
               title="行事週間まであと"
               startedTitle="行事週間スタート!!"
-              targetDate="2026-09-06T00:00:00+09:00"
+              targetDate={EVENT_WEEK_STARTS_AT}
             />
           </div>
         </div>
@@ -167,7 +176,7 @@ async function TopPageContent() {
             <Countdown
               title="芸能祭まであと"
               startedTitle="芸能祭スタート!!"
-              targetDate="2026-09-07T00:00:00+09:00"
+              targetDate={FESTIVALS.geinousai.startsAt}
             />
           </div>
           <div className={styles.content}>
@@ -218,7 +227,7 @@ async function TopPageContent() {
             <Countdown
               title="体育祭まであと"
               startedTitle="体育祭スタート!!"
-              targetDate="2026-09-09T00:00:00+09:00"
+              targetDate={FESTIVALS.taiikusai.startsAt}
             />
           </div>
           <div className={styles.content}>
@@ -335,7 +344,7 @@ async function TopPageContent() {
             <Countdown
               title="創作展まであと"
               startedTitle="創作展スタート!!"
-              targetDate="2026-09-12T00:00:00+09:00"
+              targetDate={FESTIVALS.sousakuten.startsAt}
             />
           </div>
           <div className={styles.content}>
@@ -423,7 +432,7 @@ async function TopPageContent() {
             <Countdown
               title="後夜祭まであと"
               startedTitle="後夜祭スタート!!"
-              targetDate="2026-09-14T00:00:00+09:00"
+              targetDate={FESTIVALS.kouyasai.startsAt}
             />
           </div>
           <div className={styles.content}>
