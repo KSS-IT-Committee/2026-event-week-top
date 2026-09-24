@@ -12,6 +12,9 @@ export const SITE_URL = "https://2026.kss-it.com";
 /** Short site name: the `%s | …` title suffix and og:site_name. */
 export const SITE_NAME = "行事週間2026";
 
+/** The school this site belongs to, spelled the way the school spells it. */
+export const SCHOOL_NAME = "東京都立小石川中等教育学校";
+
 export const SITE_DESCRIPTION =
   "東京都立小石川中等教育学校の行事週間2026 公式サイト。創作展・体育祭・芸能祭の日程、最新ニュース、公演観覧抽選のご案内。";
 
@@ -22,18 +25,6 @@ export const SITE_DESCRIPTION =
  * set from TypeScript, and all three must be the same blue.
  */
 export const THEME_COLOR = "#0b69eb";
-
-/**
- * Shared Open Graph image. Not a purpose-built 1200×630 card yet — this is the
- * site's existing key visual, whose 1849×878 is close enough to the 1.91:1 that
- * Open Graph wants.
- */
-const OG_IMAGE = {
-  url: "/theme.png",
-  width: 1849,
-  height: 878,
-  alt: SITE_NAME,
-};
 
 type IndexablePage = {
   /** Page title WITHOUT the site suffix — `title.template` appends it. */
@@ -65,8 +56,15 @@ type PageMetadataOptions = IndexablePage | NonIndexablePage;
  * Every page builds its metadata through this rather than inheriting from the
  * root layout, because Next merges metadata objects only **shallowly**: a page
  * that sets any `openGraph` field replaces the layout's entire `openGraph`
- * object, silently dropping og:site_name, og:locale and the image. The same
- * applies to `twitter` and `alternates`.
+ * object, silently dropping og:site_name and og:locale. The same applies to
+ * `twitter` and `alternates`.
+ *
+ * Deliberately absent: `openGraph.images` / `twitter.images`. Next only folds
+ * an opengraph-image route into a page's metadata when that page has not set
+ * `images` itself, so naming an image here would shadow app/opengraph-image.tsx
+ * and, on an article, the per-article card built from its title. Twitter has no
+ * image of its own on purpose either — X falls back to og:image, so one
+ * generated card serves both.
  *
  * `isIndexable: false` is for the login-gated and error routes. They get no
  * canonical and no social card — a page a crawler can only ever see as a 401
@@ -87,7 +85,6 @@ export function pageMetadata(options: PageMetadataOptions): Metadata {
     url: path,
     title,
     description,
-    images: [OG_IMAGE],
   };
 
   return {
@@ -101,7 +98,6 @@ export function pageMetadata(options: PageMetadataOptions): Metadata {
       card: "summary_large_image",
       title,
       description,
-      images: [OG_IMAGE.url],
     },
   };
 }
