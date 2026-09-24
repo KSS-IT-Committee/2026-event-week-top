@@ -14,6 +14,8 @@ export type Festival = {
   anchor: string;
   /** Start of the event: ISO 8601 with the JST offset, as <Countdown> wants. */
   startsAt: string;
+  /** The festival's own site, if it has one; otherwise its top-page section. */
+  siteUrl?: string;
 };
 
 export const FESTIVALS = {
@@ -26,11 +28,13 @@ export const FESTIVALS = {
     name: "体育祭",
     anchor: "sports",
     startsAt: "2026-09-09T00:00:00+09:00",
+    siteUrl: "https://taiikusai.2026.kss-it.com",
   },
   sousakuten: {
     name: "創作展",
     anchor: "create",
     startsAt: "2026-09-12T00:00:00+09:00",
+    siteUrl: "https://sousakuten-top.2026.kss-it.com",
   },
   kouyasai: {
     name: "後夜祭",

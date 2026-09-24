@@ -59,11 +59,20 @@ describe("festivalEventNodes", () => {
     );
   });
 
-  it("anchors each event at its section of the top page", () => {
-    expect(events.map((event) => event.url)).toEqual([
+  it("anchors each event's identity at its section of the top page", () => {
+    expect(events.map((event) => event["@id"])).toEqual([
       `${SITE_URL}/#performance`,
       `${SITE_URL}/#sports`,
       `${SITE_URL}/#create`,
+      `${SITE_URL}/#ceremony`,
+    ]);
+  });
+
+  it("links to the festival's own site where one exists", () => {
+    expect(events.map((event) => event.url)).toEqual([
+      `${SITE_URL}/#performance`,
+      "https://taiikusai.2026.kss-it.com",
+      "https://sousakuten-top.2026.kss-it.com",
       `${SITE_URL}/#ceremony`,
     ]);
   });

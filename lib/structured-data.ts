@@ -55,11 +55,13 @@ export function organizationNodes(): JsonLd[] {
  */
 export function festivalEventNodes(): JsonLd[] {
   return FESTIVAL_LIST.map((festival) => {
-    const url = absoluteUrl(`/#${festival.anchor}`);
+    // The `@id` stays on the top-page section so the identity is stable; the
+    // `url` points visitors at the festival's own site where one exists.
+    const id = absoluteUrl(`/#${festival.anchor}`);
 
     return {
       "@type": "Event",
-      "@id": url,
+      "@id": id,
       name: festival.name,
       // "2026-09-07T00:00:00+09:00" -> "2026-09-07"
       startDate: festival.startsAt.slice(0, 10),
@@ -67,7 +69,7 @@ export function festivalEventNodes(): JsonLd[] {
       eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
       location: { "@type": "Place", name: SCHOOL_NAME },
       organizer: { "@id": COMMITTEE_ID },
-      url,
+      url: festival.siteUrl ?? id,
     };
   });
 }
