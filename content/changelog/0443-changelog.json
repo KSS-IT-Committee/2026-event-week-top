@@ -1,0 +1,5 @@
+{
+  "title": "Bump the vitest group with 2 updates",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
