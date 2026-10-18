@@ -1,0 +1,5 @@
+{
+  "title": "Bump brace-expansion",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
