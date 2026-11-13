@@ -1,0 +1,5 @@
+{
+  "title": "Bump drizzle-kit from 0.31.10 to 0.31.11",
+  "description": "パッケージのバージョンを上げました。これによるページの変更はありません。",
+  "credits": ["@dependabot[bot]"]
+}
